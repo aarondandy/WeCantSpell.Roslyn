@@ -1,0 +1,85 @@
+﻿{
+  "title": "We Can't Spell",
+  "description": "",
+  "version": "0.0.0-*",
+  "packOptions": {
+    "summary": "",
+    "tags": [
+      "spell",
+      "check",
+      "spell-check",
+      "roslyn",
+      "analyzer"
+    ],
+    "owners": [
+      "aarondandy"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/aarondandy/we-cant-spell.git"
+    },
+    "licenseUrl": "https://github.com/aarondandy/we-cant-spell/blob/master/license.txt",
+    "projectUrl": "https://github.com/aarondandy/we-cant-spell",
+    "files": {
+      "exclude": [
+        "**/*.targets"
+      ]
+    },
+    "requireLicenseAcceptance": false
+  },
+  "buildOptions": {
+    "compile": {
+      "includeFiles": [
+        "../../SharedAssemblyInfo.cs"
+      ],
+      "excludeFiles": [
+        "WeCantSpell.nuget.targets"
+      ]
+    },
+    "define": [
+      "TRACE"
+    ],
+    "xmlDoc": true,
+    "nowarn": [
+      "CS1591"
+    ]
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [
+          "DEBUG"
+        ],
+        "optimize": false
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [
+          "RELEASE"
+        ],
+        "optimize": true,
+        "warningsAsErrors": true
+      }
+    }
+  },
+  "dependencies": {
+    "Hunspell.NetCore": "1.0.0-beta0005"
+  },
+  "frameworks": {
+    "netstandard1.3": {
+      "buildOptions": {
+        "define": []
+      },
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "System.IO.FileSystem": "4.0.1"
+      }
+    },
+    "net461": {
+      "buildOptions": {
+        "define": []
+      }
+    }
+  }
+}
