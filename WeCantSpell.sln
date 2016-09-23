@@ -3,16 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeCantSpell", "src\WeCantSpell\WeCantSpell.csproj", "{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B50C2C5A-3F2A-4C9B-8586-055988B1182E}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "WeCantSpell.CoreBuild", "src\WeCantSpell\WeCantSpell.CoreBuild.xproj", "{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F74EACDA-FC1A-495E-86BB-3374B298370A}"
 	ProjectSection(SolutionItems) = preProject
 		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeCantSpell", "WeCantSpell\WeCantSpell.csproj", "{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{4BECC6EE-4E16-41B0-88D1-91BB9A2EA639}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "WeCantSpell", "WeCantSpell\WeCantSpell.xproj", "{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,7 +33,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7} = {B50C2C5A-3F2A-4C9B-8586-055988B1182E}
-		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1} = {B50C2C5A-3F2A-4C9B-8586-055988B1182E}
+		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1} = {4BECC6EE-4E16-41B0-88D1-91BB9A2EA639}
 	EndGlobalSection
 EndGlobal
