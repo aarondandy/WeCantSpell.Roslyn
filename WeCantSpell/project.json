@@ -1,6 +1,6 @@
 ﻿{
   "title": "We Can't Spell",
-  "description": "",
+  "description": "A Roslyn spell check analyzer.",
   "version": "0.0.0-*",
   "packOptions": {
     "summary": "",
