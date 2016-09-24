@@ -10,11 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeCantSpell", "WeCantSpell\WeCantSpell.csproj", "{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{4BECC6EE-4E16-41B0-88D1-91BB9A2EA639}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "WeCantSpell", "WeCantSpell\WeCantSpell.xproj", "{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeCantSpell.Vsix", "WeCantSpell.Vsix\WeCantSpell.Vsix.csproj", "{ED941BC9-39D5-4089-A7BF-F8D0CECA7E3C}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "WeCantSpell.CoreBuild", "WeCantSpell\WeCantSpell.CoreBuild.xproj", "{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,19 +24,16 @@ Global
 		{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ED941BC9-39D5-4089-A7BF-F8D0CECA7E3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ED941BC9-39D5-4089-A7BF-F8D0CECA7E3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED941BC9-39D5-4089-A7BF-F8D0CECA7E3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED941BC9-39D5-4089-A7BF-F8D0CECA7E3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{BDE53C0D-12AB-498C-9FD6-15B72CC40DC1} = {4BECC6EE-4E16-41B0-88D1-91BB9A2EA639}
 	EndGlobalSection
 EndGlobal
