@@ -65,8 +65,8 @@
   },
   "dependencies": {
     "Hunspell.NetCore": "1.0.0-beta0005",
-    "Microsoft.CodeAnalysis": "1.3.2",
-    "System.Collections.Immutable": "1.2.0"
+    "Microsoft.CodeAnalysis.CSharp": "1.0.0",
+    "Microsoft.CodeAnalysis.CSharp.Workspaces": "1.0.0"
   },
   "frameworks": {
     "netstandard1.3": {
