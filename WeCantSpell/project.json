@@ -36,6 +36,12 @@
         "WeCantSpell.nuget.targets"
       ]
     },
+    "embed": {
+      "include": [ "../WeCantSpell.FileCompressor/*.compressed" ],
+      "mappings": {
+        "./DefaultDictionaries/": [ "../WeCantSpell.FileCompressor/*.compressed" ]
+      }
+    },
     "define": [
       "TRACE"
     ],
