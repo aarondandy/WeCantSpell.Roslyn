@@ -6,4 +6,5 @@
 *.json   text
 *.md     text
 *.txt    text
-*.compressed	binary
+*.aff.compressed    binary
+*.dic.compressed    binary

@@ -8,6 +8,15 @@ namespace WeCantSpell
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class SpellingAnalyzerCSharp : DiagnosticAnalyzer
     {
+        public SpellingAnalyzerCSharp()
+        {
+        }
+
+        public SpellingAnalyzerCSharp(ISpellChecker spellChecker)
+        {
+            SpellChecker = spellChecker;
+        }
+
         private static DiagnosticDescriptor SpellingIdentifierDiagnosticDescriptor = new DiagnosticDescriptor(
             "SP3110",
             "Identifier Spelling",
@@ -19,6 +28,8 @@ namespace WeCantSpell
 
         private static ImmutableArray<DiagnosticDescriptor> SupportedDiagnosticsArray = ImmutableArray.Create(SpellingIdentifierDiagnosticDescriptor);
 
+        public ISpellChecker SpellChecker { get; private set; }
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => SupportedDiagnosticsArray;
 
         public override void Initialize(AnalysisContext context)
@@ -27,7 +38,7 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(ClassDeclarationNodeHandler, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DelegateDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EnumDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EnumMemberDeclaration);
@@ -50,8 +61,8 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.UsingDirective);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.UsingStatement);
 
-
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.IdentifierName);
+
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DefineDirectiveTrivia);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DisabledTextTrivia);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ForEachStatement);
@@ -75,6 +86,11 @@ namespace WeCantSpell
             var filePath = context.Node.SyntaxTree.FilePath;
 
             var node = context.Node;
+        }
+
+        private void ClassDeclarationNodeHandler(SyntaxNodeAnalysisContext context)
+        {
+            ;
         }
     }
 }
