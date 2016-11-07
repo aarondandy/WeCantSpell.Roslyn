@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace WeCantSpell
@@ -90,6 +91,10 @@ namespace WeCantSpell
 
         private void ClassDeclarationNodeHandler(SyntaxNodeAnalysisContext context)
         {
+            var node = (ClassDeclarationSyntax)context.Node;
+            var identifier = node.Identifier;
+            var splitter = new IdentifierWordParser();
+            var split = splitter.SplitWordParts(identifier.Text);
             ;
         }
     }

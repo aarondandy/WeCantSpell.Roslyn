@@ -117,6 +117,7 @@
   <ItemGroup>
     <Compile Include="Utilities\AllGoodWordChecker.cs" />
     <Compile Include="Utilities\WrongWordChecker.cs" />
+    <Compile Include="IdentifierWordParserTests.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\TypeName.FirstMiddleLast.cs" />
     <Compile Include="Integration\CSharp\CSharpTestBase.cs" />
     <Compile Include="Integration\CSharp\TypeNameSpelling.cs" />

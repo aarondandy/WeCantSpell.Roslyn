@@ -51,6 +51,7 @@
     <Compile Include="ISpellChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpellingAnalyzerCSharp.cs" />
+    <Compile Include="IdentifierWordParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\WeCantSpell.FileCompressor\en-US.*.compressed">
