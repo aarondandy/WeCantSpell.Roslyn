@@ -40,7 +40,7 @@ namespace WeCantSpell
                 {
                     if (searchIndex > partStartIndex)
                     {
-                        yield return new WordPart(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, currType != LetterType.NonWord);
+                        yield return new WordPart(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, prevType != LetterType.NonWord);
                     }
 
                     partStartIndex = searchIndex;
