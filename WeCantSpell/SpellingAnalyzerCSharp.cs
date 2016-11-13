@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 
 namespace WeCantSpell
 {
@@ -21,7 +22,7 @@ namespace WeCantSpell
         private static DiagnosticDescriptor SpellingIdentifierDiagnosticDescriptor = new DiagnosticDescriptor(
             "SP3110",
             "Identifier Spelling",
-            "Identifier is misspelled",
+            "Identifier spelling mistake: {0}",
             "Naming",
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
@@ -94,8 +95,26 @@ namespace WeCantSpell
             var node = (ClassDeclarationSyntax)context.Node;
             var identifier = node.Identifier;
             var splitter = new IdentifierWordParser();
-            var split = splitter.SplitWordParts(identifier.Text);
-            ;
+            var parts = splitter.SplitWordParts(identifier.Text);
+            
+            foreach(var part in parts)
+            {
+                if (part.IsWord)
+                {
+                    if (!SpellChecker.Check(part.Text))
+                    {
+                        var spellingStart = identifier.SpanStart + part.Start;
+
+                        var location = Location.Create(
+                            node.SyntaxTree,
+                            TextSpan.FromBounds(
+                                spellingStart,
+                                spellingStart + part.Length));
+                        var diagnostic = Diagnostic.Create(SpellingIdentifierDiagnosticDescriptor, location, part.Text);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
         }
     }
 }

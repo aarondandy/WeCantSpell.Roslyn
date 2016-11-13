@@ -116,6 +116,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Utilities\AllGoodWordChecker.cs" />
+    <Compile Include="Utilities\AssertionExtensions.cs" />
+    <Compile Include="Utilities\DiagnosticAssertions.cs" />
     <Compile Include="Utilities\WrongWordChecker.cs" />
     <Compile Include="IdentifierWordParserTests.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\TypeName.FirstMiddleLast.cs" />

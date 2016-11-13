@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -27,8 +26,11 @@ namespace WeCantSpell.Tests.Integration.CSharp
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().HaveCount(1);
-            throw new NotImplementedException();
+            diagnostics.Should().ContainSingle()
+                .Subject.Should()
+                .HaveId("SP3110")
+                .And.HaveLocation(74, 79, "TypeName.FirstMiddleLast.cs")
+                .And.HaveMessageContaining("First");
         }
 
         [Fact]
@@ -39,8 +41,11 @@ namespace WeCantSpell.Tests.Integration.CSharp
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().HaveCount(1);
-            throw new NotImplementedException();
+            diagnostics.Should().ContainSingle()
+                .Subject.Should()
+                .HaveId("SP3110")
+                .And.HaveLocation(85, 89, "TypeName.FirstMiddleLast.cs")
+                .And.HaveMessageContaining("Last");
         }
 
         [Fact]
@@ -51,8 +56,11 @@ namespace WeCantSpell.Tests.Integration.CSharp
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().HaveCount(1);
-            throw new NotImplementedException();
+            diagnostics.Should().ContainSingle()
+                .Subject.Should()
+                .HaveId("SP3110")
+                .And.HaveLocation(79, 85, "TypeName.FirstMiddleLast.cs")
+                .And.HaveMessageContaining("Middle");
         }
     }
 }
