@@ -115,6 +115,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Integration\CSharp\Files\LocalVariables.SimpleExamples.cs" />
+    <Compile Include="Integration\CSharp\VariableDeclaratorTests.cs" />
     <Compile Include="Utilities\AllGoodWordChecker.cs" />
     <Compile Include="Utilities\AssertionExtensions.cs" />
     <Compile Include="Utilities\DiagnosticAssertions.cs" />
@@ -122,7 +124,7 @@
     <Compile Include="IdentifierWordParserTests.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\TypeName.FirstMiddleLast.cs" />
     <Compile Include="Integration\CSharp\CSharpTestBase.cs" />
-    <Compile Include="Integration\CSharp\TypeNameSpelling.cs" />
+    <Compile Include="Integration\CSharp\ClassDeclarationSpellingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -20,16 +20,12 @@ namespace WeCantSpell.Tests.Utilities
             this.wrongWords = new HashSet<string>(wrongWords);
         }
 
-        public bool Check(string word)
-        {
-            return !wrongWords.Contains(word);
-        }
+        public WrongWordChecker(params string[] wrongWords)
+            : this((IEnumerable<string>)wrongWords) { }
+
+        public bool Check(string word) => !wrongWords.Contains(word);
 
         public IEnumerable<string> Suggest(string word)
-        {
-            return Check(word)
-                ? new[] { word }
-                : Array.Empty<string>();
-        }
+            => Check(word) ? new[] { word } : Array.Empty<string>();
     }
 }

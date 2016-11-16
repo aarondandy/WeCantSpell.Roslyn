@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
 
 namespace WeCantSpell.Tests.Integration.CSharp
 {
-    public class TypeNameSpelling : CSharpTestBase
+    public class ClassDeclarationSpellingTests : CSharpTestBase
     {
         [Fact]
         public async Task name_has_no_spelling_mistakes()
@@ -61,6 +62,23 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 .HaveId("SP3110")
                 .And.HaveLocation(79, 85, "TypeName.FirstMiddleLast.cs")
                 .And.HaveMessageContaining("Middle");
+        }
+
+        [Fact]
+        public async Task name_contains_individual_mistakes_for_all_words()
+        {
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("First", "Middle", "Last"));
+            var project = await ReadCodeFileAsProjectAsync("TypeName.FirstMiddleLast.cs");
+
+            var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
+
+            diagnostics.Should().HaveCount(3);
+            diagnostics[0].Should().HaveMessageContaining("First")
+                .And.HaveLocation(74, 79, "TypeName.FirstMiddleLast.cs");
+            diagnostics[1].Should().HaveMessageContaining("Middle")
+                .And.HaveLocation(79, 85, "TypeName.FirstMiddleLast.cs");
+            diagnostics[2].Should().HaveMessageContaining("Last")
+                .And.HaveLocation(85, 89, "TypeName.FirstMiddleLast.cs");
         }
     }
 }

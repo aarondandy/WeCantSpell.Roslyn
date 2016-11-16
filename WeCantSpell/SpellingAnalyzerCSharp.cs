@@ -1,9 +1,12 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using WeCantSpell.Utilities;
 
 namespace WeCantSpell
 {
@@ -36,11 +39,13 @@ namespace WeCantSpell
 
         public override void Initialize(AnalysisContext context)
         {
+            context.RegisterSyntaxNodeAction(ClassDeclarationHandler, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(VariableDeclaratorHandler, SyntaxKind.VariableDeclarator);
+
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.AnonymousObjectMemberDeclarator);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchDeclaration);
-            context.RegisterSyntaxNodeAction(ClassDeclarationNodeHandler, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DelegateDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EnumDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EnumMemberDeclaration);
@@ -90,29 +95,37 @@ namespace WeCantSpell
             var node = context.Node;
         }
 
-        private void ClassDeclarationNodeHandler(SyntaxNodeAnalysisContext context)
+        private void ClassDeclarationHandler(SyntaxNodeAnalysisContext context)
         {
             var node = (ClassDeclarationSyntax)context.Node;
-            var identifier = node.Identifier;
-            var splitter = new IdentifierWordParser();
-            var parts = splitter.SplitWordParts(identifier.Text);
-            
-            foreach(var part in parts)
-            {
-                if (part.IsWord)
-                {
-                    if (!SpellChecker.Check(part.Text))
-                    {
-                        var spellingStart = identifier.SpanStart + part.Start;
 
-                        var location = Location.Create(
-                            node.SyntaxTree,
-                            TextSpan.FromBounds(
-                                spellingStart,
-                                spellingStart + part.Length));
-                        var diagnostic = Diagnostic.Create(SpellingIdentifierDiagnosticDescriptor, location, part.Text);
-                        context.ReportDiagnostic(diagnostic);
-                    }
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void VariableDeclaratorHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (VariableDeclaratorSyntax)context.Node;
+
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
+        {
+            var wordParser = new IdentifierWordParser();
+            var parts = wordParser.SplitWordParts(identifier.Text);
+
+            foreach (var part in parts.Where(part => part.IsWord))
+            {
+                if (!SpellChecker.Check(part.Text))
+                {
+                    var spellingStart = identifier.SpanStart + part.Start;
+
+                    var location = Location.Create(
+                        identifier.SyntaxTree,
+                        TextSpan.FromBounds(
+                            spellingStart,
+                            spellingStart + part.Length));
+                    yield return Diagnostic.Create(SpellingIdentifierDiagnosticDescriptor, location, part.Text);
                 }
             }
         }
