@@ -1,6 +1,6 @@
 ﻿namespace WeCantSpell.Tests.Integration.CSharp.Files
 {
-    public class LocalVariables
+    public class Localvariables0001
     {
         public static void Main()
         {

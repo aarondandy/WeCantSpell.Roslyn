@@ -6,25 +6,25 @@ using Xunit;
 
 namespace WeCantSpell.Tests.Integration.CSharp
 {
-    public class VariableDeclaratorTests : CSharpTestBase
+    public class VariableDeclaratorSpellingTests : CSharpTestBase
     {
         public static IEnumerable<object[]> can_find_spelling_mistakes_in_locals_data
         {
             get
             {
-                yield return new object[] { "word", 159 };
-                yield return new object[] { "One", 163 };
-                yield return new object[] { "phrase", 168 };
-                yield return new object[] { "Two", 174 };
-                yield return new object[] { "simple", 196 };
-                yield return new object[] { "Name", 202 };
-                yield return new object[] { "OGRE", 233 };
-                yield return new object[] { "CAPS", 238 };
-                yield return new object[] { "What", 288 };
-                yield return new object[] { "even", 293 };
-                yield return new object[] { "Is", 298 };
-                yield return new object[] { "This", 300 };
-                yield return new object[] { "anonymous", 324 };
+                yield return new object[] { "word", 163 };
+                yield return new object[] { "One", 167 };
+                yield return new object[] { "phrase", 172 };
+                yield return new object[] { "Two", 178 };
+                yield return new object[] { "simple", 200 };
+                yield return new object[] { "Name", 206 };
+                yield return new object[] { "OGRE", 237 };
+                yield return new object[] { "CAPS", 242 };
+                yield return new object[] { "What", 292 };
+                yield return new object[] { "even", 297 };
+                yield return new object[] { "Is", 302 };
+                yield return new object[] { "This", 304 };
+                yield return new object[] { "anonymous", 328 };
             }
         }
 

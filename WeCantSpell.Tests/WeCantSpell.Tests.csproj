@@ -116,7 +116,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Integration\CSharp\Files\LocalVariables.SimpleExamples.cs" />
-    <Compile Include="Integration\CSharp\VariableDeclaratorTests.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.Invocation.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\Lambda.SimpleExamples.cs" />
+    <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\ParameterSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\VariableDeclaratorSpellingTests.cs" />
     <Compile Include="Utilities\AllGoodWordChecker.cs" />
     <Compile Include="Utilities\AssertionExtensions.cs" />
     <Compile Include="Utilities\DiagnosticAssertions.cs" />

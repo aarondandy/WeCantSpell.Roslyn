@@ -41,6 +41,8 @@ namespace WeCantSpell
         {
             context.RegisterSyntaxNodeAction(ClassDeclarationHandler, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(VariableDeclaratorHandler, SyntaxKind.VariableDeclarator);
+            context.RegisterSyntaxNodeAction(MethodDeclarationHandler, SyntaxKind.MethodDeclaration);
+            context.RegisterSyntaxNodeAction(ParameterHandler, SyntaxKind.Parameter);
 
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.AnonymousObjectMemberDeclarator);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
@@ -60,9 +62,7 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.JoinIntoClause);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.LetClause);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.LocalDeclarationStatement);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.MethodDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.NamespaceDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.Parameter);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.PropertyDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.StructDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.UsingDirective);
@@ -91,21 +91,30 @@ namespace WeCantSpell
         private void AnalyzerNotImplemented(SyntaxNodeAnalysisContext context)
         {
             var filePath = context.Node.SyntaxTree.FilePath;
-
             var node = context.Node;
         }
 
         private void ClassDeclarationHandler(SyntaxNodeAnalysisContext context)
         {
             var node = (ClassDeclarationSyntax)context.Node;
-
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
         }
 
         private void VariableDeclaratorHandler(SyntaxNodeAnalysisContext context)
         {
             var node = (VariableDeclaratorSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
 
+        private void MethodDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (MethodDeclarationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void ParameterHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (ParameterSyntax)context.Node;
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
         }
 
