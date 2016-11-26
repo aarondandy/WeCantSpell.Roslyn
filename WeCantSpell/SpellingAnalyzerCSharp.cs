@@ -40,9 +40,13 @@ namespace WeCantSpell
         public override void Initialize(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(ClassDeclarationHandler, SyntaxKind.ClassDeclaration);
-            context.RegisterSyntaxNodeAction(VariableDeclaratorHandler, SyntaxKind.VariableDeclarator);
+            context.RegisterSyntaxNodeAction(StructDeclarationHandler, SyntaxKind.StructDeclaration);
+            context.RegisterSyntaxNodeAction(InterfaceDeclarationHandler, SyntaxKind.InterfaceDeclaration);
+            context.RegisterSyntaxNodeAction(FieldDeclarationHandler, SyntaxKind.FieldDeclaration);
+            context.RegisterSyntaxNodeAction(LocalDeclarationStatementHandler, SyntaxKind.LocalDeclarationStatement);
             context.RegisterSyntaxNodeAction(MethodDeclarationHandler, SyntaxKind.MethodDeclaration);
             context.RegisterSyntaxNodeAction(ParameterHandler, SyntaxKind.Parameter);
+            context.RegisterSyntaxNodeAction(PropertyDeclarationHandler, SyntaxKind.PropertyDeclaration);
 
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.AnonymousObjectMemberDeclarator);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
@@ -63,7 +67,6 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.LetClause);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.LocalDeclarationStatement);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.NamespaceDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.PropertyDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.StructDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.UsingDirective);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.UsingStatement);
@@ -100,10 +103,34 @@ namespace WeCantSpell
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
         }
 
-        private void VariableDeclaratorHandler(SyntaxNodeAnalysisContext context)
+        private void StructDeclarationHandler(SyntaxNodeAnalysisContext context)
         {
-            var node = (VariableDeclaratorSyntax)context.Node;
+            var node = (StructDeclarationSyntax)context.Node;
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void InterfaceDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (InterfaceDeclarationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForInterfaceIdentifier(node.Identifier));
+        }
+
+        private void FieldDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (FieldDeclarationSyntax)context.Node;
+            foreach(var field in node.Declaration.Variables)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForFieldIdentifier(field.Identifier));
+            }
+        }
+
+        private void LocalDeclarationStatementHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (LocalDeclarationStatementSyntax)context.Node;
+            foreach(var variable in node.Declaration.Variables)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variable.Identifier));
+            }
         }
 
         private void MethodDeclarationHandler(SyntaxNodeAnalysisContext context)
@@ -118,11 +145,58 @@ namespace WeCantSpell
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
         }
 
+        private void PropertyDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (PropertyDeclarationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
         {
             var wordParser = new IdentifierWordParser();
             var parts = wordParser.SplitWordParts(identifier.Text);
+            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+        }
 
+        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForInterfaceIdentifier(SyntaxToken identifier)
+        {
+            var wordParser = new IdentifierWordParser();
+            var parts = wordParser.SplitWordParts(identifier.Text);
+            parts = SkipFirstMatching(parts, "I");
+            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+        }
+
+        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForFieldIdentifier(SyntaxToken identifier)
+        {
+            var wordParser = new IdentifierWordParser();
+            var parts = wordParser.SplitWordParts(identifier.Text);
+            parts = SkipFirstMatching(parts, "m");
+            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+        }
+
+        private IEnumerable<WordPart> SkipFirstMatching(IEnumerable<WordPart> parts, string firstSkipWord)
+        {
+            using (var enumerator = parts.GetEnumerator())
+            {
+                if (!enumerator.MoveNext())
+                {
+                    yield break;
+                }
+
+                if (enumerator.Current.Text != firstSkipWord)
+                {
+                    yield return enumerator.Current;
+                }
+
+                while (enumerator.MoveNext())
+                {
+                    yield return enumerator.Current;
+                }
+            }
+        }
+
+        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForWordParts(IEnumerable<WordPart> parts, SyntaxToken identifier)
+        {
             foreach (var part in parts.Where(part => part.IsWord))
             {
                 if (!SpellChecker.Check(part.Text))

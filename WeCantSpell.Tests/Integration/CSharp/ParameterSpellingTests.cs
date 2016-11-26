@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
@@ -64,6 +65,21 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 .HaveId("SP3110")
                 .And.HaveLocation(expectedStart, expectedEnd, "Lambda.SimpleExamples.cs")
                 .And.HaveMessageContaining(expectedWord);
+        }
+
+        [Fact]
+        public async Task can_find_mistakes_in_indexer_params()
+        {
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("index", "word"));
+            var project = await ReadCodeFileAsProjectAsync("Properties.SimpleExamples.cs");
+
+            var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
+
+            diagnostics.Should().HaveCount(2);
+            diagnostics[0].Should().HaveMessageContaining("index")
+                .And.HaveLocation(484, 489, "Properties.SimpleExamples.cs");
+            diagnostics[1].Should().HaveMessageContaining("word")
+                .And.HaveLocation(498, 502, "Properties.SimpleExamples.cs");
         }
     }
 }

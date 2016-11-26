@@ -47,5 +47,37 @@ namespace WeCantSpell.Tests.Integration.CSharp
 
             diagnostics.Should().BeEmpty();
         }
+
+        [Fact]
+        public async Task can_find_mistake_in_struct()
+        {
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Method"));
+            var project = await ReadCodeFileAsProjectAsync("TypeName.SimpleStructExample.cs");
+
+            var diagnostics = await GetDiagnosticsAsync(project, analyzer);
+
+            diagnostics.Should().ContainSingle()
+                .Subject.Should()
+                .HaveId("SP3110")
+                .And.HaveLocation(197, 203, "TypeName.SimpleStructExample.cs")
+                .And.HaveMessageContaining("Method");
+
+        }
+
+        [Fact]
+        public async Task can_find_mistake_in_interface()
+        {
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Method"));
+            var project = await ReadCodeFileAsProjectAsync("TypeName.ISimpleInterfaceExample.cs");
+
+            var diagnostics = await GetDiagnosticsAsync(project, analyzer);
+
+            diagnostics.Should().ContainSingle()
+                .Subject.Should()
+                .HaveId("SP3110")
+                .And.HaveLocation(153, 159, "TypeName.ISimpleInterfaceExample.cs")
+                .And.HaveMessageContaining("Method");
+
+        }
     }
 }

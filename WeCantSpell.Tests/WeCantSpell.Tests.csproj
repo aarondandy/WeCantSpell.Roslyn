@@ -119,8 +119,15 @@
     <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.Invocation.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Lambda.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\TypeName.SimpleStructExample.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\Properties.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\Fields.SimpleExamples.cs" />
+    <Compile Include="Integration\CSharp\FieldSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\ParameterSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\PropertyDeclarationSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\StructDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\VariableDeclaratorSpellingTests.cs" />
     <Compile Include="Utilities\AllGoodWordChecker.cs" />
     <Compile Include="Utilities\AssertionExtensions.cs" />
@@ -137,6 +144,7 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Integration\CSharp\Files\TypeName.ISimpleInterfaceExample.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
