@@ -47,6 +47,7 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(MethodDeclarationHandler, SyntaxKind.MethodDeclaration);
             context.RegisterSyntaxNodeAction(ParameterHandler, SyntaxKind.Parameter);
             context.RegisterSyntaxNodeAction(PropertyDeclarationHandler, SyntaxKind.PropertyDeclaration);
+            context.RegisterSyntaxNodeAction(UsingDirectiveHandler, SyntaxKind.UsingDirective);
 
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.AnonymousObjectMemberDeclarator);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
@@ -149,6 +150,16 @@ namespace WeCantSpell
         {
             var node = (PropertyDeclarationSyntax)context.Node;
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void UsingDirectiveHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (UsingDirectiveSyntax)context.Node;
+            var aliasName = node.Alias?.Name;
+            if (aliasName != null)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(aliasName.Identifier));
+            }
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)

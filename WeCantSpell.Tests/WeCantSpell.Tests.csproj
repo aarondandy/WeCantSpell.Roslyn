@@ -123,11 +123,13 @@
     <EmbeddedResource Include="Integration\CSharp\Files\Properties.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Fields.SimpleExamples.cs" />
     <Compile Include="Integration\CSharp\FieldSpellingTests.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\Using.SimpleExamples.cs" />
     <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\ParameterSpellingTests.cs" />
     <Compile Include="Integration\CSharp\PropertyDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\StructDeclarationSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\UsingSpellingTests.cs" />
     <Compile Include="Integration\CSharp\VariableDeclaratorSpellingTests.cs" />
     <Compile Include="Utilities\AllGoodWordChecker.cs" />
     <Compile Include="Utilities\AssertionExtensions.cs" />
