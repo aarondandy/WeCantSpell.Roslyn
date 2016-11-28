@@ -9,6 +9,7 @@
             var OGRE_CAPS = simpleName.Length;
             decimal? __What_even_IsThis_;
             var anonymous = new { };
+            const string @readonly = "fixed";
         }
     }
 }

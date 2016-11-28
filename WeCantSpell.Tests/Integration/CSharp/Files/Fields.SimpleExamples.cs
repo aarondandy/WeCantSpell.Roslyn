@@ -6,6 +6,8 @@
 
         private string _hidden = string.Empty;
 
-        public int Value = 99;
+        public int Value = 99, Count = 3;
+
+        internal const byte @const = 255;
     }
 }

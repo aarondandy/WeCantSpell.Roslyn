@@ -25,6 +25,7 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 yield return new object[] { "Is", 302 };
                 yield return new object[] { "This", 304 };
                 yield return new object[] { "anonymous", 328 };
+                yield return new object[] { "readonly", 376 };
             }
         }
 
@@ -49,6 +50,17 @@ namespace WeCantSpell.Tests.Integration.CSharp
         public async Task no_diagnostics_when_all_words_are_ok()
         {
             var analyzer = new SpellingAnalyzerCSharp(new AllGoodWordChecker());
+            var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.cs");
+
+            var diagnostics = await GetDiagnosticsAsync(project, analyzer);
+
+            diagnostics.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task at_symbol_is_not_checked()
+        {
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("@", "@readonly"));
             var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.cs");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
