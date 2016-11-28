@@ -61,7 +61,6 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 .HaveId("SP3110")
                 .And.HaveLocation(197, 203, "TypeName.SimpleStructExample.cs")
                 .And.HaveMessageContaining("Method");
-
         }
 
         [Fact]
@@ -77,7 +76,17 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 .HaveId("SP3110")
                 .And.HaveLocation(153, 159, "TypeName.ISimpleInterfaceExample.cs")
                 .And.HaveMessageContaining("Method");
+        }
 
+        [Fact]
+        public async Task operators_are_ignored()
+        {
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("operator", "+", "operator+", "string", "Guid", "System.Guid", "op_Addition"));
+            var project = await ReadCodeFileAsProjectAsync("MethodNames.OperatorExamples.cs");
+
+            var diagnostics = await GetDiagnosticsAsync(project, analyzer);
+
+            diagnostics.Should().BeEmpty();
         }
     }
 }

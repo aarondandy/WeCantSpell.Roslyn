@@ -48,14 +48,14 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(ParameterHandler, SyntaxKind.Parameter);
             context.RegisterSyntaxNodeAction(PropertyDeclarationHandler, SyntaxKind.PropertyDeclaration);
             context.RegisterSyntaxNodeAction(UsingDirectiveHandler, SyntaxKind.UsingDirective);
+            context.RegisterSyntaxNodeAction(CatchDeclarationHandler, SyntaxKind.CatchDeclaration);
+            context.RegisterSyntaxNodeAction(EnumDeclarationHandler, SyntaxKind.EnumDeclaration);
+            context.RegisterSyntaxNodeAction(EnumMemberDeclarationHandler, SyntaxKind.EnumMemberDeclaration);
 
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.AnonymousObjectMemberDeclarator);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DelegateDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EnumDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EnumMemberDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EventDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EventFieldDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ExternAliasDirective);
@@ -160,6 +160,27 @@ namespace WeCantSpell
             {
                 context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(aliasName.Identifier));
             }
+        }
+
+        private void CatchDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (CatchDeclarationSyntax)context.Node;
+            if (node.Identifier.Span.Length != 0)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+            }
+        }
+
+        private void EnumDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (EnumDeclarationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void EnumMemberDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (EnumMemberDeclarationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)

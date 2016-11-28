@@ -6,7 +6,7 @@ using Xunit;
 
 namespace WeCantSpell.Tests.Integration.CSharp
 {
-    public class VariableDeclaratorSpellingTests : CSharpTestBase
+    public class LocalDeclarationSpellingTests : CSharpTestBase
     {
         public static IEnumerable<object[]> can_find_spelling_mistakes_in_locals_data
         {
