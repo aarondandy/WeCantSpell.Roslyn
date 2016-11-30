@@ -51,8 +51,8 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(CatchDeclarationHandler, SyntaxKind.CatchDeclaration);
             context.RegisterSyntaxNodeAction(EnumDeclarationHandler, SyntaxKind.EnumDeclaration);
             context.RegisterSyntaxNodeAction(EnumMemberDeclarationHandler, SyntaxKind.EnumMemberDeclaration);
+            context.RegisterSyntaxNodeAction(AnonymousObjectMemberDeclaratorHandler, SyntaxKind.AnonymousObjectMemberDeclarator);
 
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.AnonymousObjectMemberDeclarator);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DelegateDeclaration);
@@ -181,6 +181,16 @@ namespace WeCantSpell
         {
             var node = (EnumMemberDeclarationSyntax)context.Node;
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void AnonymousObjectMemberDeclaratorHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (AnonymousObjectMemberDeclaratorSyntax)context.Node;
+            var name = node.NameEquals?.Name;
+            if (name != null)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(name.Identifier));
+            }
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)

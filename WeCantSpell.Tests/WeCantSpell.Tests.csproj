@@ -122,12 +122,14 @@
     <EmbeddedResource Include="Integration\CSharp\Files\TypeName.SimpleStructExample.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Properties.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Fields.SimpleExamples.cs" />
+    <Compile Include="Integration\CSharp\AnonymousObjectsSpellingTests.cs" />
     <Compile Include="Integration\CSharp\CatchDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\EnumDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\FieldSpellingTests.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Using.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Catch.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Enum.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\AnonymousObjects.SimpleExamples.cs" />
     <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\ParameterSpellingTests.cs" />
