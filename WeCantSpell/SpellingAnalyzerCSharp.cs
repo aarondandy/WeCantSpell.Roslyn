@@ -52,6 +52,8 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(EnumDeclarationHandler, SyntaxKind.EnumDeclaration);
             context.RegisterSyntaxNodeAction(EnumMemberDeclarationHandler, SyntaxKind.EnumMemberDeclaration);
             context.RegisterSyntaxNodeAction(AnonymousObjectMemberDeclaratorHandler, SyntaxKind.AnonymousObjectMemberDeclarator);
+            context.RegisterSyntaxNodeAction(ForEachStatementHandler, SyntaxKind.ForEachStatement);
+            context.RegisterSyntaxNodeAction(ForStatementHandler, SyntaxKind.ForStatement);
 
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
@@ -119,7 +121,7 @@ namespace WeCantSpell
         private void FieldDeclarationHandler(SyntaxNodeAnalysisContext context)
         {
             var node = (FieldDeclarationSyntax)context.Node;
-            foreach(var field in node.Declaration.Variables)
+            foreach (var field in node.Declaration.Variables)
             {
                 context.ReportDiagnostics(GenerateSpellingDiagnosticsForFieldIdentifier(field.Identifier));
             }
@@ -128,7 +130,7 @@ namespace WeCantSpell
         private void LocalDeclarationStatementHandler(SyntaxNodeAnalysisContext context)
         {
             var node = (LocalDeclarationStatementSyntax)context.Node;
-            foreach(var variable in node.Declaration.Variables)
+            foreach (var variable in node.Declaration.Variables)
             {
                 context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variable.Identifier));
             }
@@ -190,6 +192,21 @@ namespace WeCantSpell
             if (name != null)
             {
                 context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(name.Identifier));
+            }
+        }
+
+        private void ForEachStatementHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (ForEachStatementSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void ForStatementHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (ForStatementSyntax)context.Node;
+            foreach (var variableDeclaration in node.Declaration.Variables)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variableDeclaration.Identifier));
             }
         }
 

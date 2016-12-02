@@ -130,6 +130,7 @@
     <EmbeddedResource Include="Integration\CSharp\Files\Catch.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Enum.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\AnonymousObjects.SimpleExamples.cs" />
+    <Compile Include="Integration\CSharp\ForStyleLoopSpellingTests.cs" />
     <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\ParameterSpellingTests.cs" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Integration\CSharp\Files\TypeName.ISimpleInterfaceExample.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.OperatorExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\Loops.SimpleExamples.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
