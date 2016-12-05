@@ -54,10 +54,11 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(AnonymousObjectMemberDeclaratorHandler, SyntaxKind.AnonymousObjectMemberDeclarator);
             context.RegisterSyntaxNodeAction(ForEachStatementHandler, SyntaxKind.ForEachStatement);
             context.RegisterSyntaxNodeAction(ForStatementHandler, SyntaxKind.ForStatement);
+            context.RegisterSyntaxNodeAction(LabeledStatementHandler, SyntaxKind.LabeledStatement);
+            context.RegisterSyntaxNodeAction(DelegateDeclarationHandler, SyntaxKind.DelegateDeclaration);
 
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DelegateDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EventDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EventFieldDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ExternAliasDirective);
@@ -208,6 +209,18 @@ namespace WeCantSpell
             {
                 context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variableDeclaration.Identifier));
             }
+        }
+
+        private void LabeledStatementHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (LabeledStatementSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void DelegateDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (DelegateDeclarationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
