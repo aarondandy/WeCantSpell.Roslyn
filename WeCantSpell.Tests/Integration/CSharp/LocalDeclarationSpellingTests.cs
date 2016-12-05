@@ -26,6 +26,7 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 yield return new object[] { "This", 304 };
                 yield return new object[] { "anonymous", 328 };
                 yield return new object[] { "readonly", 376 };
+                yield return new object[] { "what", 417 };
             }
         }
 

@@ -10,6 +10,7 @@
             decimal? __What_even_IsThis_;
             var anonymous = new { };
             const string @readonly = "fixed";
+            dynamic what = 42;
         }
     }
 }

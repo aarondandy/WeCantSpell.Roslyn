@@ -48,6 +48,7 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(ParameterHandler, SyntaxKind.Parameter);
             context.RegisterSyntaxNodeAction(PropertyDeclarationHandler, SyntaxKind.PropertyDeclaration);
             context.RegisterSyntaxNodeAction(UsingDirectiveHandler, SyntaxKind.UsingDirective);
+            context.RegisterSyntaxNodeAction(UsingStatementHandler, SyntaxKind.UsingStatement);
             context.RegisterSyntaxNodeAction(CatchDeclarationHandler, SyntaxKind.CatchDeclaration);
             context.RegisterSyntaxNodeAction(EnumDeclarationHandler, SyntaxKind.EnumDeclaration);
             context.RegisterSyntaxNodeAction(EnumMemberDeclarationHandler, SyntaxKind.EnumMemberDeclaration);
@@ -56,11 +57,12 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(ForStatementHandler, SyntaxKind.ForStatement);
             context.RegisterSyntaxNodeAction(LabeledStatementHandler, SyntaxKind.LabeledStatement);
             context.RegisterSyntaxNodeAction(DelegateDeclarationHandler, SyntaxKind.DelegateDeclaration);
+            context.RegisterSyntaxNodeAction(EventDeclarationHandler, SyntaxKind.EventDeclaration);
+            context.RegisterSyntaxNodeAction(EventFieldDeclarationHandler, SyntaxKind.EventFieldDeclaration);
+            context.RegisterSyntaxNodeAction(TypeParameterHandler, SyntaxKind.TypeParameter);
 
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EventDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.EventFieldDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ExternAliasDirective);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.FieldDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.FromClause);
@@ -165,6 +167,15 @@ namespace WeCantSpell
             }
         }
 
+        private void UsingStatementHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (UsingStatementSyntax)context.Node;
+            foreach (var variableDeclaration in node.Declaration.Variables)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variableDeclaration.Identifier));
+            }
+        }
+
         private void CatchDeclarationHandler(SyntaxNodeAnalysisContext context)
         {
             var node = (CatchDeclarationSyntax)context.Node;
@@ -223,6 +234,27 @@ namespace WeCantSpell
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
         }
 
+        private void EventDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (EventDeclarationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+        }
+
+        private void EventFieldDeclarationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (EventFieldDeclarationSyntax)context.Node;
+            foreach (var variableDeclaration in node.Declaration.Variables)
+            {
+                context.ReportDiagnostics(GenerateSpellingDiagnosticsForFieldIdentifier(variableDeclaration.Identifier));
+            }
+        }
+
+        private void TypeParameterHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (TypeParameterSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
+        }
+
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
         {
             var wordParser = new IdentifierWordParser();
@@ -235,6 +267,14 @@ namespace WeCantSpell
             var wordParser = new IdentifierWordParser();
             var parts = wordParser.SplitWordParts(identifier.Text);
             parts = SkipFirstMatching(parts, "I");
+            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+        }
+
+        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForGenericIdentifier(SyntaxToken identifier)
+        {
+            var wordParser = new IdentifierWordParser();
+            var parts = wordParser.SplitWordParts(identifier.Text);
+            parts = SkipFirstMatching(parts, "T");
             return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
         }
 

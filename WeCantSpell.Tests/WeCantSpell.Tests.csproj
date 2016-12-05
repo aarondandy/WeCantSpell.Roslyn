@@ -126,6 +126,7 @@
     <Compile Include="Integration\CSharp\CatchDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\DelegateSpellingTests.cs" />
     <Compile Include="Integration\CSharp\EnumDeclarationSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\EventSpellingTests.cs" />
     <Compile Include="Integration\CSharp\FieldSpellingTests.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Using.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Catch.SimpleExamples.cs" />
@@ -133,7 +134,10 @@
     <EmbeddedResource Include="Integration\CSharp\Files\AnonymousObjects.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Label.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Delegate.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\Events.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\GenericType.SimpleExamples.cs" />
     <Compile Include="Integration\CSharp\ForStyleLoopSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\GenericTypeParameterSpellingTests.cs" />
     <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\LabelSpellingTests.cs" />
     <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />

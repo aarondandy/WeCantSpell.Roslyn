@@ -16,7 +16,10 @@ namespace WeCantSpell.Tests.Integration.CSharp.Files
 
         public void UseId(Guid id)
         {
-            throw new NotDone();
+            using (var bytes = new System.IO.MemoryStream())
+            {
+                throw new NotDone();
+            }            
         }
     }
 }

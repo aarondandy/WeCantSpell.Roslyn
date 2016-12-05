@@ -17,6 +17,8 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 yield return new object[] { "set", 215 };
                 yield return new object[] { "Timeout", 218 };
                 yield return new object[] { "Internal", 322 };
+                yield return new object[] { "By", 373 };
+                yield return new object[] { "Ref", 375 };
             }
         }
 

@@ -18,6 +18,8 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 yield return new object[] { "Words", 164 };
                 yield return new object[] { "count", 230 };
                 yield return new object[] { "name", 244 };
+                yield return new object[] { "uuid", 395 };
+                yield return new object[] { "result", 412 };
             }
         }
 

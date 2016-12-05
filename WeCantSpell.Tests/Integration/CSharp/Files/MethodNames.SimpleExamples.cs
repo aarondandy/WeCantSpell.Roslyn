@@ -12,5 +12,10 @@
         }
 
         internal string Internal() => string.Empty;
+
+        public void ByRef(ref System.Guid uuid, out string result)
+        {
+            result = string.Empty;
+        }
     }
 }

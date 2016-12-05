@@ -9,5 +9,7 @@
         public int Value = 99, Count = 3;
 
         internal const byte @const = 255;
+
+        public dynamic what = null;
     }
 }
