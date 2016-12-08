@@ -60,41 +60,11 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(EventDeclarationHandler, SyntaxKind.EventDeclaration);
             context.RegisterSyntaxNodeAction(EventFieldDeclarationHandler, SyntaxKind.EventFieldDeclaration);
             context.RegisterSyntaxNodeAction(TypeParameterHandler, SyntaxKind.TypeParameter);
-
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.BracketedParameterList);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.CatchClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ExternAliasDirective);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.FieldDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.FromClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.GenericName);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.InterfaceDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.JoinClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.JoinIntoClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.LetClause);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.LocalDeclarationStatement);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.NamespaceDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.StructDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.UsingDirective);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.UsingStatement);
-
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.IdentifierName);
-
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DefineDirectiveTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.DisabledTextTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ForEachStatement);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.ForStatement);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.InterpolatedStringExpression);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.List);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.MultiLineCommentTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.MultiLineDocumentationCommentTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.PragmaWarningDirectiveTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.RegionDirectiveTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.SingleLineCommentTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.SingleLineDocumentationCommentTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.StringLiteralExpression);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.WarningDirectiveTrivia);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.XmlText);
-            context.RegisterSyntaxNodeAction(AnalyzerNotImplemented, SyntaxKind.XmlTextAttribute);
+            context.RegisterSyntaxNodeAction(FromClauseHandler, SyntaxKind.FromClause);
+            context.RegisterSyntaxNodeAction(QueryContinuationHandler, SyntaxKind.QueryContinuation);
+            context.RegisterSyntaxNodeAction(LetClauseHandler, SyntaxKind.LetClause);
+            context.RegisterSyntaxNodeAction(JoinClauseHandler, SyntaxKind.JoinClause);
+            context.RegisterSyntaxNodeAction(JoinIntoClauseHandler, SyntaxKind.JoinIntoClause);
         }
 
         private void AnalyzerNotImplemented(SyntaxNodeAnalysisContext context)
@@ -252,6 +222,36 @@ namespace WeCantSpell
         private void TypeParameterHandler(SyntaxNodeAnalysisContext context)
         {
             var node = (TypeParameterSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
+        }
+
+        private void FromClauseHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (FromClauseSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
+        }
+
+        private void QueryContinuationHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (QueryContinuationSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
+        }
+
+        private void LetClauseHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (LetClauseSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
+        }
+
+        private void JoinClauseHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (JoinClauseSyntax)context.Node;
+            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
+        }
+
+        private void JoinIntoClauseHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (JoinIntoClauseSyntax)context.Node;
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
         }
 

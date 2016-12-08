@@ -136,10 +136,12 @@
     <EmbeddedResource Include="Integration\CSharp\Files\Delegate.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Events.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\GenericType.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\Linq.SimpleExamples.cs" />
     <Compile Include="Integration\CSharp\ForStyleLoopSpellingTests.cs" />
     <Compile Include="Integration\CSharp\GenericTypeParameterSpellingTests.cs" />
     <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\LabelSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\LinqSpellingTests.cs" />
     <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\ParameterSpellingTests.cs" />
     <Compile Include="Integration\CSharp\PropertyDeclarationSpellingTests.cs" />
