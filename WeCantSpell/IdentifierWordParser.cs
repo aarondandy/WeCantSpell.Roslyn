@@ -5,7 +5,7 @@ namespace WeCantSpell
 {
     public class IdentifierWordParser
     {
-        public IEnumerable<WordPart> SplitWordParts(string text)
+        public IEnumerable<ParsedTextSpan> SplitWordParts(string text)
         {
             if (text == null)
             {
@@ -14,21 +14,19 @@ namespace WeCantSpell
 
             if (text.Length == 0)
             {
-                return Array.Empty<WordPart>();
+                return Array.Empty<ParsedTextSpan>();
             }
 
             return SplitWordPartsGenerator(text);
         }
 
-        private IEnumerable<WordPart> SplitWordPartsGenerator(string text)
+        private IEnumerable<ParsedTextSpan> SplitWordPartsGenerator(string text)
         {
             var partStartIndex = 0;
             var prevType = ClassifyLetterType(text[0]);
-            var currType = prevType;
+            var currType = text.Length > 1 ? ClassifyLetterType(text[1]) : prevType;
 
-            var searchIndex = 0;
-            var nextIndex = 1;
-            for(; searchIndex < text.Length; searchIndex = nextIndex++)
+            for (int searchIndex = 1, nextIndex = 2; searchIndex < text.Length; searchIndex = nextIndex++)
             {
                 var nextType = nextIndex < text.Length ? ClassifyLetterType(text[nextIndex]) : LetterType.NonWord;
 
@@ -38,10 +36,7 @@ namespace WeCantSpell
                     (prevType != currType && (prevType != LetterType.LetterUpper || currType != LetterType.LetterNormal))
                 )
                 {
-                    if (searchIndex > partStartIndex)
-                    {
-                        yield return new WordPart(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, prevType != LetterType.NonWord);
-                    }
+                    yield return new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, prevType != LetterType.NonWord);
 
                     partStartIndex = searchIndex;
                 }
@@ -52,7 +47,7 @@ namespace WeCantSpell
 
             if (partStartIndex < text.Length)
             {
-                yield return new WordPart(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevType != LetterType.NonWord);
+                yield return new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevType != LetterType.NonWord);
             }
         }
 
@@ -67,34 +62,5 @@ namespace WeCantSpell
             LetterNormal = 1,
             LetterUpper = 3
         }
-    }
-
-    public struct WordPart : IEquatable<WordPart>
-    {
-        public WordPart(string text, int start, bool isWord)
-        {
-            Text = text;
-            Start = start;
-            IsWord = isWord;
-        }
-
-        public string Text { get; }
-
-        public int Start { get; }
-
-        public bool IsWord { get; }
-
-        public int Length => Text.Length;
-
-        public int End => Start + Text.Length;
-
-        public bool Equals(WordPart other) =>
-            Text == other.Text
-            && Start == other.Start
-            && IsWord == other.IsWord;
-
-        public override bool Equals(object obj) => obj is WordPart && Equals((WordPart)obj);
-
-        public override int GetHashCode() => unchecked(Text.GetHashCode() ^ Start);
     }
 }

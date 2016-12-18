@@ -286,7 +286,7 @@ namespace WeCantSpell
             return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
         }
 
-        private IEnumerable<WordPart> SkipFirstMatching(IEnumerable<WordPart> parts, string firstSkipWord)
+        private IEnumerable<ParsedTextSpan> SkipFirstMatching(IEnumerable<ParsedTextSpan> parts, string firstSkipWord)
         {
             using (var enumerator = parts.GetEnumerator())
             {
@@ -307,7 +307,7 @@ namespace WeCantSpell
             }
         }
 
-        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForWordParts(IEnumerable<WordPart> parts, SyntaxToken identifier)
+        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForWordParts(IEnumerable<ParsedTextSpan> parts, SyntaxToken identifier)
         {
             foreach (var part in parts.Where(part => part.IsWord))
             {

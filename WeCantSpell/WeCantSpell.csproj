@@ -47,12 +47,13 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="IEmbeddedDictionaryContent.cs" />
     <Compile Include="ISpellChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpellingAnalyzerCSharp.cs" />
     <Compile Include="IdentifierWordParser.cs" />
+    <Compile Include="TextLiteralParser.cs" />
     <Compile Include="Utilities\SyntaxNodeAnalysisContextExtensions.cs" />
+    <Compile Include="ParsedTextSpan.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\WeCantSpell.FileCompressor\en-US.*.compressed">
