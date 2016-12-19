@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
 
 namespace WeCantSpell.Tests
 {
-    public class TextLiteralParserTests
+    public class GeneralTextParserTests
     {
         public static IEnumerable<object[]> standard_sentences_extracts_words_args()
         {
@@ -27,7 +23,7 @@ namespace WeCantSpell.Tests
         public void standard_sentences_extracts_words(string expectedText, int offset)
         {
             var sentenceText = "The quick brown fox jumps over the lazy dog.";
-            var parser = new TextLiteralParser();
+            var parser = new GeneralTextParser();
 
             var results = parser.SplitWordParts(sentenceText);
 
@@ -40,7 +36,7 @@ namespace WeCantSpell.Tests
         public void hyphenated_word_is_a_whole_word()
         {
             var sentenceText = "The quick-brown fox jumps-over the lazy dog.";
-            var parser = new TextLiteralParser();
+            var parser = new GeneralTextParser();
 
             var results = parser.SplitWordParts(sentenceText);
 
@@ -53,5 +49,27 @@ namespace WeCantSpell.Tests
             secondResult.IsWord.Should().BeTrue();
         }
 
+        [Fact]
+        public void empty_string_has_no_parts()
+        {
+            var text = string.Empty;
+            var parser = new GeneralTextParser();
+
+            var results = parser.SplitWordParts(text);
+
+            results.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void single_char_text_has_single_part()
+        {
+            var text = "a";
+            var parser = new GeneralTextParser();
+
+            var results = parser.SplitWordParts(text);
+
+            results.Should().ContainSingle()
+                .Subject.Text.Should().Be(text);
+        }
     }
 }

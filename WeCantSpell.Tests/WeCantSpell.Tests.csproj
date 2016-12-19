@@ -138,7 +138,7 @@
     <EmbeddedResource Include="Integration\CSharp\Files\GenericType.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Linq.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\StringLiteral.SimpleExamples.cs" />
-    <Compile Include="Integration\CSharp\Files\XmlDoc.SImpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\XmlDoc.SImpleExamples.cs" />
     <Compile Include="Integration\CSharp\ForStyleLoopSpellingTests.cs" />
     <Compile Include="Integration\CSharp\GenericTypeParameterSpellingTests.cs" />
     <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />
@@ -147,10 +147,12 @@
     <Compile Include="Integration\CSharp\MethodDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\ParameterSpellingTests.cs" />
     <Compile Include="Integration\CSharp\PropertyDeclarationSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\StringLiteralSpellingTests.cs" />
     <Compile Include="Integration\CSharp\StructDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\UsingSpellingTests.cs" />
     <Compile Include="Integration\CSharp\LocalDeclarationSpellingTests.cs" />
-    <Compile Include="TextLiteralParserTests.cs" />
+    <Compile Include="GeneralTextParserTests.cs" />
+    <Compile Include="StringLiteralSyntaxCharValueLocatorTests.cs" />
     <Compile Include="Utilities\AllGoodWordChecker.cs" />
     <Compile Include="Utilities\AssertionExtensions.cs" />
     <Compile Include="Utilities\DiagnosticAssertions.cs" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace WeCantSpell
 {
-    public class TextLiteralParser
+    public class GeneralTextParser
     {
         public IEnumerable<ParsedTextSpan> SplitWordParts(string text)
         {
@@ -24,49 +24,42 @@ namespace WeCantSpell
         {
             var partStartIndex = 0;
             var prevChar = text[0];
-            var prevType = ClassifyCharType(prevChar);
+            var prevCharType = ClassifyCharType(prevChar);
 
             char currChar;
-            CharType currType;
+            CharType currCharType;
 
             if (text.Length > 1)
             {
                 currChar = text[1];
-                currType = ClassifyCharType(currChar);
+                currCharType = ClassifyCharType(currChar);
             }
             else
             {
                 currChar = '\0';
-                currType = prevType;
+                currCharType = prevCharType;
             }
 
-            var previousWasWord = prevType == CharType.Word;
+            var prevEffectiveType = GetEffectiveCharType(prevChar, prevCharType, CharType.Unknown, currCharType);
 
             for (int searchIndex = 1, nextIndex = 2; searchIndex < text.Length; searchIndex = nextIndex++)
             {
                 char nextChar;
-                CharType nextType;
+                CharType nextCharType;
                 if (nextIndex < text.Length)
                 {
                     nextChar = text[nextIndex];
-                    nextType = ClassifyCharType(nextChar);
+                    nextCharType = ClassifyCharType(nextChar);
                 }
                 else
                 {
                     nextChar = '\0';
-                    nextType = CharType.WhiteSpace;
+                    nextCharType = CharType.WhiteSpace;
                 }
 
-                var currentIsWord = currType == CharType.Word;
-
-                if (
-                    !currentIsWord
-                    && prevType == CharType.Word
-                    && nextType == CharType.Word
-                    && IsHyphen(currChar))
-                {
-                    currentIsWord = true;
-                }
+                var currEffectiveType = GetEffectiveCharType(currChar, currCharType, prevCharType, nextCharType);
+                var currentIsWord = currEffectiveType == CharType.Word;
+                var previousWasWord = prevEffectiveType == CharType.Word;
 
                 if (currentIsWord != previousWasWord)
                 {
@@ -75,18 +68,36 @@ namespace WeCantSpell
                     partStartIndex = searchIndex;
                 }
 
-                previousWasWord = currentIsWord;
-                prevType = currType;
                 prevChar = currChar;
+                prevCharType = currCharType;
+                prevEffectiveType = currEffectiveType;
 
-                currType = nextType;
                 currChar = nextChar;
+                currCharType = nextCharType;
             }
 
             if (partStartIndex < text.Length)
             {
-                yield return new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, previousWasWord);
+                yield return new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevEffectiveType == CharType.Word);
             }
+        }
+
+        private static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType)
+        {
+            if (
+                currCharType != CharType.Word
+                &&
+                prevCharType == CharType.Word
+                &&
+                nextCharType == CharType.Word
+                &&
+                IsHyphen(currChar)
+            )
+            {
+                return CharType.Word;
+            }
+
+            return currCharType;
         }
 
         private static CharType ClassifyCharType(char current)

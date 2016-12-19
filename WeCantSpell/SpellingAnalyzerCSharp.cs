@@ -31,7 +31,18 @@ namespace WeCantSpell
             isEnabledByDefault: true,
             description: "Identifier name may contain a spelling mistake.");
 
-        private static ImmutableArray<DiagnosticDescriptor> SupportedDiagnosticsArray = ImmutableArray.Create(SpellingIdentifierDiagnosticDescriptor);
+        private static DiagnosticDescriptor SpellingLiteralDiagnosticDescriptor = new DiagnosticDescriptor(
+            "SP3111",
+            "Text Literal Spelling",
+            "Text literal spelling mistake: {0}",
+            "Spelling",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "Text literal may contain a spelling mistake.");
+
+        private static ImmutableArray<DiagnosticDescriptor> SupportedDiagnosticsArray = ImmutableArray.Create(
+            SpellingIdentifierDiagnosticDescriptor,
+            SpellingLiteralDiagnosticDescriptor);
 
         public ISpellChecker SpellChecker { get; private set; }
 
@@ -65,6 +76,9 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(LetClauseHandler, SyntaxKind.LetClause);
             context.RegisterSyntaxNodeAction(JoinClauseHandler, SyntaxKind.JoinClause);
             context.RegisterSyntaxNodeAction(JoinIntoClauseHandler, SyntaxKind.JoinIntoClause);
+
+            context.RegisterSyntaxNodeAction(StringLiteralExpressionHandler, SyntaxKind.StringLiteralExpression);
+            context.RegisterSyntaxNodeAction(InterpolatedStringTextHandler, SyntaxKind.InterpolatedStringText);
         }
 
         private void AnalyzerNotImplemented(SyntaxNodeAnalysisContext context)
@@ -253,6 +267,61 @@ namespace WeCantSpell
         {
             var node = (JoinIntoClauseSyntax)context.Node;
             context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
+        }
+
+        private void StringLiteralExpressionHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (LiteralExpressionSyntax)context.Node;
+            var token = node.Token;
+
+            var valueText = token.ValueText;
+            var syntaxText = token.Text;
+
+            var wordParser = new GeneralTextParser();
+            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+
+            foreach (var part in wordParser.SplitWordParts(valueText).Where(part => part.IsWord))
+            {
+                if (!SpellChecker.Check(part.Text))
+                {
+                    var spellingStart = token.SpanStart + valueLocator.ConvertValueToSyntaxIndex(part.Start);
+                    var location = Location.Create(
+                        token.SyntaxTree,
+                        TextSpan.FromBounds(
+                            spellingStart,
+                            spellingStart + part.Length));
+                    var diagnostic = Diagnostic.Create(SpellingLiteralDiagnosticDescriptor, location, part.Text);
+
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+        private void InterpolatedStringTextHandler(SyntaxNodeAnalysisContext context)
+        {
+            var node = (InterpolatedStringTextSyntax)context.Node;
+            var token = node.TextToken;
+            var valueText = token.ValueText;
+            var syntaxText = token.Text;
+
+            var wordParser = new GeneralTextParser();
+            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+
+            foreach (var part in wordParser.SplitWordParts(valueText).Where(part => part.IsWord))
+            {
+                if (!SpellChecker.Check(part.Text))
+                {
+                    var spellingStart = token.SpanStart + valueLocator.ConvertValueToSyntaxIndex(part.Start);
+                    var location = Location.Create(
+                        token.SyntaxTree,
+                        TextSpan.FromBounds(
+                            spellingStart,
+                            spellingStart + part.Length));
+                    var diagnostic = Diagnostic.Create(SpellingLiteralDiagnosticDescriptor, location, part.Text);
+
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
