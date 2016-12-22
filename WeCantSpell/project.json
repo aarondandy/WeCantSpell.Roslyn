@@ -90,6 +90,9 @@
     "net461": {
       "buildOptions": {
         "define": []
+      },
+      "dependencies": {
+        "System.Threading.Tasks": "4.0.10"
       }
     }
   }

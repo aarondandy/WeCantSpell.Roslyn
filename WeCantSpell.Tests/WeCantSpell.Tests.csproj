@@ -122,8 +122,10 @@
     <EmbeddedResource Include="Integration\CSharp\Files\TypeName.SimpleStructExample.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Properties.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Fields.SimpleExamples.cs" />
+    <Compile Include="CommentTextExtractorTests.cs" />
     <Compile Include="Integration\CSharp\AnonymousObjectsSpellingTests.cs" />
     <Compile Include="Integration\CSharp\CatchDeclarationSpellingTests.cs" />
+    <Compile Include="Integration\CSharp\CommentSpellingTests.cs" />
     <Compile Include="Integration\CSharp\DelegateSpellingTests.cs" />
     <Compile Include="Integration\CSharp\EnumDeclarationSpellingTests.cs" />
     <Compile Include="Integration\CSharp\EventSpellingTests.cs" />
@@ -138,7 +140,7 @@
     <EmbeddedResource Include="Integration\CSharp\Files\GenericType.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\Linq.SimpleExamples.cs" />
     <EmbeddedResource Include="Integration\CSharp\Files\StringLiteral.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\XmlDoc.SImpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Files\XmlDoc.SimpleExamples.cs" />
     <Compile Include="Integration\CSharp\ForStyleLoopSpellingTests.cs" />
     <Compile Include="Integration\CSharp\GenericTypeParameterSpellingTests.cs" />
     <Compile Include="Integration\CSharp\InterfaceDeclarationSpellingTests.cs" />

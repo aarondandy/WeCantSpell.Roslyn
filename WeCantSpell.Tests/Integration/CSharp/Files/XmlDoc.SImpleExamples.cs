@@ -22,7 +22,7 @@
     /// <completionlist cref="System.Guid"/>
     /*
      * Words words words.
-     * This is another line.
+     * This is aardvark.
      * <code>
      * Console.WriteLine("code");
      * </code>

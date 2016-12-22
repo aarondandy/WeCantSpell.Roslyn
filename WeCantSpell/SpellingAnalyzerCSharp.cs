@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -40,9 +41,29 @@ namespace WeCantSpell
             isEnabledByDefault: true,
             description: "Text literal may contain a spelling mistake.");
 
+        private static DiagnosticDescriptor CommentDiagnosticDescriptor = new DiagnosticDescriptor(
+            "SP3112",
+            "Comment Spelling",
+            "Comment spelling mistake: {0}",
+            "Spelling",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "Comment may contain a spelling mistake.");
+
+        private static DiagnosticDescriptor DocumentationDiagnosticDescriptor = new DiagnosticDescriptor(
+            "SP3113",
+            "Documentation Spelling",
+            "Documentation spelling mistake: {0}",
+            "Spelling",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "Documentation may contain a spelling mistake.");
+
         private static ImmutableArray<DiagnosticDescriptor> SupportedDiagnosticsArray = ImmutableArray.Create(
             SpellingIdentifierDiagnosticDescriptor,
-            SpellingLiteralDiagnosticDescriptor);
+            SpellingLiteralDiagnosticDescriptor,
+            CommentDiagnosticDescriptor,
+            DocumentationDiagnosticDescriptor);
 
         public ISpellChecker SpellChecker { get; private set; }
 
@@ -79,6 +100,8 @@ namespace WeCantSpell
 
             context.RegisterSyntaxNodeAction(StringLiteralExpressionHandler, SyntaxKind.StringLiteralExpression);
             context.RegisterSyntaxNodeAction(InterpolatedStringTextHandler, SyntaxKind.InterpolatedStringText);
+
+            context.RegisterSyntaxTreeAction(this.HandleSyntaxTree);
         }
 
         private void AnalyzerNotImplemented(SyntaxNodeAnalysisContext context)
@@ -322,6 +345,76 @@ namespace WeCantSpell
                     context.ReportDiagnostic(diagnostic);
                 }
             }
+        }
+
+        private void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
+        {
+            if (!context.Tree.HasCompilationUnitRoot)
+            {
+                return;
+            }
+
+            foreach (var node in context.Tree.GetCompilationUnitRoot(context.CancellationToken).DescendantTrivia())
+            {
+                switch (node.Kind())
+                {
+                    case SyntaxKind.SingleLineCommentTrivia:
+                        SingleLineCommentTriviaHandler(node, context);
+                        break;
+                    case SyntaxKind.MultiLineCommentTrivia:
+                        MultiLineCommentTriviaHandler(node);
+                        break;
+                    case SyntaxKind.SingleLineDocumentationCommentTrivia:
+                    case SyntaxKind.MultiLineDocumentationCommentTrivia:
+                        XmlTextLiteralTokenHandler(node);
+                        break;
+                }
+            }
+        }
+
+        private void XmlTextLiteralTokenHandler(SyntaxTrivia node)
+        {
+            "".ToCharArray();
+            ;
+        }
+
+        private void SingleLineCommentTriviaHandler(SyntaxTrivia node, SyntaxTreeAnalysisContext context)
+        {
+            var lineText = node.ToString();
+            // TODO: ignore the leading `\s*[/]+\s*`, keeping span information
+            var textSpan = CommentTextExtractor.LocateSingleLineCommentText(lineText);
+            if (textSpan.Length == 0)
+            {
+                return;
+            }
+
+            var wordParser = new GeneralTextParser();
+            var parts = wordParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
+
+            foreach (var part in parts.Where(part => part.IsWord))
+            {
+                if (!SpellChecker.Check(part.Text))
+                {
+                    var spellingStart = node.SpanStart + textSpan.Start + part.Start;
+
+                    var location = Location.Create(
+                        node.SyntaxTree,
+                        TextSpan.FromBounds(
+                            spellingStart,
+                            spellingStart + part.Length));
+                    var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, part.Text);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+        private void MultiLineCommentTriviaHandler(SyntaxTrivia node)
+        {
+            var allText = node.ToString();
+            // TODO: extract all lines with spans
+            // when extracting lines, ignore the leading `\s*[*]\s*` from other lines and the leading and trailing `[/][*]+` and `[*]+[/]`
+            // while preserving span information
+            ;
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
