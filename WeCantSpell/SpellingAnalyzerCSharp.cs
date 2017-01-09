@@ -381,7 +381,6 @@ namespace WeCantSpell
         private void SingleLineCommentTriviaHandler(SyntaxTrivia node, SyntaxTreeAnalysisContext context)
         {
             var lineText = node.ToString();
-            // TODO: ignore the leading `\s*[/]+\s*`, keeping span information
             var textSpan = CommentTextExtractor.LocateSingleLineCommentText(lineText);
             if (textSpan.Length == 0)
             {
@@ -390,7 +389,6 @@ namespace WeCantSpell
 
             var wordParser = new GeneralTextParser();
             var parts = wordParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
-
             foreach (var part in parts.Where(part => part.IsWord))
             {
                 if (!SpellChecker.Check(part.Text))
