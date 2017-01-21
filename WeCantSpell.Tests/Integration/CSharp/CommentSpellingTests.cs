@@ -13,8 +13,8 @@ namespace WeCantSpell.Tests.Integration.CSharp
             get
             {
                 yield return new object[] { "aardvark", 660 };
-                yield return new object[] { "simple", 1177 };
-                yield return new object[] { "under", 1226 };
+                yield return new object[] { "simple", 1186 };
+                yield return new object[] { "under", 1235 };
             }
         }
 

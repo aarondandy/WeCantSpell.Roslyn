@@ -69,7 +69,6 @@ namespace WeCantSpell
             for (; endIndex >= startIndex && IsCSharpWhitespace(commentText[endIndex]); endIndex--) ;
 
             return TextSpan.FromBounds(startIndex, endIndex + 1);
-
         }
 
         private static IEnumerable<TextSpan> LocateLines(string text)

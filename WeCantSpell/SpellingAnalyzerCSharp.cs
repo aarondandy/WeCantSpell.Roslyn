@@ -362,7 +362,7 @@ namespace WeCantSpell
                         SingleLineCommentTriviaHandler(node, context);
                         break;
                     case SyntaxKind.MultiLineCommentTrivia:
-                        MultiLineCommentTriviaHandler(node);
+                        MultiLineCommentTriviaHandler(node, context);
                         break;
                     case SyntaxKind.SingleLineDocumentationCommentTrivia:
                     case SyntaxKind.MultiLineDocumentationCommentTrivia:
@@ -406,13 +406,32 @@ namespace WeCantSpell
             }
         }
 
-        private void MultiLineCommentTriviaHandler(SyntaxTrivia node)
+        private void MultiLineCommentTriviaHandler(SyntaxTrivia node, SyntaxTreeAnalysisContext context)
         {
             var allText = node.ToString();
-            // TODO: extract all lines with spans
-            // when extracting lines, ignore the leading `\s*[*]\s*` from other lines and the leading and trailing `[/][*]+` and `[*]+[/]`
-            // while preserving span information
-            ;
+            var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
+            var wordParser = new GeneralTextParser();
+
+            foreach (var lineTextSpan in lineTextSpans)
+            {
+                var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
+                var wordParts = wordParser.SplitWordParts(lineText);
+                foreach (var wordPart in wordParts.Where(part => part.IsWord))
+                {
+                    if (!SpellChecker.Check(wordPart.Text))
+                    {
+                        var spellingStart = node.SpanStart + lineTextSpan.Start + wordPart.Start;
+
+                        var location = Location.Create(
+                            node.SyntaxTree,
+                            TextSpan.FromBounds(
+                                spellingStart,
+                                spellingStart + wordPart.Length));
+                        var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, wordPart.Text);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
