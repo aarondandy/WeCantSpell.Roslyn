@@ -1,55 +1,62 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.Build.Evaluation;
 
 var defaultDictionaryMaps = new Dictionary<string, string>
 {
-    ["en-US"] = "../Dictionaries/English (American)",
-    ["en-GB"] = "../Dictionaries/English (British)",
-    ["en-AU"] = "../Dictionaries/English (Australian)",
-    ["en-CA"] = "../Dictionaries/English (Canadian)",
-    ["en-ZA"] = "../Dictionaries/English (South African)",
-    ["hr-HR"] = "../Dictionaries/Croatian",
-    ["nl-NL"] = "../Dictionaries/Dutch",
-    ["et-EE"] = "../Dictionaries/Estonian",
-    ["el-GR"] = "../Dictionaries/Greek",
-    ["hu-HU"] = "../Dictionaries/Hungarian",
-    ["lv-LV"] = "../Dictionaries/Latvian",
+    ["en-US"] = @"..\Dictionaries\English (American)",
+    ["en-GB"] = @"..\Dictionaries\English (British)",
+    ["en-AU"] = @"..\Dictionaries\English (Australian)",
+    ["en-CA"] = @"..\Dictionaries\English (Canadian)",
+    ["en-ZA"] = @"..\Dictionaries\English (South African)",
+    ["hr-HR"] = @"..\Dictionaries\Croatian",
+    ["nl-NL"] = @"..\Dictionaries\Dutch",
+    ["et-EE"] = @"..\Dictionaries\Estonian",
+    ["el-GR"] = @"..\Dictionaries\Greek",
+    ["hu-HU"] = @"..\Dictionaries\Hungarian",
+    ["lv-LV"] = @"..\Dictionaries\Latvian",
 };
 
-foreach (var set in defaultDictionaryMaps)
-{
-    var cultureName = set.Key;
-    var sourceFilePath = set.Value;
+Task.WhenAll(defaultDictionaryMaps.Select(set => CopyDictioanryFiles(set.Key, set.Value))).Wait();
 
+async Task CopyDictioanryFiles(string cultureName, string baseSourceFilePath)
+{
     var destinationFileName = cultureName;
     var destinationFilePath = destinationFileName;
     var destinationFileDic = Path.ChangeExtension(destinationFilePath, "dic.compressed");
     var destinationFileAff = Path.ChangeExtension(destinationFilePath, "aff.compressed");
     var destinationFileTxt = Path.ChangeExtension(destinationFilePath, "license.txt");
 
-    var sourceFileDic = Path.ChangeExtension(sourceFilePath, "dic");
-    var sourceFileAff = Path.ChangeExtension(sourceFilePath, "aff");
-    var sourceFileTxt = Path.ChangeExtension(sourceFilePath, "txt");
+    var sourceFileDic = Path.ChangeExtension(baseSourceFilePath, "dic");
+    var sourceFileAff = Path.ChangeExtension(baseSourceFilePath, "aff");
+    var sourceFileTxt = Path.ChangeExtension(baseSourceFilePath, "txt");
 
-    var bytesDic = GetCompressed(File.ReadAllBytes(sourceFileDic));
-    var bytesAff = GetCompressed(File.ReadAllBytes(sourceFileAff));
-
-    File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(Output.FilePath), destinationFileDic), bytesDic);
-    File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(Output.FilePath), destinationFileAff), bytesAff);
-    File.Copy(sourceFileTxt, destinationFileTxt);
+    await Task.WhenAll(
+        CopyFileAsync(sourceFileDic, destinationFileDic, true),
+        CopyFileAsync(sourceFileAff, destinationFileAff, true),
+        CopyFileAsync(sourceFileTxt, destinationFileTxt, false));
 }
 
-byte[] GetCompressed(byte[] raw)
+async Task CopyFileAsync(string sourcePath, string destinationPath, bool compress)
 {
-    using (var compressedStream = new MemoryStream())
-    {
-        using (var compressedWriter = new DeflateStream(compressedStream, CompressionMode.Compress))
-        {
-            compressedWriter.Write(raw, 0, raw.Length);
-            compressedWriter.Flush();
-        }
+    Context.Output.WriteLine($"// Copying from {sourcePath} to {destinationPath} compressed: {compress}");
 
-        return compressedStream.ToArray();
+    using (var sourceStream = File.Open(sourcePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+    using (var destinationStream = File.Open(sourcePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+    {
+        if (compress)
+        {
+            using (var compressedWriter = new DeflateStream(destinationStream, CompressionMode.Compress))
+            {
+                await sourceStream.CopyToAsync(compressedWriter);
+            }
+        }
+        else
+        {
+            await sourceStream.CopyToAsync(destinationStream);
+        }
     }
 }
