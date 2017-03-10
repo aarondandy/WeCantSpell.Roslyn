@@ -15,6 +15,10 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 yield return new object[] { "aardvark", 660 };
                 yield return new object[] { "simple", 1186 };
                 yield return new object[] { "under", 1235 };
+                yield return new object[] { "inline", 111 };
+                yield return new object[] { "tag", 320 };
+                yield return new object[] { "Here", 898 };
+                yield return new object[] { "Just", 1130 };
             }
         }
 
