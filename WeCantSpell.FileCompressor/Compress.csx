@@ -42,8 +42,6 @@ async Task CopyDictioanryFiles(string cultureName, string baseSourceFilePath)
 
 async Task CopyFileAsync(string sourcePath, string destinationPath, bool compress)
 {
-    Context.Output.WriteLine($"// Copying from {sourcePath} to {destinationPath} compressed: {compress}");
-
     using (var sourceStream = File.Open(sourcePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
     using (var destinationStream = File.Open(sourcePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
     {
