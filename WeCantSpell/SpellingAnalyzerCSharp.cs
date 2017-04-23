@@ -15,6 +15,7 @@ namespace WeCantSpell
     public sealed class SpellingAnalyzerCSharp : DiagnosticAnalyzer
     {
         public SpellingAnalyzerCSharp()
+            : this(new DebugTestingSpellChecker())
         {
         }
 

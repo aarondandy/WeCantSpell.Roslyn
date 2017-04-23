@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using System.Reflection;
 
 namespace WeCantSpell.Tests.Integration.CSharp
 {
@@ -14,15 +15,15 @@ namespace WeCantSpell.Tests.Integration.CSharp
         private static readonly string PathBase = "WeCantSpell.Tests.Integration.CSharp.Files";
         private static readonly string ProjectNameSingleFileSample = nameof(ProjectNameSingleFileSample);
 
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location);
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(Microsoft.CodeAnalysis.CSharp.CSharpCompilation).Assembly.Location);
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Microsoft.CodeAnalysis.Compilation).Assembly.Location);
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(Microsoft.CodeAnalysis.CSharp.CSharpCompilation).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Microsoft.CodeAnalysis.Compilation).GetTypeInfo().Assembly.Location);
 
         protected Stream OpenCodeFileStream(string embeddedResourceFileName)
         {
             var fullEmbeddedResourcePath = PathBase + "." + embeddedResourceFileName;
-            return typeof(CSharpTestBase).Assembly.GetManifestResourceStream(fullEmbeddedResourcePath);
+            return typeof(CSharpTestBase).GetTypeInfo().Assembly.GetManifestResourceStream(fullEmbeddedResourcePath);
         }
 
         protected async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
