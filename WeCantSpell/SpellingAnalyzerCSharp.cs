@@ -408,24 +408,28 @@ namespace WeCantSpell
 
         private void XmlTextSyntaxHandler(XmlTextSyntax node, SyntaxTreeAnalysisContext context)
         {
-            var lineText = node.ToString();
-            var textSpan = node.Span;
-
+            var allText = node.ToString();
+            var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
             var wordParser = new GeneralTextParser();
-            var parts = wordParser.SplitWordParts(lineText);
-            foreach (var part in parts)
-            {
-                if (!SpellChecker.Check(part.Text))
-                {
-                    var spellingStart = textSpan.Start + part.Start;
 
-                    var location = Location.Create(
-                        node.SyntaxTree,
-                        TextSpan.FromBounds(
-                            spellingStart,
-                            spellingStart + part.Length));
-                    var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, part.Text);
-                    context.ReportDiagnostic(diagnostic);
+            foreach (var lineTextSpan in lineTextSpans)
+            {
+                var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
+                var wordParts = wordParser.SplitWordParts(lineText);
+                foreach (var wordPart in wordParts.Where(part => part.IsWord))
+                {
+                    if (!SpellChecker.Check(wordPart.Text))
+                    {
+                        var spellingStart = node.SpanStart + lineTextSpan.Start + wordPart.Start;
+
+                        var location = Location.Create(
+                            node.SyntaxTree,
+                            TextSpan.FromBounds(
+                                spellingStart,
+                                spellingStart + wordPart.Length));
+                        var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, wordPart.Text);
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
             }
         }
