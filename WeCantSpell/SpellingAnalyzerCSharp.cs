@@ -66,7 +66,7 @@ namespace WeCantSpell
             CommentDiagnosticDescriptor,
             DocumentationDiagnosticDescriptor);
 
-        public ISpellChecker SpellChecker { get; private set; }
+        public ISpellChecker SpellChecker { get; }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => SupportedDiagnosticsArray;
 
@@ -102,7 +102,7 @@ namespace WeCantSpell
             context.RegisterSyntaxNodeAction(StringLiteralExpressionHandler, SyntaxKind.StringLiteralExpression);
             context.RegisterSyntaxNodeAction(InterpolatedStringTextHandler, SyntaxKind.InterpolatedStringText);
 
-            context.RegisterSyntaxTreeAction(this.HandleSyntaxTree);
+            context.RegisterSyntaxTreeAction(HandleSyntaxTree);
         }
 
         private void AnalyzerNotImplemented(SyntaxNodeAnalysisContext context)
@@ -367,16 +367,67 @@ namespace WeCantSpell
                         break;
                     case SyntaxKind.SingleLineDocumentationCommentTrivia:
                     case SyntaxKind.MultiLineDocumentationCommentTrivia:
-                        XmlTextLiteralTokenHandler(node);
+                        XmlTextLiteralTokenHandler(node, context);
                         break;
                 }
             }
         }
 
-        private void XmlTextLiteralTokenHandler(SyntaxTrivia node)
+        private void XmlTextLiteralTokenHandler(SyntaxTrivia trivia, SyntaxTreeAnalysisContext context)
         {
-            "".ToCharArray();
-            ;
+            var structure = trivia.GetStructure();
+
+            var docCommentTrivia = structure as DocumentationCommentTriviaSyntax;
+            if (docCommentTrivia != null)
+            {
+                foreach (var node in docCommentTrivia.Content)
+                {
+                    XmlNodeSyntaxHandler(node, context);
+                }
+            }
+        }
+
+        private void XmlNodeSyntaxHandler(XmlNodeSyntax node, SyntaxTreeAnalysisContext context)
+        {
+            if (node is XmlElementSyntax xmlElementSyntax)
+            {
+                var localName = xmlElementSyntax.StartTag.Name.ToString();
+                if (localName != "c" && localName != "code")
+                {
+                    foreach (var item in xmlElementSyntax.Content)
+                    {
+                        XmlNodeSyntaxHandler(item, context);
+                    }
+                }
+            }
+            else if (node is XmlTextSyntax xmlTextSyntax)
+            {
+                XmlTextSyntaxHandler(xmlTextSyntax, context);
+            }
+        }
+
+        private void XmlTextSyntaxHandler(XmlTextSyntax node, SyntaxTreeAnalysisContext context)
+        {
+            var lineText = node.ToString();
+            var textSpan = node.Span;
+
+            var wordParser = new GeneralTextParser();
+            var parts = wordParser.SplitWordParts(lineText);
+            foreach (var part in parts)
+            {
+                if (!SpellChecker.Check(part.Text))
+                {
+                    var spellingStart = textSpan.Start + part.Start;
+
+                    var location = Location.Create(
+                        node.SyntaxTree,
+                        TextSpan.FromBounds(
+                            spellingStart,
+                            spellingStart + part.Length));
+                    var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, part.Text);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
         }
 
         private void SingleLineCommentTriviaHandler(SyntaxTrivia node, SyntaxTreeAnalysisContext context)
