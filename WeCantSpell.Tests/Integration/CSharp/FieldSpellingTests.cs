@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -8,19 +7,16 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class FieldSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_various_fields_data
+        public static object[][] can_find_mistakes_in_various_fields_data => new[]
         {
-            get
-            {
-                yield return new object[] { "read", 124 };
-                yield return new object[] { "Only", 128 };
-                yield return new object[] { "hidden", 166 };
-                yield return new object[] { "Value", 211 };
-                yield return new object[] { "Count", 223 };
-                yield return new object[] { "const", 266 };
-                yield return new object[] { "what", 305 };
-            }
-        }
+            new object[] { "read", 124 },
+            new object[] { "Only", 128 },
+            new object[] { "hidden", 166 },
+            new object[] { "Value", 211 },
+            new object[] { "Count", 223 },
+            new object[] { "const", 266 },
+            new object[] { "what", 305 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_various_fields_data))]
         public async Task can_find_mistakes_in_various_fields(string expectedWord, int expectedStart)

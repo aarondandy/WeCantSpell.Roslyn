@@ -8,19 +8,16 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class CommentSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_comments_data
+        public static object[][] can_find_mistakes_in_comments_data => new[]
         {
-            get
-            {
-                yield return new object[] { "aardvark", 660 };
-                yield return new object[] { "simple", 1186 };
-                yield return new object[] { "under", 1235 };
-                yield return new object[] { "within", 127 };
-                yield return new object[] { "tag", 320 };
-                yield return new object[] { "Here", 898 };
-                yield return new object[] { "Just", 1130 };
-            }
-        }
+            new object[] { "aardvark", 660 },
+            new object[] { "simple", 1186 },
+            new object[] { "under", 1235 },
+            new object[] { "within", 127 },
+            new object[] { "tag", 320 },
+            new object[] { "Here", 898 },
+            new object[] { "Just", 1130 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_comments_data))]
         public async Task can_find_mistakes_in_comments(string expectedWord, int expectedStart)

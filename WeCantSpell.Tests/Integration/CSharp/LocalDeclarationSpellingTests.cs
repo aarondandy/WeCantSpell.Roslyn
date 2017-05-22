@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -8,27 +7,24 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class LocalDeclarationSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_spelling_mistakes_in_locals_data
+        public static object[][] can_find_spelling_mistakes_in_locals_data => new[]
         {
-            get
-            {
-                yield return new object[] { "word", 163 };
-                yield return new object[] { "One", 167 };
-                yield return new object[] { "phrase", 172 };
-                yield return new object[] { "Two", 178 };
-                yield return new object[] { "simple", 200 };
-                yield return new object[] { "Name", 206 };
-                yield return new object[] { "OGRE", 237 };
-                yield return new object[] { "CAPS", 242 };
-                yield return new object[] { "What", 292 };
-                yield return new object[] { "even", 297 };
-                yield return new object[] { "Is", 302 };
-                yield return new object[] { "This", 304 };
-                yield return new object[] { "anonymous", 328 };
-                yield return new object[] { "readonly", 376 };
-                yield return new object[] { "what", 417 };
-            }
-        }
+            new object[] { "word", 163 },
+            new object[] { "One", 167 },
+            new object[] { "phrase", 172 },
+            new object[] { "Two", 178 },
+            new object[] { "simple", 200 },
+            new object[] { "Name", 206 },
+            new object[] { "OGRE", 237 },
+            new object[] { "CAPS", 242 },
+            new object[] { "What", 292 },
+            new object[] { "even", 297 },
+            new object[] { "Is", 302 },
+            new object[] { "This", 304 },
+            new object[] { "anonymous", 328 },
+            new object[] { "readonly", 376 },
+            new object[] { "what", 417 }
+        };
 
         [Theory, MemberData(nameof(can_find_spelling_mistakes_in_locals_data))]
         public async Task can_find_spelling_mistakes_in_locals(string expectedWord, int expectedStart)

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
@@ -9,19 +8,16 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class PropertyDeclarationSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_various_properties_data
+        public static object[][] can_find_mistakes_in_various_properties_data => new[]
         {
-            get
-            {
-                yield return new object[] { "Read", 133 };
-                yield return new object[] { "Only", 137 };
-                yield return new object[] { "Generated", 176 };
-                yield return new object[] { "Backing", 185 };
-                yield return new object[] { "Hand", 232 };
-                yield return new object[] { "Made", 236 };
-                yield return new object[] { "Uuid", 429 };
-            }
-        }
+            new object[] { "Read", 133 },
+            new object[] { "Only", 137 },
+            new object[] { "Generated", 176 },
+            new object[] { "Backing", 185 },
+            new object[] { "Hand", 232 },
+            new object[] { "Made", 236 },
+            new object[] { "Uuid", 429 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_various_properties_data))]
         public async Task can_find_mistakes_in_various_properties(string expectedWord, int expectedStart)

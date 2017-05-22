@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -9,18 +7,15 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class GenericTypeParameterSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_generic_parameter_names_data
+        public static object[][] can_find_mistakes_in_generic_parameter_names_data => new[]
         {
-            get
-            {
-                yield return new object[] { "In", 99 };
-                yield return new object[] { "Out", 108 };
-                yield return new object[] { "Struct", 203 };
-                yield return new object[] { "Thing", 321 };
-                yield return new object[] { "Gadget", 368 };
-                yield return new object[] { "Ion", 448 };
-            }
-        }
+            new object[] { "In", 99 },
+            new object[] { "Out", 108 },
+            new object[] { "Struct", 203 },
+            new object[] { "Thing", 321 },
+            new object[] { "Gadget", 368 },
+            new object[] { "Ion", 448 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_generic_parameter_names_data))]
         public async Task can_find_mistakes_in_generic_parameter_names(string expectedWord, int expectedStart)

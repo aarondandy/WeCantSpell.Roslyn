@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -8,19 +7,16 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class MethodDeclarationSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_methods_data
+        public static object[][] can_find_mistakes_in_methods_data => new[]
         {
-            get
-            {
-                yield return new object[] { "STATIC", 125 };
-                yield return new object[] { "METHOD", 132 };
-                yield return new object[] { "set", 215 };
-                yield return new object[] { "Timeout", 218 };
-                yield return new object[] { "Internal", 322 };
-                yield return new object[] { "By", 373 };
-                yield return new object[] { "Ref", 375 };
-            }
-        }
+            new object[] { "STATIC", 125 },
+            new object[] { "METHOD", 132 },
+            new object[] { "set", 215 },
+            new object[] { "Timeout", 218 },
+            new object[] { "Internal", 322 },
+            new object[] { "By", 373 },
+            new object[] { "Ref", 375 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_methods_data))]
         public async Task can_find_mistakes_in_methods(string expectedWord, int expectedStart)

@@ -8,17 +8,14 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class EventSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_various_fields_data
+        public static IEnumerable<object[]> can_find_mistakes_in_various_fields_data => new[]
         {
-            get
-            {
-                yield return new object[] { "Do", 143 };
-                yield return new object[] { "The", 145 };
-                yield return new object[] { "Thing", 148 };
-                yield return new object[] { "Click", 193 };
-                yield return new object[] { "Clack", 198 };
-            }
-        }
+            new object[] { "Do", 143 },
+            new object[] { "The", 145 },
+            new object[] { "Thing", 148 },
+            new object[] { "Click", 193 },
+            new object[] { "Clack", 198 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_various_fields_data))]
         public async Task can_find_mistakes_in_various_fields(string expectedWord, int expectedStart)

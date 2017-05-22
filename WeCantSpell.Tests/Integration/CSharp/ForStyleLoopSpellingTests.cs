@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -9,16 +7,13 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class ForStyleLoopSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_for_style_loops_data
+        public static object[][] can_find_mistakes_in_for_style_loops_data => new[]
         {
-            get
-            {
-                yield return new object[] { "thing", 317 };
-                yield return new object[] { "index", 427 };
-                yield return new object[] { "jndex", 438 };
-                yield return new object[] { "floating", 564 };
-            }
-        }
+            new object[] { "thing", 317 },
+            new object[] { "index", 427 },
+            new object[] { "jndex", 438 },
+            new object[] { "floating", 564 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_for_style_loops_data))]
         public async Task can_find_mistakes_in_for_style_loops(string expectedWord, int expectedStart)

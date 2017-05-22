@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -8,16 +7,13 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class UsingSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_spelling_mistakes_in_usings_data
+        public static object[][] can_find_spelling_mistakes_in_usings_data => new[]
         {
-            get
-            {
-                yield return new object[] { "Nope", 52 };
-                yield return new object[] { "Not", 96 };
-                yield return new object[] { "Done", 99 };
-                yield return new object[] { "bytes", 397 };
-            }
-        }
+            new object[] { "Nope", 52 },
+            new object[] { "Not", 96 },
+            new object[] { "Done", 99 },
+            new object[] { "bytes", 397 }
+        };
 
         [Theory, MemberData(nameof(can_find_spelling_mistakes_in_usings_data))]
         public async Task can_find_spelling_mistakes_in_usings(string expectedWord, int expectedStart)

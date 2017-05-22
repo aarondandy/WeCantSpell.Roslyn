@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
@@ -9,19 +8,16 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class ParameterSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_method_parameter_names_data
+        public static object[][] can_find_mistakes_in_method_parameter_names_data => new[]
         {
-            get
-            {
-                yield return new object[] { "number", 145 };
-                yield return new object[] { "many", 160 };
-                yield return new object[] { "Words", 164 };
-                yield return new object[] { "count", 230 };
-                yield return new object[] { "name", 244 };
-                yield return new object[] { "uuid", 395 };
-                yield return new object[] { "result", 412 };
-            }
-        }
+            new object[] { "number", 145 },
+            new object[] { "many", 160 },
+            new object[] { "Words", 164 },
+            new object[] { "count", 230 },
+            new object[] { "name", 244 },
+            new object[] { "uuid", 395 },
+            new object[] { "result", 412 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_method_parameter_names_data))]
         public async Task can_find_mistakes_in_method_parameter_names(string expectedWord, int expectedStart)
@@ -40,17 +36,14 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 .And.HaveMessageContaining(expectedWord);
         }
 
-        public static IEnumerable<object[]> can_find_mistakes_in_lambda_parameters_data
+        public static object[][] can_find_mistakes_in_lambda_parameters_data => new[]
         {
-            get
-            {
-                yield return new object[] { "word", 227 };
-                yield return new object[] { "count", 305 };
-                yield return new object[] { "Things", 312 };
-                yield return new object[] { "value", 320 };
-                yield return new object[] { "number", 417 };
-            }
-        }
+            new object[] { "word", 227 },
+            new object[] { "count", 305 },
+            new object[] { "Things", 312 },
+            new object[] { "value", 320 },
+            new object[] { "number", 417 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_lambda_parameters_data))]
         public async Task can_find_mistakes_in_lambda_parameters(string expectedWord, int expectedStart)

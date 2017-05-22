@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -8,19 +7,16 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class DelegateSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_delegate_and_parameters_data
+        public static object[][] can_find_mistakes_in_delegate_and_parameters_data => new[]
         {
-            get
-            {
-                yield return new object[] { "Do", 124 };
-                yield return new object[] { "The", 126 };
-                yield return new object[] { "Things", 129 };
-                yield return new object[] { "arg", 140 };
-                yield return new object[] { "One", 143 };
-                yield return new object[] { "param", 155 };
-                yield return new object[] { "Two", 160 };
-            }
-        }
+            new object[] { "Do", 124 },
+            new object[] { "The", 126 },
+            new object[] { "Things", 129 },
+            new object[] { "arg", 140 },
+            new object[] { "One", 143 },
+            new object[] { "param", 155 },
+            new object[] { "Two", 160 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_delegate_and_parameters_data))]
         public async Task can_find_mistakes_in_delegate_and_parameters(string expectedWord, int expectedStart)

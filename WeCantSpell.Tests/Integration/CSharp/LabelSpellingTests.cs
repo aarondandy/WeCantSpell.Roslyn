@@ -8,18 +8,15 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class LabelSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_labels_data
+        public static object[][] can_find_mistakes_in_labels_data => new[]
         {
-            get
-            {
-                yield return new object[] { "go", 150 };
-                yield return new object[] { "Wild", 152 };
-                yield return new object[] { "jump", 188 };
-                yield return new object[] { "Again", 192 };
-                yield return new object[] { "strike", 506 };
-                yield return new object[] { "Out", 512 };
-            }
-        }
+            new object[] { "go", 150 },
+            new object[] { "Wild", 152 },
+            new object[] { "jump", 188 },
+            new object[] { "Again", 192 },
+            new object[] { "strike", 506 },
+            new object[] { "Out", 512 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_labels_data))]
         public async Task can_find_mistakes_in_labels(string expectedWord, int expectedStart)

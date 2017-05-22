@@ -7,6 +7,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using System.Reflection;
+using Microsoft.CodeAnalysis.CSharp;
+using System.Linq;
 
 namespace WeCantSpell.Tests.Integration.CSharp
 {
@@ -16,18 +18,15 @@ namespace WeCantSpell.Tests.Integration.CSharp
         private static readonly string ProjectNameSingleFileSample = nameof(ProjectNameSingleFileSample);
 
         private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(Microsoft.CodeAnalysis.CSharp.CSharpCompilation).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Microsoft.CodeAnalysis.Compilation).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).GetTypeInfo().Assembly.Location);
 
-        protected Stream OpenCodeFileStream(string embeddedResourceFileName)
-        {
-            var fullEmbeddedResourcePath = PathBase + "." + embeddedResourceFileName;
-            return typeof(CSharpTestBase).GetTypeInfo().Assembly.GetManifestResourceStream(fullEmbeddedResourcePath);
-        }
+        protected Stream OpenCodeFileStream(string embeddedResourceFileName) =>
+            typeof(CSharpTestBase).GetTypeInfo().Assembly.GetManifestResourceStream(PathBase + "." + embeddedResourceFileName);
 
         protected async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
-        {   
+        {
             using (var stream = OpenCodeFileStream(embeddedResourceFileName))
             using (var reader = new StreamReader(stream, Encoding.UTF8, true))
             {
@@ -35,19 +34,14 @@ namespace WeCantSpell.Tests.Integration.CSharp
             }
         }
 
-        protected async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string embeddedResourceFileName)
-        {
-            var sourceText = SourceText.From(await ReadCodeFileAsStringAsync(embeddedResourceFileName));
-            var textAndVersion = TextAndVersion.Create(sourceText, VersionStamp.Default, embeddedResourceFileName);
-            return textAndVersion;
-        }
+        protected async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string embeddedResourceFileName) =>
+            TextAndVersion.Create(
+                SourceText.From(await ReadCodeFileAsStringAsync(embeddedResourceFileName)),
+                VersionStamp.Default,
+                embeddedResourceFileName);
 
-        protected async Task<Project> ReadCodeFileAsProjectAsync(string embeddedResourceFileName)
-        {
-            var file = await ReadCodeFileAsSTextAndVersionAsync(embeddedResourceFileName);
-            return CreateProjectWithFiles(new[] { file });
-
-        }
+        protected async Task<Project> ReadCodeFileAsProjectAsync(string embeddedResourceFileName) =>
+            CreateProjectWithFiles(new[] { await ReadCodeFileAsSTextAndVersionAsync(embeddedResourceFileName) });
 
         protected Project CreateProjectWithFiles(IEnumerable<TextAndVersion> files)
         {
@@ -61,7 +55,7 @@ namespace WeCantSpell.Tests.Integration.CSharp
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference);
 
-            foreach(var file in files)
+            foreach (var file in files)
             {
                 var documentId = DocumentId.CreateNewId(projectId, debugName: file.FilePath);
                 solution = solution.AddDocument(documentId, file.FilePath, file.Text);
@@ -70,16 +64,15 @@ namespace WeCantSpell.Tests.Integration.CSharp
             return solution.GetProject(projectId);
         }
 
-        protected Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, params DiagnosticAnalyzer[] analyzers)
-        {
-            return GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
-        }
+        protected Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, params DiagnosticAnalyzer[] analyzers) =>
+            GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
 
         protected async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, ImmutableArray<DiagnosticAnalyzer> analyzers)
         {
             var compilation = await project.GetCompilationAsync();
-            var compilationWithAnalyzers = compilation.WithAnalyzers(analyzers);
-            return await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+            return await compilation
+                .WithAnalyzers(analyzers)
+                .GetAnalyzerDiagnosticsAsync();
         }
     }
 }

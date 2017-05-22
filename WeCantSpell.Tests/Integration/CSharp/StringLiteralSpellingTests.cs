@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Tests.Utilities;
 using Xunit;
@@ -8,34 +7,31 @@ namespace WeCantSpell.Tests.Integration.CSharp
 {
     public class StringLiteralSpellingTests : CSharpTestBase
     {
-        public static IEnumerable<object[]> can_find_mistakes_in_literals_data
+        public static object[][] can_find_mistakes_in_literals_data => new[]
         {
-            get
-            {
-                yield return new object[] { "apple", 156 };
-                yield return new object[] { "banana", 162 };
-                yield return new object[] { "cranberry", 169 };
-                yield return new object[] { "dragon-fruit", 248 };
-                yield return new object[] { "edamame", 262 };
-                yield return new object[] { "fig", 270 };
-                yield return new object[] { "gooseberry", 310 };
-                yield return new object[] { "huckleberry", 323 };
-                yield return new object[] { "イチゴ", 337 };
-                yield return new object[] { "jackfruit", 412 };
-                yield return new object[] { "kiwi", 427 };
-                yield return new object[] { "lemon", 436 };
-                yield return new object[] { "mango", 453 };
-                yield return new object[] { "nectarine", 462 };
-                yield return new object[] { "orange", 474 };
-                yield return new object[] { "papaya", 482 };
-                yield return new object[] { "quince", 492 };
-                yield return new object[] { "raspberry", 502 };
-                yield return new object[] { "strawberry", 557 };
-                yield return new object[] { "shake", 570 };
-                yield return new object[] { "tomato", 614 };
-                yield return new object[] { "ugli", 622 };
-            }
-        }
+            new object[] { "apple", 156 },
+            new object[] { "banana", 162 },
+            new object[] { "cranberry", 169 },
+            new object[] { "dragon-fruit", 248 },
+            new object[] { "edamame", 262 },
+            new object[] { "fig", 270 },
+            new object[] { "gooseberry", 310 },
+            new object[] { "huckleberry", 323 },
+            new object[] { "イチゴ", 337 },
+            new object[] { "jackfruit", 412 },
+            new object[] { "kiwi", 427 },
+            new object[] { "lemon", 436 },
+            new object[] { "mango", 453 },
+            new object[] { "nectarine", 462 },
+            new object[] { "orange", 474 },
+            new object[] { "papaya", 482 },
+            new object[] { "quince", 492 },
+            new object[] { "raspberry", 502 },
+            new object[] { "strawberry", 557 },
+            new object[] { "shake", 570 },
+            new object[] { "tomato", 614 },
+            new object[] { "ugli", 622 }
+        };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_literals_data))]
         public async Task can_find_mistakes_in_literals(string expectedWord, int expectedStart)
