@@ -57,54 +57,58 @@ namespace WeCantSpell
                 var valueChar = ValueText[valueCursor];
                 var syntaxChar = SyntaxText[syntaxCursor];
 
+                syntaxCursor++;
                 if (IsVerbatim && syntaxChar == '"')
                 {
-                    syntaxCursor += 2;
+                    syntaxChar = SyntaxText[syntaxCursor];
+                    if (syntaxChar == '"')
+                    {
+                        syntaxCursor++;
+                    }
                 }
                 else if (valueChar == syntaxChar)
                 {
-                    syntaxCursor++;
+                    continue;
                 }
                 else if (!IsVerbatim && syntaxChar == '\\')
                 {
-                    syntaxCursor++;
-                    syntaxChar = SyntaxText[syntaxCursor];
-
-                    if (syntaxChar == 'u')
-                    {
-                        syntaxCursor += 5; // skip the manditory 4 chars
-                    }
-                    else if (syntaxChar == 'U')
-                    {
-                        syntaxCursor++;
-                        var hexChars = SyntaxText.Substring(syntaxCursor, Math.Min(SyntaxText.Length - syntaxCursor, 8));
-                        syntaxCursor += hexChars.Length;
-                    }
-                    else if (syntaxChar == 'x')
-                    {
-                        syntaxCursor++;
-                        for (var digitsRead = 0; digitsRead < 4; digitsRead++)
-                        {
-                            if (!IsHex(SyntaxText[syntaxCursor]))
-                            {
-                                break;
-                            }
-
-                            syntaxCursor++;
-                        }
-                    }
-                    else
-                    {
-                        syntaxCursor++;
-                    }
-                }
-                else
-                {
-                    syntaxCursor++;
+                    ReadEscape(ref syntaxCursor);
                 }
             }
 
             return syntaxCursor;
+        }
+
+        private void ReadEscape(ref int syntaxCursor)
+        {
+            var syntaxChar = SyntaxText[syntaxCursor];
+
+            syntaxCursor++;
+            if (syntaxChar == 'u')
+            {
+                syntaxCursor += Math.Min(SyntaxText.Length - syntaxCursor, 4);
+            }
+            else if (syntaxChar == 'U')
+            {
+                syntaxCursor += Math.Min(SyntaxText.Length - syntaxCursor, 8);
+            }
+            else if (syntaxChar == 'x')
+            {
+                ReadHexValues(ref syntaxCursor);
+            }
+        }
+
+        private void ReadHexValues(ref int syntaxCursor)
+        {
+            for (var digitsRead = 0; digitsRead < 4; digitsRead++)
+            {
+                if (!IsHex(SyntaxText[syntaxCursor]))
+                {
+                    break;
+                }
+
+                syntaxCursor++;
+            }
         }
 
         private static bool IsHex(char c) =>

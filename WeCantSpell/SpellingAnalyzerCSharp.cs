@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -15,14 +14,10 @@ namespace WeCantSpell
     public sealed class SpellingAnalyzerCSharp : DiagnosticAnalyzer
     {
         public SpellingAnalyzerCSharp()
-            : this(new DebugTestingSpellChecker())
-        {
-        }
+            : this(new DebugTestingSpellChecker()) { }
 
-        public SpellingAnalyzerCSharp(ISpellChecker spellChecker)
-        {
+        public SpellingAnalyzerCSharp(ISpellChecker spellChecker) =>        
             SpellChecker = spellChecker;
-        }
 
         private static DiagnosticDescriptor SpellingIdentifierDiagnosticDescriptor = new DiagnosticDescriptor(
             "SP3110",
@@ -301,10 +296,9 @@ namespace WeCantSpell
             var valueText = token.ValueText;
             var syntaxText = token.Text;
 
-            var wordParser = new GeneralTextParser();
             var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
 
-            foreach (var part in wordParser.SplitWordParts(valueText).Where(part => part.IsWord))
+            foreach (var part in GeneralTextParser.SplitWordParts(valueText).Where(part => part.IsWord))
             {
                 if (!SpellChecker.Check(part.Text))
                 {
@@ -328,10 +322,9 @@ namespace WeCantSpell
             var valueText = token.ValueText;
             var syntaxText = token.Text;
 
-            var wordParser = new GeneralTextParser();
             var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
 
-            foreach (var part in wordParser.SplitWordParts(valueText).Where(part => part.IsWord))
+            foreach (var part in GeneralTextParser.SplitWordParts(valueText).Where(part => part.IsWord))
             {
                 if (!SpellChecker.Check(part.Text))
                 {
@@ -377,8 +370,7 @@ namespace WeCantSpell
         {
             var structure = trivia.GetStructure();
 
-            var docCommentTrivia = structure as DocumentationCommentTriviaSyntax;
-            if (docCommentTrivia != null)
+            if (structure is DocumentationCommentTriviaSyntax docCommentTrivia)
             {
                 foreach (var node in docCommentTrivia.Content)
                 {
@@ -410,12 +402,11 @@ namespace WeCantSpell
         {
             var allText = node.ToString();
             var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
-            var wordParser = new GeneralTextParser();
 
             foreach (var lineTextSpan in lineTextSpans)
             {
                 var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
-                var wordParts = wordParser.SplitWordParts(lineText);
+                var wordParts = GeneralTextParser.SplitWordParts(lineText);
                 foreach (var wordPart in wordParts.Where(part => part.IsWord))
                 {
                     if (!SpellChecker.Check(wordPart.Text))
@@ -427,7 +418,7 @@ namespace WeCantSpell
                             TextSpan.FromBounds(
                                 spellingStart,
                                 spellingStart + wordPart.Length));
-                        var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, wordPart.Text);
+                        var diagnostic = Diagnostic.Create(DocumentationDiagnosticDescriptor, location, wordPart.Text);
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
@@ -443,8 +434,7 @@ namespace WeCantSpell
                 return;
             }
 
-            var wordParser = new GeneralTextParser();
-            var parts = wordParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
+            var parts = GeneralTextParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
             foreach (var part in parts.Where(part => part.IsWord))
             {
                 if (!SpellChecker.Check(part.Text))
@@ -466,12 +456,11 @@ namespace WeCantSpell
         {
             var allText = node.ToString();
             var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
-            var wordParser = new GeneralTextParser();
 
             foreach (var lineTextSpan in lineTextSpans)
             {
                 var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
-                var wordParts = wordParser.SplitWordParts(lineText);
+                var wordParts = GeneralTextParser.SplitWordParts(lineText);
                 foreach (var wordPart in wordParts.Where(part => part.IsWord))
                 {
                     if (!SpellChecker.Check(wordPart.Text))
@@ -492,33 +481,29 @@ namespace WeCantSpell
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
         {
-            var wordParser = new IdentifierWordParser();
-            var parts = wordParser.SplitWordParts(identifier.Text);
-            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
+            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForInterfaceIdentifier(SyntaxToken identifier)
         {
-            var wordParser = new IdentifierWordParser();
-            var parts = wordParser.SplitWordParts(identifier.Text);
+            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
             parts = SkipFirstMatching(parts, "I");
-            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForGenericIdentifier(SyntaxToken identifier)
         {
-            var wordParser = new IdentifierWordParser();
-            var parts = wordParser.SplitWordParts(identifier.Text);
+            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
             parts = SkipFirstMatching(parts, "T");
-            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
         }
 
         private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForFieldIdentifier(SyntaxToken identifier)
         {
-            var wordParser = new IdentifierWordParser();
-            var parts = wordParser.SplitWordParts(identifier.Text);
+            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
             parts = SkipFirstMatching(parts, "m");
-            return GenerateSpellingDiagnosticsForWordParts(parts, identifier);
+            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
         }
 
         private IEnumerable<ParsedTextSpan> SkipFirstMatching(IEnumerable<ParsedTextSpan> parts, string firstSkipWord)
@@ -542,7 +527,7 @@ namespace WeCantSpell
             }
         }
 
-        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForWordParts(IEnumerable<ParsedTextSpan> parts, SyntaxToken identifier)
+        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifierWordParts(IEnumerable<ParsedTextSpan> parts, SyntaxToken identifier)
         {
             foreach (var part in parts.Where(part => part.IsWord))
             {

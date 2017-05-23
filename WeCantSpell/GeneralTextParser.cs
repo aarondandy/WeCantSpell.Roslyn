@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeCantSpell
 {
-    public class GeneralTextParser
+    public static class GeneralTextParser
     {
-        public IEnumerable<ParsedTextSpan> SplitWordParts(string text)
+        public static IEnumerable<ParsedTextSpan> SplitWordParts(string text)
         {
             if (text == null)
             {
@@ -14,13 +15,13 @@ namespace WeCantSpell
 
             if (text.Length == 0)
             {
-                return Array.Empty<ParsedTextSpan>();
+                return Enumerable.Empty<ParsedTextSpan>();
             }
 
             return SplitWordPartsGenerator(text);
         }
 
-        private IEnumerable<ParsedTextSpan> SplitWordPartsGenerator(string text)
+        private static IEnumerable<ParsedTextSpan> SplitWordPartsGenerator(string text)
         {
             var partStartIndex = 0;
             var prevChar = text[0];
@@ -82,23 +83,16 @@ namespace WeCantSpell
             }
         }
 
-        private static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType)
-        {
-            if (
-                currCharType != CharType.Word
-                &&
-                prevCharType == CharType.Word
-                &&
-                nextCharType == CharType.Word
-                &&
-                IsHyphen(currChar)
-            )
-            {
-                return CharType.Word;
-            }
-
-            return currCharType;
-        }
+        private static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>
+            currCharType != CharType.Word
+            &&
+            prevCharType == CharType.Word
+            &&
+            nextCharType == CharType.Word
+            &&
+            IsHyphen(currChar)
+                ? CharType.Word
+                : currCharType;
 
         private static CharType ClassifyCharType(char current)
         {
@@ -118,16 +112,14 @@ namespace WeCantSpell
             return CharType.Unknown;
         }
 
-        private static bool IsHyphen(char c)
-        {
-            return c == '-'
-                || c == '\u2010'
-                || c == '\u2212'
-                || c == '\u2014'
-                || c == '\u2013';
-        }
+        private static bool IsHyphen(char c) =>
+            c == '-'
+            || c == '\u2010'
+            || c == '\u2212'
+            || c == '\u2014'
+            || c == '\u2013';
 
-        private enum CharType
+        private enum CharType : byte
         {
             Unknown = 0,
             Word = 1,

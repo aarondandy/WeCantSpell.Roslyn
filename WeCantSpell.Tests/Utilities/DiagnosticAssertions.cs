@@ -63,11 +63,9 @@ namespace WeCantSpell.Tests.Utilities
             return new AndConstraint<DiagnosticAssertions>(this);
         }
 
-        public AndConstraint<DiagnosticAssertions> HaveLocation(int expectedStart, int expectedEnd, string expectedFileName, string because = "", params object[] becauseArgs)
-        {
-            return HaveSourceSpan(expectedStart, expectedEnd, because, becauseArgs)
+        public AndConstraint<DiagnosticAssertions> HaveLocation(int expectedStart, int expectedEnd, string expectedFileName, string because = "", params object[] becauseArgs) =>
+            HaveSourceSpan(expectedStart, expectedEnd, because, becauseArgs)
                 .And.BeFromFileName(expectedFileName, because, becauseArgs);
-        }
 
         public AndConstraint<DiagnosticAssertions> HaveMessageContaining(string expectedSubstring, string because = "", params object[] becauseArgs)
         {

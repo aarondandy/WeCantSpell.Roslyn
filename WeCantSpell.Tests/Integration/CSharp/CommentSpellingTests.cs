@@ -10,17 +10,17 @@ namespace WeCantSpell.Tests.Integration.CSharp
     {
         public static object[][] can_find_mistakes_in_comments_data => new[]
         {
-            new object[] { "aardvark", 660 },
-            new object[] { "simple", 1186 },
-            new object[] { "under", 1235 },
-            new object[] { "within", 127 },
-            new object[] { "tag", 320 },
-            new object[] { "Here", 898 },
-            new object[] { "Just", 1130 }
+            new object[] { "aardvark", 660, "SP3112" },
+            new object[] { "simple", 1186, "SP3112" },
+            new object[] { "under", 1235, "SP3112" },
+            new object[] { "within", 127, "SP3113" },
+            new object[] { "tag", 320, "SP3113" },
+            new object[] { "Here", 898, "SP3113" },
+            new object[] { "Just", 1130, "SP3113" }
         };
 
         [Theory, MemberData(nameof(can_find_mistakes_in_comments_data))]
-        public async Task can_find_mistakes_in_comments(string expectedWord, int expectedStart)
+        public async Task can_find_mistakes_in_comments(string expectedWord, int expectedStart, string expectedDiagnosticId)
         {
             var expectedEnd = expectedStart + expectedWord.Length;
 
@@ -31,7 +31,7 @@ namespace WeCantSpell.Tests.Integration.CSharp
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
-                .HaveId("SP3112")
+                .HaveId(expectedDiagnosticId)
                 .And.HaveLocation(expectedStart, expectedEnd, "XmlDoc.SimpleExamples.cs")
                 .And.HaveMessageContaining(expectedWord);
         }

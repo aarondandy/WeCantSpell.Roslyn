@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Text;
 
 namespace WeCantSpell
 {
     public static class CommentTextExtractor
     {
+        private const char CommentSlashChar = '/';
+        private const char CommentStarChar = '*';
+
         public static TextSpan LocateSingleLineCommentText(string commentText)
         {
             var startIndex = 0;
+            var endIndex = commentText.Length - 1;
 
             // skip initial whitespace
-            for (; startIndex < commentText.Length && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip the initial slashes
-            for (; startIndex < commentText.Length && commentText[startIndex] == '/'; startIndex++) ;
+            for (; startIndex <= endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
 
             // skip following whitespace
-            for (; startIndex < commentText.Length && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
-
-            var endIndex = commentText.Length - 1;
+            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip trailing whitespace
             for (; endIndex >= startIndex && IsCSharpWhitespace(commentText[endIndex]); endIndex--) ;
@@ -45,25 +46,25 @@ namespace WeCantSpell
             var endIndex = lineSpan.End - 1;
 
             // skip initial whitespace
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip the slashes
-            for (; startIndex < endIndex && commentText[startIndex] == '/'; startIndex++) ;
+            for (; startIndex <= endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
 
             // skip the stars
-            for (; startIndex < endIndex && commentText[startIndex] == '*'; startIndex++) ;
+            for (; startIndex <= endIndex && commentText[startIndex] == CommentStarChar; startIndex++) ;
 
             // skip following whitespace after //**
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip trailing whitespace
             for (; endIndex >= startIndex && IsCSharpWhitespace(commentText[endIndex]); endIndex--) ;
 
             // skip trailing slashes
-            for (; endIndex >= startIndex && commentText[endIndex] == '/'; endIndex--) ;
+            for (; endIndex >= startIndex && commentText[endIndex] == CommentSlashChar; endIndex--) ;
 
             // skip trailing stars
-            for (; endIndex >= startIndex && commentText[endIndex] == '*'; endIndex--) ;
+            for (; endIndex >= startIndex && commentText[endIndex] == CommentStarChar; endIndex--) ;
 
             // skip trailing whitespace before **//
             for (; endIndex >= startIndex && IsCSharpWhitespace(commentText[endIndex]); endIndex--) ;
@@ -95,7 +96,7 @@ namespace WeCantSpell
         }
 
         private static bool IsCSharpWhitespace(char c) =>
-            // from spec
+            // NOTE: from spec
             c == ' '
             || char.IsWhiteSpace(c)
             || c == '\u0009'

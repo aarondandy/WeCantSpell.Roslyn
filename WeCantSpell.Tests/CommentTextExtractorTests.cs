@@ -15,6 +15,7 @@ namespace WeCantSpell.Tests
         [InlineData("   // a   ", 6, 1)]
         [InlineData("   // ", 6, 0)]
         [InlineData("//", 2, 0)]
+        [InlineData(" // x ", 4, 1)]
         [InlineData("", 0, 0)]
         public void CanExtractCommentText(string text, int expectedStart, int expectedLength)
         {

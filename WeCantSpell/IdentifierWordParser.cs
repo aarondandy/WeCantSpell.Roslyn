@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeCantSpell
 {
-    public class IdentifierWordParser
+    public static class IdentifierWordParser
     {
-        public IEnumerable<ParsedTextSpan> SplitWordParts(string text)
+        public static IEnumerable<ParsedTextSpan> SplitWordParts(string text)
         {
             if (text == null)
             {
@@ -14,13 +15,13 @@ namespace WeCantSpell
 
             if (text.Length == 0)
             {
-                return Array.Empty<ParsedTextSpan>();
+                return Enumerable.Empty<ParsedTextSpan>();
             }
 
             return SplitWordPartsGenerator(text);
         }
 
-        private IEnumerable<ParsedTextSpan> SplitWordPartsGenerator(string text)
+        private static IEnumerable<ParsedTextSpan> SplitWordPartsGenerator(string text)
         {
             var partStartIndex = 0;
             var prevType = ClassifyLetterType(text[0]);
