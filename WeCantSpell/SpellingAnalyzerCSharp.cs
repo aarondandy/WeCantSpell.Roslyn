@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -67,278 +68,459 @@ namespace WeCantSpell
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(ClassDeclarationHandler, SyntaxKind.ClassDeclaration);
-            context.RegisterSyntaxNodeAction(StructDeclarationHandler, SyntaxKind.StructDeclaration);
-            context.RegisterSyntaxNodeAction(InterfaceDeclarationHandler, SyntaxKind.InterfaceDeclaration);
-            context.RegisterSyntaxNodeAction(FieldDeclarationHandler, SyntaxKind.FieldDeclaration);
-            context.RegisterSyntaxNodeAction(LocalDeclarationStatementHandler, SyntaxKind.LocalDeclarationStatement);
-            context.RegisterSyntaxNodeAction(MethodDeclarationHandler, SyntaxKind.MethodDeclaration);
-            context.RegisterSyntaxNodeAction(ParameterHandler, SyntaxKind.Parameter);
-            context.RegisterSyntaxNodeAction(PropertyDeclarationHandler, SyntaxKind.PropertyDeclaration);
-            context.RegisterSyntaxNodeAction(UsingDirectiveHandler, SyntaxKind.UsingDirective);
-            context.RegisterSyntaxNodeAction(UsingStatementHandler, SyntaxKind.UsingStatement);
-            context.RegisterSyntaxNodeAction(CatchDeclarationHandler, SyntaxKind.CatchDeclaration);
-            context.RegisterSyntaxNodeAction(EnumDeclarationHandler, SyntaxKind.EnumDeclaration);
-            context.RegisterSyntaxNodeAction(EnumMemberDeclarationHandler, SyntaxKind.EnumMemberDeclaration);
-            context.RegisterSyntaxNodeAction(AnonymousObjectMemberDeclaratorHandler, SyntaxKind.AnonymousObjectMemberDeclarator);
-            context.RegisterSyntaxNodeAction(ForEachStatementHandler, SyntaxKind.ForEachStatement);
-            context.RegisterSyntaxNodeAction(ForStatementHandler, SyntaxKind.ForStatement);
-            context.RegisterSyntaxNodeAction(LabeledStatementHandler, SyntaxKind.LabeledStatement);
-            context.RegisterSyntaxNodeAction(DelegateDeclarationHandler, SyntaxKind.DelegateDeclaration);
-            context.RegisterSyntaxNodeAction(EventDeclarationHandler, SyntaxKind.EventDeclaration);
-            context.RegisterSyntaxNodeAction(EventFieldDeclarationHandler, SyntaxKind.EventFieldDeclaration);
-            context.RegisterSyntaxNodeAction(TypeParameterHandler, SyntaxKind.TypeParameter);
-            context.RegisterSyntaxNodeAction(FromClauseHandler, SyntaxKind.FromClause);
-            context.RegisterSyntaxNodeAction(QueryContinuationHandler, SyntaxKind.QueryContinuation);
-            context.RegisterSyntaxNodeAction(LetClauseHandler, SyntaxKind.LetClause);
-            context.RegisterSyntaxNodeAction(JoinClauseHandler, SyntaxKind.JoinClause);
-            context.RegisterSyntaxNodeAction(JoinIntoClauseHandler, SyntaxKind.JoinIntoClause);
-
-            context.RegisterSyntaxNodeAction(StringLiteralExpressionHandler, SyntaxKind.StringLiteralExpression);
-            context.RegisterSyntaxNodeAction(InterpolatedStringTextHandler, SyntaxKind.InterpolatedStringText);
-
             context.RegisterSyntaxTreeAction(HandleSyntaxTree);
         }
 
-        private void AnalyzerNotImplemented(SyntaxNodeAnalysisContext context)
+        public enum SpellingMistakeKind
         {
-            var filePath = context.Node.SyntaxTree.FilePath;
-            var node = context.Node;
+            Identifier,
+            Literal,
+            Comment,
+            Documentation
         }
 
-        private void ClassDeclarationHandler(SyntaxNodeAnalysisContext context)
+        public class SpellingMistake
         {
-            var node = (ClassDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
+            public Location Location { get; }
 
-        private void StructDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (StructDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
+            public string Text { get; }
 
-        private void InterfaceDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (InterfaceDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForInterfaceIdentifier(node.Identifier));
-        }
+            public SpellingMistakeKind Kind { get; }
 
-        private void FieldDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (FieldDeclarationSyntax)context.Node;
-            foreach (var field in node.Declaration.Variables)
+            public SpellingMistake(
+                Location location,
+                string text,
+                SpellingMistakeKind kind)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForFieldIdentifier(field.Identifier));
+                Location = location;
+                Text = text;
+                Kind = kind;
             }
         }
 
-        private void LocalDeclarationStatementHandler(SyntaxNodeAnalysisContext context)
+        private class SpellCheckWalker : CSharpSyntaxWalker
         {
-            var node = (LocalDeclarationStatementSyntax)context.Node;
-            foreach (var variable in node.Declaration.Variables)
+            public ISpellChecker SpellChecker { get; }
+
+            public HashSet<string> VisitedWords { get; }
+
+            public List<SpellingMistake> Mistakes { get; }
+
+            public SpellCheckWalker(ISpellChecker spellChecker)
+                : base(SyntaxWalkerDepth.StructuredTrivia)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variable.Identifier));
+                SpellChecker = spellChecker;
+                VisitedWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                Mistakes = new List<SpellingMistake>();
             }
-        }
 
-        private void MethodDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (MethodDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void ParameterHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (ParameterSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void PropertyDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (PropertyDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void UsingDirectiveHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (UsingDirectiveSyntax)context.Node;
-            var aliasName = node.Alias?.Name;
-            if (aliasName != null)
+            public override void VisitClassDeclaration(ClassDeclarationSyntax node)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(aliasName.Identifier));
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitClassDeclaration(node);
             }
-        }
 
-        private void UsingStatementHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (UsingStatementSyntax)context.Node;
-            foreach (var variableDeclaration in node.Declaration.Variables)
+            public override void VisitStructDeclaration(StructDeclarationSyntax node)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variableDeclaration.Identifier));
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitStructDeclaration(node);
             }
-        }
 
-        private void CatchDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (CatchDeclarationSyntax)context.Node;
-            if (node.Identifier.Span.Length != 0)
+            public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifierSkippingFirstWord(node.Identifier, "I"));
+                base.VisitInterfaceDeclaration(node);
             }
-        }
 
-        private void EnumDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (EnumDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void EnumMemberDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (EnumMemberDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void AnonymousObjectMemberDeclaratorHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (AnonymousObjectMemberDeclaratorSyntax)context.Node;
-            var name = node.NameEquals?.Name;
-            if (name != null)
+            public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(name.Identifier));
+                AddSpellingMistakes(
+                    node.Declaration.Variables
+                        .SelectMany(v => GenerateSpellingMistakesForIdentifierSkippingFirstWord(v.Identifier, "m")));
+                base.VisitFieldDeclaration(node);
             }
-        }
 
-        private void ForEachStatementHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (ForEachStatementSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void ForStatementHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (ForStatementSyntax)context.Node;
-            foreach (var variableDeclaration in node.Declaration.Variables)
+            public override void VisitLocalDeclarationStatement(LocalDeclarationStatementSyntax node)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(variableDeclaration.Identifier));
+                AddSpellingMistakes(
+                    node.Declaration.Variables
+                        .SelectMany(v => GenerateSpellingMistakesForIdentifier(v.Identifier)));
+                base.VisitLocalDeclarationStatement(node);
             }
-        }
 
-        private void LabeledStatementHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (LabeledStatementSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void DelegateDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (DelegateDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void EventDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (EventDeclarationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForIdentifier(node.Identifier));
-        }
-
-        private void EventFieldDeclarationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (EventFieldDeclarationSyntax)context.Node;
-            foreach (var variableDeclaration in node.Declaration.Variables)
+            public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
             {
-                context.ReportDiagnostics(GenerateSpellingDiagnosticsForFieldIdentifier(variableDeclaration.Identifier));
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitMethodDeclaration(node);
             }
-        }
 
-        private void TypeParameterHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (TypeParameterSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
-        }
-
-        private void FromClauseHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (FromClauseSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
-        }
-
-        private void QueryContinuationHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (QueryContinuationSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
-        }
-
-        private void LetClauseHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (LetClauseSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
-        }
-
-        private void JoinClauseHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (JoinClauseSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
-        }
-
-        private void JoinIntoClauseHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (JoinIntoClauseSyntax)context.Node;
-            context.ReportDiagnostics(GenerateSpellingDiagnosticsForGenericIdentifier(node.Identifier));
-        }
-
-        private void StringLiteralExpressionHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (LiteralExpressionSyntax)context.Node;
-            var token = node.Token;
-
-            var valueText = token.ValueText;
-            var syntaxText = token.Text;
-
-            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
-
-            foreach (var part in GeneralTextParser.SplitWordParts(valueText).Where(part => part.IsWord))
+            public override void VisitParameter(ParameterSyntax node)
             {
-                if (!SpellChecker.Check(part.Text))
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitParameter(node);
+            }
+
+            public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitPropertyDeclaration(node);
+            }
+
+            public override void VisitUsingDirective(UsingDirectiveSyntax node)
+            {
+                var name = node.Alias?.Name;
+                if (name != null)
                 {
-                    var spellingStart = token.SpanStart + valueLocator.ConvertValueToSyntaxIndex(part.Start);
+                    AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(name.Identifier));
+                }
+
+                base.VisitUsingDirective(node);
+            }
+
+            public override void VisitUsingStatement(UsingStatementSyntax node)
+            {
+                AddSpellingMistakes(
+                    node.Declaration.Variables
+                        .SelectMany(v => GenerateSpellingMistakesForIdentifier(v.Identifier)));
+                base.VisitUsingStatement(node);
+            }
+
+            public override void VisitCatchDeclaration(CatchDeclarationSyntax node)
+            {
+                var identifier = node.Identifier;
+                if(identifier.Span.Length != 0)
+                {
+                    AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(identifier));
+                }
+
+                base.VisitCatchDeclaration(node);
+            }
+
+            public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitEnumDeclaration(node);
+            }
+
+            public override void VisitEnumMemberDeclaration(EnumMemberDeclarationSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitEnumMemberDeclaration(node);
+            }
+
+            public override void VisitAnonymousObjectMemberDeclarator(AnonymousObjectMemberDeclaratorSyntax node)
+            {
+                var name = node.NameEquals?.Name;
+                if (name != null)
+                {
+                    AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(name.Identifier));
+                }
+
+                base.VisitAnonymousObjectMemberDeclarator(node);
+            }
+
+            public override void VisitForEachStatement(ForEachStatementSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitForEachStatement(node);
+            }
+
+            public override void VisitForStatement(ForStatementSyntax node)
+            {
+                AddSpellingMistakes(
+                    node.Declaration.Variables
+                        .SelectMany(v => GenerateSpellingMistakesForIdentifier(v.Identifier)));
+                base.VisitForStatement(node);
+            }
+
+            public override void VisitLabeledStatement(LabeledStatementSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitLabeledStatement(node);
+            }
+
+            public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitDelegateDeclaration(node);
+            }
+
+            public override void VisitEventDeclaration(EventDeclarationSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitEventDeclaration(node);
+            }
+
+            public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
+            {
+                AddSpellingMistakes(
+                    node.Declaration.Variables
+                        .SelectMany(v => GenerateSpellingMistakesForIdentifier(v.Identifier)));
+                base.VisitEventFieldDeclaration(node);
+            }
+
+            public override void VisitTypeParameter(TypeParameterSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifierSkippingFirstWord(node.Identifier, "T"));
+                base.VisitTypeParameter(node);
+            }
+
+            public override void VisitFromClause(FromClauseSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitFromClause(node);
+            }
+
+            public override void VisitQueryContinuation(QueryContinuationSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitQueryContinuation(node);
+            }
+
+            public override void VisitLetClause(LetClauseSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitLetClause(node);
+            }
+
+            public override void VisitJoinClause(JoinClauseSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitJoinClause(node);
+            }
+
+            public override void VisitJoinIntoClause(JoinIntoClauseSyntax node)
+            {
+                AddSpellingMistakes(GenerateSpellingMistakesForIdentifier(node.Identifier));
+                base.VisitJoinIntoClause(node);
+            }
+
+            public override void VisitLiteralExpression(LiteralExpressionSyntax node)
+            {
+                var token = node.Token;
+                var valueText = token.ValueText;
+                var syntaxText = token.Text;
+                var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+
+                AddSpellingMistakes(
+                    GeneralTextParser.SplitWordParts(valueText)
+                        .Where(part => part.IsWord && ShouldWordBeMarkedAsMisspelled(part.Text))
+                        .Select(part =>
+                        {
+                            var spellingStart = token.SpanStart + valueLocator.ConvertValueToSyntaxIndex(part.Start);
+                            var location = Location.Create(
+                                token.SyntaxTree,
+                                TextSpan.FromBounds(
+                                    spellingStart,
+                                    spellingStart + part.Length));
+
+                            return new SpellingMistake(location, part.Text, SpellingMistakeKind.Literal);
+                        }));
+
+                base.VisitLiteralExpression(node);
+            }
+
+            public override void VisitInterpolatedStringText(InterpolatedStringTextSyntax node)
+            {
+                var token = node.TextToken;
+                var valueText = token.ValueText;
+                var syntaxText = token.Text;
+                var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+
+                AddSpellingMistakes(
+                    GeneralTextParser.SplitWordParts(valueText)
+                        .Where(part => part.IsWord && ShouldWordBeMarkedAsMisspelled(part.Text))
+                        .Select(part =>
+                        {
+                            var spellingStart = token.SpanStart + valueLocator.ConvertValueToSyntaxIndex(part.Start);
+                            var location = Location.Create(
+                                token.SyntaxTree,
+                                TextSpan.FromBounds(
+                                    spellingStart,
+                                    spellingStart + part.Length));
+
+                            return new SpellingMistake(location, part.Text, SpellingMistakeKind.Literal);
+                        }));
+
+                base.VisitInterpolatedStringText(node);
+            }
+
+            public override void VisitTrivia(SyntaxTrivia trivia)
+            {
+                AddSpellingMistakes(FindSpellingMistakesInTrivia(trivia));
+                base.VisitTrivia(trivia);
+            }
+
+            public override void VisitDocumentationCommentTrivia(DocumentationCommentTriviaSyntax node)
+            {
+                foreach(var xmlNode in node.Content)
+                {
+                    AddSpellingMistakes(FindSpellingMistakesInXmlNodeSyntax(xmlNode));
+                }
+
+                base.VisitDocumentationCommentTrivia(node);
+            }
+
+            private bool ShouldWordBeMarkedAsMisspelled(string word) => !SpellChecker.Check(word);
+
+            private void AddSpellingMistakes(IEnumerable<SpellingMistake> mistakes) =>
+                Mistakes.AddRange(mistakes);
+
+            private IEnumerable<SpellingMistake> GenerateSpellingMistakesForIdentifier(SyntaxToken identifier) =>
+                GenerateSpellingMistakesForIdentifierWordParts(
+                    IdentifierWordParser.SplitWordParts(identifier.Text),
+                    identifier);
+
+            private IEnumerable<SpellingMistake> GenerateSpellingMistakesForIdentifierSkippingFirstWord(SyntaxToken identifier, string firstSkipWord) =>
+                GenerateSpellingMistakesForIdentifierWordParts(
+                    SkipFirstMatching(
+                        IdentifierWordParser.SplitWordParts(identifier.Text),
+                        firstSkipWord),
+                    identifier);
+
+            private IEnumerable<SpellingMistake> FindSpellingMistakesInTrivia(SyntaxTrivia trivia)
+            {
+                var kind = trivia.Kind();
+                if (kind == SyntaxKind.SingleLineCommentTrivia)
+                {
+                    return FindSpellingMistakesInSingleLineComment(trivia);
+                }
+                else if (kind == SyntaxKind.MultiLineCommentTrivia)
+                {
+                    return FindSpellingMistakesInMultiLineComment(trivia);
+                }
+                return Enumerable.Empty<SpellingMistake>();
+            }
+
+            private IEnumerable<SpellingMistake> FindSpellingMistakesInSingleLineComment(SyntaxTrivia node)
+            {
+                var lineText = node.ToString();
+                var textSpan = CommentTextExtractor.LocateSingleLineCommentText(lineText);
+                if (textSpan.Length == 0)
+                {
+                    yield break;
+                }
+
+                var parts = GeneralTextParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
+                foreach (var part in parts.Where(part => part.IsWord && ShouldWordBeMarkedAsMisspelled(part.Text)))
+                {
+                    var spellingStart = node.SpanStart + textSpan.Start + part.Start;
+
                     var location = Location.Create(
-                        token.SyntaxTree,
+                        node.SyntaxTree,
                         TextSpan.FromBounds(
                             spellingStart,
                             spellingStart + part.Length));
-                    var diagnostic = Diagnostic.Create(SpellingLiteralDiagnosticDescriptor, location, part.Text);
 
-                    context.ReportDiagnostic(diagnostic);
+                    yield return new SpellingMistake(location, part.Text, SpellingMistakeKind.Comment);
                 }
             }
-        }
 
-        private void InterpolatedStringTextHandler(SyntaxNodeAnalysisContext context)
-        {
-            var node = (InterpolatedStringTextSyntax)context.Node;
-            var token = node.TextToken;
-            var valueText = token.ValueText;
-            var syntaxText = token.Text;
-
-            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
-
-            foreach (var part in GeneralTextParser.SplitWordParts(valueText).Where(part => part.IsWord))
+            private IEnumerable<SpellingMistake> FindSpellingMistakesInMultiLineComment(SyntaxTrivia node)
             {
-                if (!SpellChecker.Check(part.Text))
-                {
-                    var spellingStart = token.SpanStart + valueLocator.ConvertValueToSyntaxIndex(part.Start);
-                    var location = Location.Create(
-                        token.SyntaxTree,
-                        TextSpan.FromBounds(
-                            spellingStart,
-                            spellingStart + part.Length));
-                    var diagnostic = Diagnostic.Create(SpellingLiteralDiagnosticDescriptor, location, part.Text);
+                var allText = node.ToString();
+                var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
 
-                    context.ReportDiagnostic(diagnostic);
+                foreach (var lineTextSpan in lineTextSpans)
+                {
+                    if (lineTextSpan.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
+                    var wordParts = GeneralTextParser.SplitWordParts(lineText);
+                    foreach (var wordPart in wordParts.Where(part => part.IsWord && ShouldWordBeMarkedAsMisspelled(part.Text)))
+                    {
+                        var spellingStart = node.SpanStart + lineTextSpan.Start + wordPart.Start;
+                        var location = Location.Create(
+                            node.SyntaxTree,
+                            TextSpan.FromBounds(
+                                spellingStart,
+                                spellingStart + wordPart.Length));
+
+                        yield return new SpellingMistake(location, wordPart.Text, SpellingMistakeKind.Comment);
+                    }
                 }
             }
+
+            private IEnumerable<SpellingMistake> FindSpellingMistakesInXmlNodeSyntax(XmlNodeSyntax node)
+            {
+                if (node is XmlElementSyntax xmlElementSyntax)
+                {
+                    var localName = xmlElementSyntax.StartTag.Name.ToString();
+
+                    if (localName != "c" && localName != "code")
+                    {
+                        return xmlElementSyntax.Content.SelectMany(FindSpellingMistakesInXmlNodeSyntax);
+                    }
+                }
+                else if (node is XmlTextSyntax xmlTextSyntax)
+                {
+                    return FindSpellingMistakesInXmlTextSyntax(xmlTextSyntax);
+                }
+
+                return Enumerable.Empty<SpellingMistake>();
+            }
+
+            private IEnumerable<SpellingMistake> FindSpellingMistakesInXmlTextSyntax(XmlTextSyntax node)
+            {
+                var allText = node.ToString();
+                var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
+
+                foreach (var lineTextSpan in lineTextSpans)
+                {
+                    var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
+                    var wordParts = GeneralTextParser.SplitWordParts(lineText);
+                    foreach (var wordPart in wordParts.Where(part => part.IsWord && ShouldWordBeMarkedAsMisspelled(part.Text)))
+                    {
+                        var spellingStart = node.SpanStart + lineTextSpan.Start + wordPart.Start;
+                        var location = Location.Create(
+                            node.SyntaxTree,
+                            TextSpan.FromBounds(
+                                spellingStart,
+                                spellingStart + wordPart.Length));
+
+                        yield return new SpellingMistake(location, wordPart.Text, SpellingMistakeKind.Documentation);
+                    }
+                }
+            }
+
+            private IEnumerable<ParsedTextSpan> SkipFirstMatching(IEnumerable<ParsedTextSpan> parts, string firstSkipWord)
+            {
+                using (var enumerator = parts.GetEnumerator())
+                {
+                    if (!enumerator.MoveNext())
+                    {
+                        yield break;
+                    }
+
+                    if (enumerator.Current.Text != firstSkipWord)
+                    {
+                        yield return enumerator.Current;
+                    }
+
+                    while (enumerator.MoveNext())
+                    {
+                        yield return enumerator.Current;
+                    }
+                }
+            }
+
+            private IEnumerable<SpellingMistake> GenerateSpellingMistakesForIdentifierWordParts(IEnumerable<ParsedTextSpan> parts, SyntaxToken identifier) =>
+                parts
+                    .Where(part => part.IsWord && ShouldWordBeMarkedAsMisspelled(part.Text))
+                    .Select(part =>
+                    {
+                        var spellingStart = identifier.SpanStart + part.Start;
+                        var location = Location.Create(
+                            identifier.SyntaxTree,
+                            TextSpan.FromBounds(
+                                spellingStart,
+                                spellingStart + part.Length));
+
+                        return new SpellingMistake(location, part.Text, SpellingMistakeKind.Identifier);
+                    });
         }
 
         private void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
@@ -348,200 +530,25 @@ namespace WeCantSpell
                 return;
             }
 
-            foreach (var node in context.Tree.GetCompilationUnitRoot(context.CancellationToken).DescendantTrivia())
+            var walker = new SpellCheckWalker(SpellChecker);
+            walker.Visit(context.Tree.GetCompilationUnitRoot(context.CancellationToken));
+
+            var diagnostics = walker.Mistakes.Select(ConverToDiagnostic);
+            context.ReportDiagnostics(diagnostics);
+        }
+
+        private Diagnostic ConverToDiagnostic(SpellingMistake mistake) =>
+            Diagnostic.Create(SelectDescriptor(mistake.Kind), mistake.Location, mistake.Text);
+
+        private DiagnosticDescriptor SelectDescriptor(SpellingMistakeKind kind)
+        {
+            switch (kind)
             {
-                switch (node.Kind())
-                {
-                    case SyntaxKind.SingleLineCommentTrivia:
-                        SingleLineCommentTriviaHandler(node, context);
-                        break;
-                    case SyntaxKind.MultiLineCommentTrivia:
-                        MultiLineCommentTriviaHandler(node, context);
-                        break;
-                    case SyntaxKind.SingleLineDocumentationCommentTrivia:
-                    case SyntaxKind.MultiLineDocumentationCommentTrivia:
-                        XmlTextLiteralTokenHandler(node, context);
-                        break;
-                }
-            }
-        }
-
-        private void XmlTextLiteralTokenHandler(SyntaxTrivia trivia, SyntaxTreeAnalysisContext context)
-        {
-            var structure = trivia.GetStructure();
-
-            if (structure is DocumentationCommentTriviaSyntax docCommentTrivia)
-            {
-                foreach (var node in docCommentTrivia.Content)
-                {
-                    XmlNodeSyntaxHandler(node, context);
-                }
-            }
-        }
-
-        private void XmlNodeSyntaxHandler(XmlNodeSyntax node, SyntaxTreeAnalysisContext context)
-        {
-            if (node is XmlElementSyntax xmlElementSyntax)
-            {
-                var localName = xmlElementSyntax.StartTag.Name.ToString();
-                if (localName != "c" && localName != "code")
-                {
-                    foreach (var item in xmlElementSyntax.Content)
-                    {
-                        XmlNodeSyntaxHandler(item, context);
-                    }
-                }
-            }
-            else if (node is XmlTextSyntax xmlTextSyntax)
-            {
-                XmlTextSyntaxHandler(xmlTextSyntax, context);
-            }
-        }
-
-        private void XmlTextSyntaxHandler(XmlTextSyntax node, SyntaxTreeAnalysisContext context)
-        {
-            var allText = node.ToString();
-            var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
-
-            foreach (var lineTextSpan in lineTextSpans)
-            {
-                var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
-                var wordParts = GeneralTextParser.SplitWordParts(lineText);
-                foreach (var wordPart in wordParts.Where(part => part.IsWord))
-                {
-                    if (!SpellChecker.Check(wordPart.Text))
-                    {
-                        var spellingStart = node.SpanStart + lineTextSpan.Start + wordPart.Start;
-
-                        var location = Location.Create(
-                            node.SyntaxTree,
-                            TextSpan.FromBounds(
-                                spellingStart,
-                                spellingStart + wordPart.Length));
-                        var diagnostic = Diagnostic.Create(DocumentationDiagnosticDescriptor, location, wordPart.Text);
-                        context.ReportDiagnostic(diagnostic);
-                    }
-                }
-            }
-        }
-
-        private void SingleLineCommentTriviaHandler(SyntaxTrivia node, SyntaxTreeAnalysisContext context)
-        {
-            var lineText = node.ToString();
-            var textSpan = CommentTextExtractor.LocateSingleLineCommentText(lineText);
-            if (textSpan.Length == 0)
-            {
-                return;
-            }
-
-            var parts = GeneralTextParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
-            foreach (var part in parts.Where(part => part.IsWord))
-            {
-                if (!SpellChecker.Check(part.Text))
-                {
-                    var spellingStart = node.SpanStart + textSpan.Start + part.Start;
-
-                    var location = Location.Create(
-                        node.SyntaxTree,
-                        TextSpan.FromBounds(
-                            spellingStart,
-                            spellingStart + part.Length));
-                    var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, part.Text);
-                    context.ReportDiagnostic(diagnostic);
-                }
-            }
-        }
-
-        private void MultiLineCommentTriviaHandler(SyntaxTrivia node, SyntaxTreeAnalysisContext context)
-        {
-            var allText = node.ToString();
-            var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
-
-            foreach (var lineTextSpan in lineTextSpans)
-            {
-                var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
-                var wordParts = GeneralTextParser.SplitWordParts(lineText);
-                foreach (var wordPart in wordParts.Where(part => part.IsWord))
-                {
-                    if (!SpellChecker.Check(wordPart.Text))
-                    {
-                        var spellingStart = node.SpanStart + lineTextSpan.Start + wordPart.Start;
-
-                        var location = Location.Create(
-                            node.SyntaxTree,
-                            TextSpan.FromBounds(
-                                spellingStart,
-                                spellingStart + wordPart.Length));
-                        var diagnostic = Diagnostic.Create(CommentDiagnosticDescriptor, location, wordPart.Text);
-                        context.ReportDiagnostic(diagnostic);
-                    }
-                }
-            }
-        }
-
-        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifier(SyntaxToken identifier)
-        {
-            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
-            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
-        }
-
-        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForInterfaceIdentifier(SyntaxToken identifier)
-        {
-            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
-            parts = SkipFirstMatching(parts, "I");
-            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
-        }
-
-        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForGenericIdentifier(SyntaxToken identifier)
-        {
-            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
-            parts = SkipFirstMatching(parts, "T");
-            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
-        }
-
-        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForFieldIdentifier(SyntaxToken identifier)
-        {
-            var parts = IdentifierWordParser.SplitWordParts(identifier.Text);
-            parts = SkipFirstMatching(parts, "m");
-            return GenerateSpellingDiagnosticsForIdentifierWordParts(parts, identifier);
-        }
-
-        private IEnumerable<ParsedTextSpan> SkipFirstMatching(IEnumerable<ParsedTextSpan> parts, string firstSkipWord)
-        {
-            using (var enumerator = parts.GetEnumerator())
-            {
-                if (!enumerator.MoveNext())
-                {
-                    yield break;
-                }
-
-                if (enumerator.Current.Text != firstSkipWord)
-                {
-                    yield return enumerator.Current;
-                }
-
-                while (enumerator.MoveNext())
-                {
-                    yield return enumerator.Current;
-                }
-            }
-        }
-
-        private IEnumerable<Diagnostic> GenerateSpellingDiagnosticsForIdentifierWordParts(IEnumerable<ParsedTextSpan> parts, SyntaxToken identifier)
-        {
-            foreach (var part in parts.Where(part => part.IsWord))
-            {
-                if (!SpellChecker.Check(part.Text))
-                {
-                    var spellingStart = identifier.SpanStart + part.Start;
-
-                    var location = Location.Create(
-                        identifier.SyntaxTree,
-                        TextSpan.FromBounds(
-                            spellingStart,
-                            spellingStart + part.Length));
-                    yield return Diagnostic.Create(SpellingIdentifierDiagnosticDescriptor, location, part.Text);
-                }
+                case SpellingMistakeKind.Identifier: return SpellingIdentifierDiagnosticDescriptor;
+                case SpellingMistakeKind.Literal: return SpellingLiteralDiagnosticDescriptor;
+                case SpellingMistakeKind.Comment: return CommentDiagnosticDescriptor;
+                case SpellingMistakeKind.Documentation: return DocumentationDiagnosticDescriptor;
+                default: throw new NotSupportedException();
             }
         }
     }

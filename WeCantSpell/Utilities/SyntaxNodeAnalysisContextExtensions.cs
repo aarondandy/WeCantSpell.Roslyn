@@ -13,5 +13,13 @@ namespace WeCantSpell.Utilities
                 context.ReportDiagnostic(diagnostic);
             }
         }
+
+        public static void ReportDiagnostics(this SyntaxTreeAnalysisContext context, IEnumerable<Diagnostic> diagnostics)
+        {
+            foreach(var diagnostic in diagnostics)
+            {
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
     }
 }
