@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Text;
+using WeCantSpell.Utilities;
 
 namespace WeCantSpell
 {
@@ -39,7 +40,7 @@ namespace WeCantSpell
                 allLines[i] = textSpan;
             }
 
-            allLines.RemoveAll(span => span.IsEmpty);
+            allLines.RemoveAll(TextSpanExtensions.IsEmpty);
 
             return allLines;
         }
@@ -79,7 +80,7 @@ namespace WeCantSpell
         private static List<TextSpan> LocateLines(string text)
         {
             var startIndex = 0;
-            var result = new List<TextSpan>();
+            var result = ListPool<TextSpan>.Get();
 
             for (var scanIndex = 0; scanIndex < text.Length; scanIndex++)
             {

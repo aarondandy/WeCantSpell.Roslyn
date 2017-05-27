@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using WeCantSpell.Utilities;
-using System.Collections.Generic;
 
 namespace WeCantSpell
 {
@@ -75,26 +73,24 @@ namespace WeCantSpell
                 return;
             }
 
-            var walker = new SpellCheckCSharpWalker(SpellChecker);
+            var walker = new SpellCheckCSharpWalker(SpellChecker, reportMistakeAsDiagnostic);
             walker.Visit(root);
 
-            if (!context.CancellationToken.IsCancellationRequested)
-            {
-                ReportDiagnostics(walker.Mistakes, context);
-            }
+            void reportMistakeAsDiagnostic(SpellingMistake mistake) =>
+                ReportDiagnostic(mistake, context);
         }
 
-        private static void ReportDiagnostics(List<SpellingMistake> mistakes, SyntaxTreeAnalysisContext context)
+        private static void ReportDiagnostic(SpellingMistake mistake, SyntaxTreeAnalysisContext context)
         {
-            foreach(var mistake in mistakes)
+            if (context.CancellationToken.IsCancellationRequested)
             {
-                var diagnostic = ConverToDiagnostic(mistake);
-                context.ReportDiagnostic(diagnostic);
+                return;
             }
-        }
 
-        private static Diagnostic ConverToDiagnostic(SpellingMistake mistake) =>
-            Diagnostic.Create(SelectDescriptor(mistake.Kind), mistake.Location, mistake.Text);
+            var descriptor = SelectDescriptor(mistake.Kind);
+            var diagnostic = Diagnostic.Create(descriptor, mistake.Location, mistake.Text);
+            context.ReportDiagnostic(diagnostic);
+        }
 
         private static DiagnosticDescriptor SelectDescriptor(SpellingMistakeKind kind)
         {

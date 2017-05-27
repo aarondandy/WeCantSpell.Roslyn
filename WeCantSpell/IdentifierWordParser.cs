@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using WeCantSpell.Utilities;
 
 namespace WeCantSpell
 {
@@ -12,7 +13,7 @@ namespace WeCantSpell
                 throw new ArgumentNullException(nameof(text));
             }
 
-            var results = new List<ParsedTextSpan>();
+            var results = ListPool<ParsedTextSpan>.Get();
             if (text.Length == 0)
             {
                 return results;

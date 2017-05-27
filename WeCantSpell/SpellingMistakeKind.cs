@@ -1,6 +1,6 @@
 ﻿namespace WeCantSpell
 {
-    public enum SpellingMistakeKind
+    public enum SpellingMistakeKind : byte
     {
         Identifier,
         Literal,
