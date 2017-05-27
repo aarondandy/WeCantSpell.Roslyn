@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using WeCantSpell.Utilities;
+using System.Collections.Generic;
 
 namespace WeCantSpell
 {
@@ -68,22 +69,34 @@ namespace WeCantSpell
 
         private void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
         {
-            if (!context.Tree.HasCompilationUnitRoot)
+            var root = context.Tree.GetRoot(context.CancellationToken);
+            if (root == null)
             {
                 return;
             }
 
             var walker = new SpellCheckWalker(SpellChecker);
-            walker.Visit(context.Tree.GetRoot(context.CancellationToken));
+            walker.Visit(root);
 
-            var diagnostics = walker.Mistakes.Select(ConverToDiagnostic);
-            context.ReportDiagnostics(diagnostics);
+            if (!context.CancellationToken.IsCancellationRequested)
+            {
+                ReportDiagnostics(walker.Mistakes, context);
+            }
         }
 
-        private Diagnostic ConverToDiagnostic(SpellingMistake mistake) =>
+        private static void ReportDiagnostics(List<SpellingMistake> mistakes, SyntaxTreeAnalysisContext context)
+        {
+            foreach(var mistake in mistakes)
+            {
+                var diagnostic = ConverToDiagnostic(mistake);
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+
+        private static Diagnostic ConverToDiagnostic(SpellingMistake mistake) =>
             Diagnostic.Create(SelectDescriptor(mistake.Kind), mistake.Location, mistake.Text);
 
-        private DiagnosticDescriptor SelectDescriptor(SpellingMistakeKind kind)
+        private static DiagnosticDescriptor SelectDescriptor(SpellingMistakeKind kind)
         {
             switch (kind)
             {
