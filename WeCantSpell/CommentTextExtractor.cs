@@ -28,16 +28,20 @@ namespace WeCantSpell
             return TextSpan.FromBounds(startIndex, endIndex + 1);
         }
 
-        public static IEnumerable<TextSpan> LocateMultiLineCommentTextParts(string text)
+        public static List<TextSpan> LocateMultiLineCommentTextParts(string text)
         {
-            foreach (var lineSpan in LocateLines(text))
+            var allLines = LocateLines(text);
+
+            for (var i = 0; i < allLines.Count; i++)
             {
+                var lineSpan = allLines[i];
                 var textSpan = TrimMultiLinePartToTextPart(text, lineSpan);
-                if (textSpan.Length != 0)
-                {
-                    yield return textSpan;
-                }
+                allLines[i] = textSpan;
             }
+
+            allLines.RemoveAll(span => span.IsEmpty);
+
+            return allLines;
         }
 
         private static TextSpan TrimMultiLinePartToTextPart(string commentText, TextSpan lineSpan)
@@ -72,9 +76,10 @@ namespace WeCantSpell
             return TextSpan.FromBounds(startIndex, endIndex + 1);
         }
 
-        private static IEnumerable<TextSpan> LocateLines(string text)
+        private static List<TextSpan> LocateLines(string text)
         {
             var startIndex = 0;
+            var result = new List<TextSpan>();
 
             for (var scanIndex = 0; scanIndex < text.Length; scanIndex++)
             {
@@ -82,7 +87,7 @@ namespace WeCantSpell
                 {
                     if (startIndex != scanIndex)
                     {
-                        yield return new TextSpan(startIndex, scanIndex - startIndex);
+                        result.Add(new TextSpan(startIndex, scanIndex - startIndex));
                     }
 
                     startIndex = scanIndex + 1;
@@ -91,8 +96,10 @@ namespace WeCantSpell
 
             if (startIndex < text.Length - 1)
             {
-                yield return TextSpan.FromBounds(startIndex, text.Length);
+                result.Add(TextSpan.FromBounds(startIndex, text.Length));
             }
+
+            return result;
         }
 
         private static bool IsCSharpWhitespace(char c) =>

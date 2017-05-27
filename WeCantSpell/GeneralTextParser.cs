@@ -1,28 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace WeCantSpell
 {
     public static class GeneralTextParser
     {
-        public static IEnumerable<ParsedTextSpan> SplitWordParts(string text)
+        public static List<ParsedTextSpan> SplitWordParts(string text)
         {
             if (text == null)
             {
                 throw new ArgumentNullException(nameof(text));
             }
 
-            if (text.Length == 0)
+            var results = new List<ParsedTextSpan>();
+            if(text.Length == 0)
             {
-                return Enumerable.Empty<ParsedTextSpan>();
+                return results;
             }
 
-            return SplitWordPartsGenerator(text);
-        }
-
-        private static IEnumerable<ParsedTextSpan> SplitWordPartsGenerator(string text)
-        {
             var partStartIndex = 0;
             var prevChar = text[0];
             var prevCharType = ClassifyCharType(prevChar);
@@ -64,7 +59,7 @@ namespace WeCantSpell
 
                 if (currentIsWord != previousWasWord)
                 {
-                    yield return new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, previousWasWord);
+                    results.Add(new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, previousWasWord));
 
                     partStartIndex = searchIndex;
                 }
@@ -79,8 +74,10 @@ namespace WeCantSpell
 
             if (partStartIndex < text.Length)
             {
-                yield return new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevEffectiveType == CharType.Word);
+                results.Add(new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevEffectiveType == CharType.Word));
             }
+
+            return results;
         }
 
         private static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>

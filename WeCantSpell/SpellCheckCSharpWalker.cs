@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace WeCantSpell
 {
-    public class SpellCheckWalker : CSharpSyntaxWalker
+    public class SpellCheckCSharpWalker : CSharpSyntaxWalker
     {
         public ISpellChecker SpellChecker { get; }
 
@@ -15,7 +15,7 @@ namespace WeCantSpell
 
         public List<SpellingMistake> Mistakes { get; }
 
-        public SpellCheckWalker(ISpellChecker spellChecker)
+        public SpellCheckCSharpWalker(ISpellChecker spellChecker)
             : base(SyntaxWalkerDepth.StructuredTrivia)
         {
             SpellChecker = spellChecker;
@@ -308,7 +308,7 @@ namespace WeCantSpell
 
         private void FindSpellingMistakesForIdentifierSkippingFirstWord(SyntaxToken identifier, string firstSkipWord) =>
             FindSpellingMistakesForIdentifierWordParts(
-                SkipFirstMatching(
+                RemoveFirstMatching(
                     IdentifierWordParser.SplitWordParts(identifier.Text),
                     firstSkipWord),
                 identifier);
@@ -434,28 +434,17 @@ namespace WeCantSpell
             }
         }
 
-        private IEnumerable<ParsedTextSpan> SkipFirstMatching(IEnumerable<ParsedTextSpan> parts, string firstSkipWord)
+        private List<ParsedTextSpan> RemoveFirstMatching(List<ParsedTextSpan> parts, string firstSkipWord)
         {
-            using (var enumerator = parts.GetEnumerator())
+            if(parts.Count != 0 && parts[0].Text == firstSkipWord)
             {
-                if (!enumerator.MoveNext())
-                {
-                    yield break;
-                }
-
-                if (enumerator.Current.Text != firstSkipWord)
-                {
-                    yield return enumerator.Current;
-                }
-
-                while (enumerator.MoveNext())
-                {
-                    yield return enumerator.Current;
-                }
+                parts.RemoveAt(0);
             }
+
+            return parts;
         }
 
-        private void FindSpellingMistakesForIdentifierWordParts(IEnumerable<ParsedTextSpan> parts, SyntaxToken identifier)
+        private void FindSpellingMistakesForIdentifierWordParts(List<ParsedTextSpan> parts, SyntaxToken identifier)
         {
             foreach(var part in parts)
             {

@@ -75,7 +75,7 @@ namespace WeCantSpell
                 return;
             }
 
-            var walker = new SpellCheckWalker(SpellChecker);
+            var walker = new SpellCheckCSharpWalker(SpellChecker);
             walker.Visit(root);
 
             if (!context.CancellationToken.IsCancellationRequested)

@@ -1,28 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace WeCantSpell
 {
     public static class IdentifierWordParser
     {
-        public static IEnumerable<ParsedTextSpan> SplitWordParts(string text)
+        public static List<ParsedTextSpan> SplitWordParts(string text)
         {
             if (text == null)
             {
                 throw new ArgumentNullException(nameof(text));
             }
 
+            var results = new List<ParsedTextSpan>();
             if (text.Length == 0)
             {
-                return Enumerable.Empty<ParsedTextSpan>();
+                return results;
             }
 
-            return SplitWordPartsGenerator(text);
-        }
-
-        private static IEnumerable<ParsedTextSpan> SplitWordPartsGenerator(string text)
-        {
             var partStartIndex = 0;
             var prevType = ClassifyLetterType(text[0]);
             var currType = text.Length > 1 ? ClassifyLetterType(text[1]) : prevType;
@@ -37,7 +32,7 @@ namespace WeCantSpell
                     (prevType != currType && (prevType != LetterType.LetterUpper || currType != LetterType.LetterNormal))
                 )
                 {
-                    yield return new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, prevType != LetterType.NonWord);
+                    results.Add(new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, prevType != LetterType.NonWord));
 
                     partStartIndex = searchIndex;
                 }
@@ -48,8 +43,10 @@ namespace WeCantSpell
 
             if (partStartIndex < text.Length)
             {
-                yield return new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevType != LetterType.NonWord);
+                results.Add(new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevType != LetterType.NonWord));
             }
+
+            return results;
         }
 
         private static LetterType ClassifyLetterType(char c) =>
