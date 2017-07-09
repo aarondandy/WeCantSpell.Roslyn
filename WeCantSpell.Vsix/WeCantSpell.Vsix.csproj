@@ -65,9 +65,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WeCantSpell\WeCantSpell.csproj">
-      <Project>{47C03F7B-6AFE-4ACC-8ABF-C1C2CD98B7D7}</Project>
-      <Name>WeCantSpell</Name>
+    <ProjectReference Include="..\WeCantSpell.Roslyn\WeCantSpell.Roslyn.csproj">
+      <Project>{877deaea-0074-4848-8ebe-fee2a25328bd}</Project>
+      <Name>WeCantSpell.Roslyn</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
