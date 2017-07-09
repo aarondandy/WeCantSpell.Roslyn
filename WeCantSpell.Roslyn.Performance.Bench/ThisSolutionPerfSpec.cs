@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WeCantSpell.Roslyn.PerformanceBench
+namespace WeCantSpell.Roslyn.Performance.Bench
 {
     public class ThisSolutionPerfSpec
     {

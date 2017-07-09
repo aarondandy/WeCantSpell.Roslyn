@@ -3,9 +3,9 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using WeCantSpell.Roslyn.PerformanceBench;
+using WeCantSpell.Roslyn.Performance.Bench;
 
-namespace WeCantSpell.Roslyn.PerformanceHarness
+namespace WeCantSpell.Roslyn.Performance.Harness
 {
     class Program
     {

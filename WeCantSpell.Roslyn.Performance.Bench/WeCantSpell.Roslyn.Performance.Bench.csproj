@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CC78C41F-0D18-4B16-B10C-075B9179DC75}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>WeCantSpell.Roslyn.PerformanceBench</RootNamespace>
-    <AssemblyName>WeCantSpell.Roslyn.PerformanceBench</AssemblyName>
+    <RootNamespace>WeCantSpell.Roslyn.Performance.Bench</RootNamespace>
+    <AssemblyName>WeCantSpell.Roslyn.Performance.Bench</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

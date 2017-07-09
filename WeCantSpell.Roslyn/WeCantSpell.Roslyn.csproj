@@ -1,26 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>A Roslyn spell check analyzer.</Description>
-    <AssemblyTitle>We Can't Spell</AssemblyTitle>
-    <VersionPrefix>0.0.0</VersionPrefix>
+    <AssemblyTitle>WeCantSpell.Roslyn</AssemblyTitle>
     <TargetFramework>netstandard1.3</TargetFramework>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81</PackageTargetFallback>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>WeCantSpell.Roslyn</AssemblyName>
-    <PackageId>WeCantSpell</PackageId>
-    <PackageTags>spell;check;spell-check;roslyn;analyzer</PackageTags>
-    <PackageProjectUrl>https://github.com/aarondandy/we-cant-spell</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/aarondandy/we-cant-spell/blob/master/license.txt</PackageLicenseUrl>
+    <PackageId>WeCantSpell.Roslyn</PackageId>
+    <Description>A Roslyn spell check analyzer.</Description>
+    <PackageTags>spell;check;spell-check;spelling;hunspell;we-cant-spell;roslyn;analyzer</PackageTags>
+    <PackageProjectUrl>https://github.com/aarondandy/WeCantSpell.Roslyn</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/aarondandy/we-cant-spell.git</RepositoryUrl>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <PackageIconUrl>https://raw.githubusercontent.com/aarondandy/WeCantSpell.Roslyn/master/icon.png</PackageIconUrl>
+    <Authors>aarondandy</Authors>
+    <PackageLicenseUrl>https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/license.txt</PackageLicenseUrl>
+    <PackageReleaseNotes>Changelog can be found at https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/changelog.md</PackageReleaseNotes>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81</PackageTargetFallback>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -28,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\WeCantSpell.FileCompressor\*.compressed" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)">
+    <EmbeddedResource Include="..\WeCantSpell.Roslyn.FileCompressor\*.compressed" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)">
       <Link>DefaultDictionaries/%(FileName)%(Extension)</Link>
     </EmbeddedResource>
     <Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />

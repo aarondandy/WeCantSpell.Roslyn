@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace WeCantSpell.Roslyn.PerformanceBench
+namespace WeCantSpell.Roslyn.Performance.Bench
 {
     class Program
     {

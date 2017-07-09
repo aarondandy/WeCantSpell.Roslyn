@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F1208FAF-0695-48AD-A3F3-8BE28E6B695A}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>WeCantSpell.Roslyn.PerformanceHarness</RootNamespace>
-    <AssemblyName>WeCantSpell.Roslyn.PerformanceHarness</AssemblyName>
+    <RootNamespace>WeCantSpell.Roslyn.Performance.Harness</RootNamespace>
+    <AssemblyName>WeCantSpell.Roslyn.Performance.Harness</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -161,9 +161,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WeCantSpell.Roslyn.PerformanceBench\WeCantSpell.Roslyn.PerformanceBench.csproj">
+    <ProjectReference Include="..\WeCantSpell.Roslyn.Performance.Bench\WeCantSpell.Roslyn.Performance.Bench.csproj">
       <Project>{cc78c41f-0d18-4b16-b10c-075b9179dc75}</Project>
-      <Name>WeCantSpell.PerformanceBench</Name>
+      <Name>WeCantSpell.Roslyn.Performance.Bench</Name>
     </ProjectReference>
     <ProjectReference Include="..\WeCantSpell.Roslyn\WeCantSpell.Roslyn.csproj">
       <Project>{877deaea-0074-4848-8ebe-fee2a25328bd}</Project>
