@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using WeCantSpell.Roslyn.Utilities;
+using WeCantSpell.Roslyn.Infrastructure;
 
 namespace WeCantSpell.Roslyn
 {
@@ -68,7 +68,7 @@ namespace WeCantSpell.Roslyn
         void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
         {
             var root = context.Tree.GetRoot(context.CancellationToken);
-            if (root == null)
+            if (root == null || context.CancellationToken.IsCancellationRequested)
             {
                 return;
             }

@@ -1,10 +1,9 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Text;
-using WeCantSpell.Roslyn.Utilities;
 
 namespace WeCantSpell.Roslyn
 {
@@ -250,8 +249,6 @@ namespace WeCantSpell.Roslyn
                 }
             }
 
-            ListPool<ParsedTextSpan>.Return(parts);
-
             base.VisitLiteralExpression(node);
         }
 
@@ -272,8 +269,6 @@ namespace WeCantSpell.Roslyn
                     HandleMistake(location, part.Text, SpellingMistakeKind.Literal);
                 }
             }
-
-            ListPool<ParsedTextSpan>.Return(parts);
 
             base.VisitInterpolatedStringText(node);
         }
@@ -300,14 +295,12 @@ namespace WeCantSpell.Roslyn
         {
             var wordParts = IdentifierWordParser.SplitWordParts(identifier.Text);
             FindSpellingMistakesForIdentifierWordParts(wordParts, identifier);
-            ListPool<ParsedTextSpan>.Return(wordParts);
         }
 
         void FindSpellingMistakesForIdentifierSkippingFirstWord(SyntaxToken identifier, string firstSkipWord)
         {
             var wordParts = IdentifierWordParser.SplitWordParts(identifier.Text);
             FindSpellingMistakesForIdentifierWordParts(wordParts, identifier, firstSkipWord);
-            ListPool<ParsedTextSpan>.Return(wordParts);
         }
 
         void FindSpellingMistakesInTrivia(SyntaxTrivia trivia)
@@ -341,8 +334,6 @@ namespace WeCantSpell.Roslyn
                     HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
                 }
             }
-
-            ListPool<ParsedTextSpan>.Return(parts);
         }
 
         void FindSpellingMistakesInMultiLineComment(SyntaxTrivia node)
@@ -367,11 +358,7 @@ namespace WeCantSpell.Roslyn
                         HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
                     }
                 }
-
-                ListPool<ParsedTextSpan>.Return(wordParts);
             }
-
-            ListPool<TextSpan>.Return(lineTextSpans);
         }
 
         void FindSpellingMistakesInXmlNodeSyntax(XmlNodeSyntax node)
@@ -410,11 +397,7 @@ namespace WeCantSpell.Roslyn
                         HandleMistake(location, part.Text, SpellingMistakeKind.Documentation);
                     }
                 }
-
-                ListPool<ParsedTextSpan>.Return(wordParts);
             }
-
-            ListPool<TextSpan>.Return(lineTextSpans);
         }
 
         void FindSpellingMistakesForIdentifierWordParts(List<ParsedTextSpan> parts, SyntaxToken identifier, string firstSkipWord = null)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using WeCantSpell.Roslyn.Utilities;
 
 namespace WeCantSpell.Roslyn
 {
@@ -13,8 +12,8 @@ namespace WeCantSpell.Roslyn
                 throw new ArgumentNullException(nameof(text));
             }
 
-            var results = ListPool<ParsedTextSpan>.Get();
-            if(text.Length == 0)
+            var results = new List<ParsedTextSpan>();
+            if (text.Length == 0)
             {
                 return results;
             }

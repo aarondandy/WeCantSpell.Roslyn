@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.CodeAnalysis.Text;
-using WeCantSpell.Roslyn.Utilities;
 
 namespace WeCantSpell.Roslyn
 {
@@ -12,21 +12,21 @@ namespace WeCantSpell.Roslyn
         public static TextSpan LocateSingleLineCommentText(string commentText)
         {
             var startIndex = 0;
-            var endIndex = commentText.Length - 1;
+            var endIndex = commentText.Length;
 
             // skip initial whitespace
-            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip the initial slashes
-            for (; startIndex <= endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
+            for (; startIndex < endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
 
             // skip following whitespace
-            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip trailing whitespace
-            for (; endIndex >= startIndex && IsCSharpWhitespace(commentText[endIndex]); endIndex--) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--) ;
 
-            return TextSpan.FromBounds(startIndex, endIndex + 1);
+            return TextSpan.FromBounds(startIndex, endIndex);
         }
 
         public static List<TextSpan> LocateMultiLineCommentTextParts(string text)
@@ -35,12 +35,10 @@ namespace WeCantSpell.Roslyn
 
             for (var i = 0; i < allLines.Count; i++)
             {
-                var lineSpan = allLines[i];
-                var textSpan = TrimMultiLinePartToTextPart(text, lineSpan);
-                allLines[i] = textSpan;
+                allLines[i] = TrimMultiLinePartToTextPart(text, allLines[i]);
             }
 
-            allLines.RemoveAll(TextSpanExtensions.IsEmpty);
+            allLines.RemoveAll(s => s.IsEmpty);
 
             return allLines;
         }
@@ -48,39 +46,39 @@ namespace WeCantSpell.Roslyn
         static TextSpan TrimMultiLinePartToTextPart(string commentText, TextSpan lineSpan)
         {
             var startIndex = lineSpan.Start;
-            var endIndex = lineSpan.End - 1;
+            var endIndex = lineSpan.End;
 
             // skip initial whitespace
-            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip the slashes
-            for (; startIndex <= endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
+            for (; startIndex < endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
 
             // skip the stars
-            for (; startIndex <= endIndex && commentText[startIndex] == CommentStarChar; startIndex++) ;
+            for (; startIndex < endIndex && commentText[startIndex] == CommentStarChar; startIndex++) ;
 
             // skip following whitespace after //**
-            for (; startIndex <= endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
 
             // skip trailing whitespace
-            for (; endIndex >= startIndex && IsCSharpWhitespace(commentText[endIndex]); endIndex--) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--) ;
 
             // skip trailing slashes
-            for (; endIndex >= startIndex && commentText[endIndex] == CommentSlashChar; endIndex--) ;
+            for (; startIndex < endIndex && commentText[endIndex - 1] == CommentSlashChar; endIndex--) ;
 
             // skip trailing stars
-            for (; endIndex >= startIndex && commentText[endIndex] == CommentStarChar; endIndex--) ;
+            for (; startIndex < endIndex && commentText[endIndex - 1] == CommentStarChar; endIndex--) ;
 
             // skip trailing whitespace before **//
-            for (; endIndex >= startIndex && IsCSharpWhitespace(commentText[endIndex]); endIndex--) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--) ;
 
-            return TextSpan.FromBounds(startIndex, endIndex + 1);
+            return TextSpan.FromBounds(startIndex, endIndex);
         }
 
         static List<TextSpan> LocateLines(string text)
         {
             var startIndex = 0;
-            var result = ListPool<TextSpan>.Get();
+            var result = new List<TextSpan>();
 
             for (var scanIndex = 0; scanIndex < text.Length; scanIndex++)
             {
@@ -103,14 +101,37 @@ namespace WeCantSpell.Roslyn
             return result;
         }
 
-        static bool IsCSharpWhitespace(char c) =>
-            // NOTE: from spec
-            c == ' '
-            || char.IsWhiteSpace(c)
-            || c == '\u0009'
-            || c == '\u000b'
-            || c == '\u000c';
+        static bool IsCSharpWhitespace(char c)
+        {
+            switch (c)
+            {
+                case '\u0009': // NOTE: horizontal tab is called out in the ECMA spec for C#
+                case '\u000b': // NOTE: vertical tab is called out in the ECMA spec for C#
+                case '\u000c': // NOTE: form feed is called out in the ECMA spec for C#
+                case ' ': // NOTE: space is part of the Zs character class
+                case '\u00a0': // NOTE: no-break space is part of the Zs character class
+                    return true;
+                default:
+                    // NOTE: all values that are in the Zs class and in the ASCII range are covered on explicit cases
+                    return c > 0xff
+                        // NOTE: the Zs class is considered whitespace in C#
+                        && CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
+            }
+        }
 
-        static bool IsLineBreak(char c) => c == '\r' || c == '\n';
+        static bool IsLineBreak(char c)
+        {
+            switch (c)
+            {
+                case '\r': // NOTE: CR or U+000d is part of the ECMA spec
+                case '\n': // NOTE: LF or U+000a is part of the ECMA spec
+                case '\u2028': // NOTE: line separator or U+2028 is a valid line terminator in the ECMA spec
+                case '\u2029': // NOTE: paragraph separator or U+2029 is a valid line terminator in the ECMA spec
+                case '\u2085': // NOTE: next line or U+2085 is a valid line terminator in the ECMA spec
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 }
