@@ -3,9 +3,9 @@ using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class AnonymousObjectsSpellingTests : CSharpTestBase
+    public class AnonymousObjectsSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_mistakes_in_anonymous_members_data => new[]
         {
@@ -21,14 +21,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("AnonymousObjects.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("AnonymousObjects.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "AnonymousObjects.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "AnonymousObjects.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
     }

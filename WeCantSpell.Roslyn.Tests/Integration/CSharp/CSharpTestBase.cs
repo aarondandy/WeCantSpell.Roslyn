@@ -14,7 +14,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 {
     public abstract class CSharpTestBase
     {
-        private static readonly string PathBase = $"{typeof(CSharpTestBase).Namespace}.Files";
+        private static readonly string PathBase = $"{typeof(CSharpTestBase).Namespace}";
         private static readonly string ProjectNameSingleFileSample = nameof(ProjectNameSingleFileSample);
 
         private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
@@ -34,7 +34,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             }
         }
 
-        protected async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string embeddedResourceFileName) =>
+        protected virtual async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string embeddedResourceFileName) =>
             TextAndVersion.Create(
                 SourceText.From(await ReadCodeFileAsStringAsync(embeddedResourceFileName)),
                 VersionStamp.Default,

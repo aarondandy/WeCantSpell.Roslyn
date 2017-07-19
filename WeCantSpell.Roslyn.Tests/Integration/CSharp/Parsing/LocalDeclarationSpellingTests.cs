@@ -3,9 +3,9 @@ using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class LocalDeclarationSpellingTests : CSharpTestBase
+    public class LocalDeclarationSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_spelling_mistakes_in_locals_data => new[]
         {
@@ -32,14 +32,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "LocalVariables.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "LocalVariables.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -47,7 +47,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         public async Task no_diagnostics_when_all_words_are_ok()
         {
             var analyzer = new SpellingAnalyzerCSharp(new AllGoodWordChecker());
-            var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
@@ -58,7 +58,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         public async Task at_symbol_is_not_checked()
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("@", "@readonly"));
-            var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 

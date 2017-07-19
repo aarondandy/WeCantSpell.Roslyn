@@ -3,9 +3,9 @@ using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class FieldSpellingTests : CSharpTestBase
+    public class FieldSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_mistakes_in_various_fields_data => new[]
         {
@@ -24,14 +24,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("Fields.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("Fields.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "Fields.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "Fields.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -39,7 +39,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         public async Task common_prefixes_are_ignored()
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("_", "m", "m_"));
-            var project = await ReadCodeFileAsProjectAsync("Fields.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("Fields.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 

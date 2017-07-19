@@ -3,9 +3,9 @@ using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class StringLiteralSpellingTests : CSharpTestBase
+    public class StringLiteralSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_mistakes_in_literals_data => new[]
         {
@@ -39,14 +39,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("StringLiteral.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("StringLiteral.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3111")
-                .And.HaveLocation(expectedStart, expectedEnd, "StringLiteral.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "StringLiteral.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
     }

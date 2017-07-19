@@ -7,28 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Integration\CSharp\Files\AnonymousObjects.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Catch.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Delegate.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Enum.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Events.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Fields.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\GenericType.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Label.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Lambda.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Linq.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\LocalVariables.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Loops.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\MethodNames.Invocation.cs" />
-    <Compile Remove="Integration\CSharp\Files\MethodNames.OperatorExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\MethodNames.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\Properties.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\StringLiteral.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\TypeName.FirstMiddleLast.cs" />
-    <Compile Remove="Integration\CSharp\Files\TypeName.ISimpleInterfaceExample.cs" />
-    <Compile Remove="Integration\CSharp\Files\TypeName.SimpleStructExample.cs" />
-    <Compile Remove="Integration\CSharp\Files\Using.SimpleExamples.cs" />
-    <Compile Remove="Integration\CSharp\Files\XmlDoc.SimpleExamples.cs" />
+    <None Remove="WeCantSpell.Roslyn.Tests.v3.ncrunchproject" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,28 +15,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Integration\CSharp\Files\AnonymousObjects.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Catch.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Delegate.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Enum.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Events.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Fields.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\GenericType.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Label.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Lambda.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Linq.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\LocalVariables.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Loops.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.Invocation.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.OperatorExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\MethodNames.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Properties.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\StringLiteral.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\TypeName.FirstMiddleLast.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\TypeName.ISimpleInterfaceExample.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\TypeName.SimpleStructExample.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\Using.SimpleExamples.cs" />
-    <EmbeddedResource Include="Integration\CSharp\Files\XmlDoc.SimpleExamples.cs" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\AnonymousObjects.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Catch.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Delegate.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Enum.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Events.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Fields.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\GenericType.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Label.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Lambda.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Linq.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\LocalVariables.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Loops.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\MethodNames.Invocation.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\MethodNames.OperatorExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\MethodNames.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Properties.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\StringLiteral.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\TypeName.FirstMiddleLast.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\TypeName.ISimpleInterfaceExample.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\TypeName.SimpleStructExample.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Using.SimpleExamples.csx" />
+    <EmbeddedResource Include="Integration\CSharp\Parsing\Files\XmlDoc.SimpleExamples.csx" />
   </ItemGroup>
 
   <ItemGroup>

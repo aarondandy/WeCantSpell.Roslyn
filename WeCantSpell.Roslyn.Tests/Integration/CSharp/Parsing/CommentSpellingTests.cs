@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class CommentSpellingTests : CSharpTestBase
+    public class CommentSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_mistakes_in_comments_data => new[]
         {
@@ -25,14 +24,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId(expectedDiagnosticId)
-                .And.HaveLocation(expectedStart, expectedEnd, "XmlDoc.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "XmlDoc.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -41,7 +40,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         {
             var word = "inline";
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(word));
-            var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
@@ -53,7 +52,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         {
             var word = "ignored";
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(word));
-            var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 

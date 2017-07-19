@@ -28,6 +28,7 @@
     <EmbeddedResource Include="..\WeCantSpell.Roslyn.FileCompressor\*.compressed" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)">
       <Link>DefaultDictionaries/%(FileName)%(Extension)</Link>
     </EmbeddedResource>
+    <None Remove="WeCantSpell.Roslyn.v3.ncrunchproject" />
     <Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
   </ItemGroup>
 

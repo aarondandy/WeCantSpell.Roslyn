@@ -4,9 +4,9 @@ using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class PropertyDeclarationSpellingTests : CSharpTestBase
+    public class PropertyDeclarationSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_mistakes_in_various_properties_data => new[]
         {
@@ -25,14 +25,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("Properties.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("Properties.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "Properties.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "Properties.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -40,14 +40,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         public async Task can_find_mistakes_in_struct_props()
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Count"));
-            var project = await ReadCodeFileAsProjectAsync("TypeName.SimpleStructExample.cs");
+            var project = await ReadCodeFileAsProjectAsync("TypeName.SimpleStructExample.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(154, 159, "TypeName.SimpleStructExample.cs")
+                .And.HaveLocation(154, 159, "TypeName.SimpleStructExample.csx")
                 .And.HaveMessageContaining("Count");
         }
 
@@ -55,14 +55,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         public async Task can_find_mistakes_in_interface_props()
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Count"));
-            var project = await ReadCodeFileAsProjectAsync("TypeName.ISimpleInterfaceExample.cs");
+            var project = await ReadCodeFileAsProjectAsync("TypeName.ISimpleInterfaceExample.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(122, 127, "TypeName.ISimpleInterfaceExample.cs")
+                .And.HaveLocation(122, 127, "TypeName.ISimpleInterfaceExample.csx")
                 .And.HaveMessageContaining("Count");
         }
     }

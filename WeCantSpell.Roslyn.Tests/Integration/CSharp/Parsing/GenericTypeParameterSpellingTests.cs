@@ -3,9 +3,9 @@ using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class GenericTypeParameterSpellingTests : CSharpTestBase
+    public class GenericTypeParameterSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_mistakes_in_generic_parameter_names_data => new[]
         {
@@ -23,14 +23,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("GenericType.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("GenericType.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "GenericType.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "GenericType.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -38,7 +38,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         public async Task generic_parameter_prefix_is_ignored()
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("T"));
-            var project = await ReadCodeFileAsProjectAsync("GenericType.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("GenericType.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 

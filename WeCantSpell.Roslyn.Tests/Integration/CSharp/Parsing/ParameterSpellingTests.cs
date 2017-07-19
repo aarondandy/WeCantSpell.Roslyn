@@ -4,9 +4,9 @@ using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
-namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
+namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
-    public class ParameterSpellingTests : CSharpTestBase
+    public class ParameterSpellingTests : CSharpParsingTestBase
     {
         public static object[][] can_find_mistakes_in_method_parameter_names_data => new[]
         {
@@ -25,14 +25,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("MethodNames.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("MethodNames.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "MethodNames.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "MethodNames.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -51,14 +51,14 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             var expectedEnd = expectedStart + expectedWord.Length;
 
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
-            var project = await ReadCodeFileAsProjectAsync("Lambda.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("Lambda.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "Lambda.SimpleExamples.cs")
+                .And.HaveLocation(expectedStart, expectedEnd, "Lambda.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -66,15 +66,15 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         public async Task can_find_mistakes_in_indexer_params()
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("index", "word"));
-            var project = await ReadCodeFileAsProjectAsync("Properties.SimpleExamples.cs");
+            var project = await ReadCodeFileAsProjectAsync("Properties.SimpleExamples.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
             diagnostics.Should().HaveCount(2);
             diagnostics[0].Should().HaveMessageContaining("index")
-                .And.HaveLocation(484, 489, "Properties.SimpleExamples.cs");
+                .And.HaveLocation(484, 489, "Properties.SimpleExamples.csx");
             diagnostics[1].Should().HaveMessageContaining("word")
-                .And.HaveLocation(498, 502, "Properties.SimpleExamples.cs");
+                .And.HaveLocation(498, 502, "Properties.SimpleExamples.csx");
         }
     }
 }
