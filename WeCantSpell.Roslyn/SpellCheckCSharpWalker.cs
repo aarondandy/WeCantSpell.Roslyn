@@ -53,6 +53,7 @@ namespace WeCantSpell.Roslyn
                     FindSpellingMistakesForIdentifierSkippingFirstWord(variable.Identifier, "m");
                 }
             }
+
             base.VisitFieldDeclaration(node);
         }
 
@@ -66,6 +67,7 @@ namespace WeCantSpell.Roslyn
                     FindSpellingMistakesForIdentifier(variable.Identifier);
                 }
             }
+
             base.VisitLocalDeclarationStatement(node);
         }
 
@@ -161,6 +163,7 @@ namespace WeCantSpell.Roslyn
                     FindSpellingMistakesForIdentifier(variable.Identifier);
                 }
             }
+
             base.VisitForStatement(node);
         }
 

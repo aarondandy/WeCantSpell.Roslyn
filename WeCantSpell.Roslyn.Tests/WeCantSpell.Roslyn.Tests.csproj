@@ -1,13 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="WeCantSpell.Roslyn.Tests.v3.ncrunchproject" />
+    <PackageReference Include="FluentAssertions" Version="4.19.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.0.0" />
+    <PackageReference Include="WeCantSpell.Hunspell" Version="2.0.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WeCantSpell.Roslyn\WeCantSpell.Roslyn.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +25,41 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Integration\CSharp\InheritedWords\Files\AnonymousType.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\CatchDecl.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Class.InterfaceImpl.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Class.SimpleInheritance.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Enum.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Field.InheritFromClass.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Interface.InterfaceInherit.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Local.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Member.NestedClassInheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Method.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Parameter.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Property.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\Struct.InterfaceImpl.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\UsingDirective.InheritWords.csx" />
+    <None Remove="Integration\CSharp\InheritedWords\Files\UsingStatement.InheritWords.csx" />
+    <None Remove="WeCantSpell.Roslyn.Tests.v3.ncrunchproject" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\ForLoops.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\AnonymousType.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\CatchDecl.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Class.InterfaceImpl.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Class.SimpleInheritance.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Enum.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Field.InheritFromClass.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Interface.InterfaceInherit.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Local.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Member.NestedClassInheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Method.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Parameter.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Property.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Struct.InterfaceImpl.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\UsingDirective.InheritWords.csx" />
+    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\UsingStatement.InheritWords.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\AnonymousObjects.SimpleExamples.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Catch.SimpleExamples.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Delegate.SimpleExamples.csx" />
@@ -37,20 +82,6 @@
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\TypeName.SimpleStructExample.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Using.SimpleExamples.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\XmlDoc.SimpleExamples.csx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="4.19.3" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.0.0" />
-    <PackageReference Include="WeCantSpell.Hunspell" Version="2.0.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\WeCantSpell.Roslyn\WeCantSpell.Roslyn.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using System.Reflection;
-using Microsoft.CodeAnalysis.CSharp;
-using System.Linq;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 {
@@ -34,11 +34,13 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             }
         }
 
-        protected virtual async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string embeddedResourceFileName) =>
+        protected abstract string CreateResourceNameFromFileName(string fileName);
+
+        protected async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string fileName) =>
             TextAndVersion.Create(
-                SourceText.From(await ReadCodeFileAsStringAsync(embeddedResourceFileName)),
+                SourceText.From(await ReadCodeFileAsStringAsync(CreateResourceNameFromFileName(fileName))),
                 VersionStamp.Default,
-                embeddedResourceFileName);
+                fileName);
 
         protected async Task<Project> ReadCodeFileAsProjectAsync(string embeddedResourceFileName) =>
             CreateProjectWithFiles(new[] { await ReadCodeFileAsSTextAndVersionAsync(embeddedResourceFileName) });
