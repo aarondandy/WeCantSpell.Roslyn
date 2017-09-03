@@ -52,7 +52,7 @@ namespace WeCantSpell.Roslyn
             SpellingDocumentationDiagnosticDescriptor);
 
         public SpellingAnalyzerCSharp()
-            : this(new DebugTestingSpellChecker()) { }
+            : this(new EmbeddedSpellChecker("en-US")) { }
 
         public SpellingAnalyzerCSharp(ISpellChecker spellChecker) => SpellChecker = spellChecker;
 
