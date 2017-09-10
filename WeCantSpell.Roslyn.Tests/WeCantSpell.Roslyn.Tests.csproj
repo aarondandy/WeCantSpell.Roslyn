@@ -25,41 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Integration\CSharp\InheritedWords\Files\AnonymousType.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\CatchDecl.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Class.InterfaceImpl.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Class.SimpleInheritance.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Enum.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Field.InheritFromClass.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Interface.InterfaceInherit.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Local.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Member.NestedClassInheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Method.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Parameter.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Property.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\Struct.InterfaceImpl.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\UsingDirective.InheritWords.csx" />
-    <None Remove="Integration\CSharp\InheritedWords\Files\UsingStatement.InheritWords.csx" />
     <None Remove="WeCantSpell.Roslyn.Tests.v3.ncrunchproject" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\ForLoops.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\AnonymousType.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\CatchDecl.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Class.InterfaceImpl.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Class.SimpleInheritance.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Enum.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Field.InheritFromClass.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Interface.InterfaceInherit.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Local.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Member.NestedClassInheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Method.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Parameter.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Property.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\Struct.InterfaceImpl.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\UsingDirective.InheritWords.csx" />
-    <EmbeddedResource Include="Integration\CSharp\InheritedWords\Files\UsingStatement.InheritWords.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\AnonymousObjects.SimpleExamples.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Catch.SimpleExamples.csx" />
     <EmbeddedResource Include="Integration\CSharp\Parsing\Files\Delegate.SimpleExamples.csx" />

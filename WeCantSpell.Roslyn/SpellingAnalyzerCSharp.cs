@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using WeCantSpell.Roslyn.Infrastructure;
 
 namespace WeCantSpell.Roslyn
 {
