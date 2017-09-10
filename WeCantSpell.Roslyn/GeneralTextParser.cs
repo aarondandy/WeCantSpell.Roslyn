@@ -80,16 +80,18 @@ namespace WeCantSpell.Roslyn
             return results;
         }
 
-        static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>
-            currCharType != CharType.Word
-            &&
-            prevCharType == CharType.Word
-            &&
-            nextCharType == CharType.Word
-            &&
-            IsHyphen(currChar)
-                ? CharType.Word
-                : currCharType;
+        static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType)
+        {
+            if (currCharType != CharType.Word && prevCharType == CharType.Word && nextCharType == CharType.Word)
+            {
+                if (IsHyphen(currChar) || IsApostrophe(currChar))
+                {
+                    return CharType.Word;
+                }
+            }
+
+            return currCharType;
+        }
 
         static CharType ClassifyCharType(char current)
         {
@@ -115,6 +117,9 @@ namespace WeCantSpell.Roslyn
             || c == '\u2212'
             || c == '\u2014'
             || c == '\u2013';
+
+        static bool IsApostrophe(char c) =>
+            c == '\'' || c == '’';
 
         enum CharType : byte
         {

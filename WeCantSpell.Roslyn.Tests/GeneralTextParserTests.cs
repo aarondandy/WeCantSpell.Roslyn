@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests
@@ -44,6 +45,18 @@ namespace WeCantSpell.Roslyn.Tests
             var secondResult = results.Should().ContainSingle(x => x.Text == "jumps-over").Subject;
             secondResult.Start.Should().Be(20);
             secondResult.IsWord.Should().BeTrue();
+        }
+
+        [Fact]
+        public void english_contractions_are_split_correctly()
+        {
+            var given = "you'dn't've a’n't I'da It’s";
+            var expected = given.Split(' ');
+
+            var actual = GeneralTextParser.SplitWordParts(given);
+            var actualWords = actual.Where(p => p.IsWord).Select(p => p.Text);
+
+            actualWords.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
