@@ -80,18 +80,13 @@ namespace WeCantSpell.Roslyn
             return results;
         }
 
-        static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType)
-        {
-            if (currCharType != CharType.Word && prevCharType == CharType.Word && nextCharType == CharType.Word)
-            {
-                if (IsHyphen(currChar) || IsApostrophe(currChar))
-                {
-                    return CharType.Word;
-                }
-            }
-
-            return currCharType;
-        }
+        static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>
+            currCharType != CharType.Word
+            && prevCharType == CharType.Word
+            && nextCharType == CharType.Word
+            && IsWordJoinChar(currChar)
+            ? CharType.Word
+            : currCharType;
 
         static CharType ClassifyCharType(char current)
         {
@@ -111,6 +106,9 @@ namespace WeCantSpell.Roslyn
             return CharType.Unknown;
         }
 
+        static bool IsWordJoinChar(char c) =>
+            IsHyphen(c) || IsApostrophe(c);
+
         static bool IsHyphen(char c) =>
             c == '-'
             || c == '\u2010'
@@ -119,7 +117,10 @@ namespace WeCantSpell.Roslyn
             || c == '\u2013';
 
         static bool IsApostrophe(char c) =>
-            c == '\'' || c == '’';
+            c == '\''
+            || c == '’' // U+2019 - RIGHT SINGLE QUOTATION MARK
+            || c == 'ʼ' // U+02BC - MODIFIER LETTER APOSTROPHE
+            || c == '＇'; // full width
 
         enum CharType : byte
         {
