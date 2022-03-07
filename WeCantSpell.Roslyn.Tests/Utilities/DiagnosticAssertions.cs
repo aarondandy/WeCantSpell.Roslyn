@@ -9,12 +9,11 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
 {
     public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
     {
-        public DiagnosticAssertions(Diagnostic value)
+        public DiagnosticAssertions(Diagnostic value):base(value)
         {
-            Subject = value;
         }
 
-        protected override string Context => "diagnostic";
+        protected override string Identifier => "diagnostic";
 
         public AndConstraint<DiagnosticAssertions> HaveId(string expected, string because = "", params object[] becauseArgs)
         {
