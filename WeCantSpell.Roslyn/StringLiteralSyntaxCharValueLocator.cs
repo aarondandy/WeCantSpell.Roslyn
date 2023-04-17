@@ -54,8 +54,8 @@ namespace WeCantSpell.Roslyn
 
             for (; valueCursor < valueIndex; valueCursor++)
             {
-                var valueChar = ValueText[valueCursor];
-                var syntaxChar = SyntaxText[syntaxCursor];
+                char valueChar = ValueText[valueCursor];
+                char syntaxChar = SyntaxText[syntaxCursor];
 
                 syntaxCursor++;
                 if (IsVerbatim && syntaxChar == '"')
@@ -79,9 +79,9 @@ namespace WeCantSpell.Roslyn
             return syntaxCursor;
         }
 
-        void ReadEscape(ref int syntaxCursor)
+        private void ReadEscape(ref int syntaxCursor)
         {
-            var syntaxChar = SyntaxText[syntaxCursor];
+            char syntaxChar = SyntaxText[syntaxCursor];
 
             syntaxCursor++;
             if (syntaxChar == 'u')
@@ -98,7 +98,7 @@ namespace WeCantSpell.Roslyn
             }
         }
 
-        void ReadHexValues(ref int syntaxCursor)
+        private void ReadHexValues(ref int syntaxCursor)
         {
             for (var digitsRead = 0; digitsRead < 4; digitsRead++)
             {
@@ -111,7 +111,7 @@ namespace WeCantSpell.Roslyn
             }
         }
 
-        static bool IsHex(char c) =>
+        private static bool IsHex(char c) =>
             (c >= '0' && c <= '9')
             || (c >= 'a' && c <= 'f')
             || (c >= 'A' && c <= 'F');

@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -8,7 +12,7 @@ namespace WeCantSpell.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class SpellingAnalyzerCSharp : DiagnosticAnalyzer
     {
-        static DiagnosticDescriptor SpellingIdentifierDiagnosticDescriptor = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor s_spellingIdentifierDiagnosticDescriptor = new(
             "SP3110",
             "Identifier Spelling",
             "Identifier spelling mistake: {0}",
@@ -17,7 +21,7 @@ namespace WeCantSpell.Roslyn
             isEnabledByDefault: true,
             description: "Identifier name may contain a spelling mistake.");
 
-        static DiagnosticDescriptor SpellingLiteralDiagnosticDescriptor = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor s_spellingLiteralDiagnosticDescriptor = new(
             "SP3111",
             "Text Literal Spelling",
             "Text literal spelling mistake: {0}",
@@ -26,7 +30,7 @@ namespace WeCantSpell.Roslyn
             isEnabledByDefault: true,
             description: "Text literal may contain a spelling mistake.");
 
-        static DiagnosticDescriptor SpellingCommentDiagnosticDescriptor = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor s_spellingCommentDiagnosticDescriptor = new(
             "SP3112",
             "Comment Spelling",
             "Comment spelling mistake: {0}",
@@ -35,7 +39,7 @@ namespace WeCantSpell.Roslyn
             isEnabledByDefault: true,
             description: "Comment may contain a spelling mistake.");
 
-        static DiagnosticDescriptor SpellingDocumentationDiagnosticDescriptor = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor s_spellingDocumentationDiagnosticDescriptor = new(
             "SP3113",
             "Documentation Spelling",
             "Documentation spelling mistake: {0}",
@@ -44,63 +48,95 @@ namespace WeCantSpell.Roslyn
             isEnabledByDefault: true,
             description: "Documentation may contain a spelling mistake.");
 
-        static ImmutableArray<DiagnosticDescriptor> SupportedDiagnosticsArray = ImmutableArray.Create(
-            SpellingIdentifierDiagnosticDescriptor,
-            SpellingLiteralDiagnosticDescriptor,
-            SpellingCommentDiagnosticDescriptor,
-            SpellingDocumentationDiagnosticDescriptor);
+        private static readonly ImmutableArray<DiagnosticDescriptor> s_supportedDiagnosticsArray = ImmutableArray.Create(
+            s_spellingIdentifierDiagnosticDescriptor,
+            s_spellingLiteralDiagnosticDescriptor,
+            s_spellingCommentDiagnosticDescriptor,
+            s_spellingDocumentationDiagnosticDescriptor);
 
         public SpellingAnalyzerCSharp()
-            : this(new EmbeddedSpellChecker("en-US")) { }
+            : this(new EmbeddedSpellChecker(new [] {"en-US", "ru-RU"} )) { }
 
         public SpellingAnalyzerCSharp(ISpellChecker spellChecker) => SpellChecker = spellChecker;
 
-        public ISpellChecker SpellChecker { get; }
+        private ISpellChecker SpellChecker { get; }
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => SupportedDiagnosticsArray;
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => s_supportedDiagnosticsArray;
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
             context.RegisterSyntaxTreeAction(HandleSyntaxTree);
         }
 
-        void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
+        private void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
         {
-            var root = context.Tree.GetRoot(context.CancellationToken);
-            if (root == null || context.CancellationToken.IsCancellationRequested)
+            SyntaxNode root = context.Tree.GetRoot(context.CancellationToken);
+            if (context.CancellationToken.IsCancellationRequested)
             {
                 return;
             }
 
-            var walker = new SpellCheckCSharpWalker(SpellChecker, reportMistakeAsDiagnostic);
+            var walker = new SpellCheckCSharpWalker(SpellChecker, ReportMistakeAsDiagnostic);
             walker.Visit(root);
 
-            void reportMistakeAsDiagnostic(SpellingMistake mistake) =>
+            void ReportMistakeAsDiagnostic(SpellingMistake mistake) =>
                 ReportDiagnostic(mistake, context);
         }
 
-        static void ReportDiagnostic(SpellingMistake mistake, SyntaxTreeAnalysisContext context)
+        private static void ReportDiagnostic(SpellingMistake mistake, SyntaxTreeAnalysisContext context)
         {
             if (context.CancellationToken.IsCancellationRequested)
             {
                 return;
             }
 
-            var descriptor = SelectDescriptor(mistake.Kind);
+            DiagnosticDescriptor descriptor = SelectDescriptor(mistake.Kind);
             var diagnostic = Diagnostic.Create(descriptor, mistake.Location, mistake.Text);
             context.ReportDiagnostic(diagnostic);
         }
 
-        static DiagnosticDescriptor SelectDescriptor(SpellingMistakeKind kind)
+        private static DiagnosticDescriptor SelectDescriptor(SpellingMistakeKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SpellingMistakeKind.Identifier: return SpellingIdentifierDiagnosticDescriptor;
-                case SpellingMistakeKind.Literal: return SpellingLiteralDiagnosticDescriptor;
-                case SpellingMistakeKind.Comment: return SpellingCommentDiagnosticDescriptor;
-                case SpellingMistakeKind.Documentation: return SpellingDocumentationDiagnosticDescriptor;
-                default: throw new NotSupportedException();
-            }
+                SpellingMistakeKind.Identifier => s_spellingIdentifierDiagnosticDescriptor,
+                SpellingMistakeKind.Literal => s_spellingLiteralDiagnosticDescriptor,
+                SpellingMistakeKind.Comment => s_spellingCommentDiagnosticDescriptor,
+                SpellingMistakeKind.Documentation => s_spellingDocumentationDiagnosticDescriptor,
+                _ => throw new NotSupportedException()
+            };
+        }
+
+        /// <summary>
+        /// Load .dll dependencies in memory as per https://stackoverflow.com/a/67074009
+        /// </summary>
+        static SpellingAnalyzerCSharp()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+            {
+                AssemblyName name = new(args.Name);
+                Assembly? loadedAssembly = AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a => a.GetName().FullName == name.FullName);
+                if (loadedAssembly != null)
+                {
+                    return loadedAssembly;
+                }
+
+                var resourceName = $"{typeof(SpellingAnalyzerCSharp).Namespace}.{name.Name}.dll";
+
+                using Stream? resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+                if (resourceStream == null)
+                {
+                    return null;
+                }
+
+                using var memoryStream = new MemoryStream();
+                resourceStream.CopyTo(memoryStream);
+
+                return Assembly.Load(memoryStream.ToArray());
+            };
         }
     }
 }

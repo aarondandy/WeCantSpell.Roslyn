@@ -1,40 +1,64 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <AssemblyTitle>WeCantSpell.Roslyn</AssemblyTitle>
-    <TargetFramework>netstandard1.3</TargetFramework>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>WeCantSpell.Roslyn</AssemblyName>
-    <PackageId>WeCantSpell.Roslyn</PackageId>
-    <Description>A Roslyn spell check analyzer.</Description>
-    <PackageTags>spell;check;spell-check;spelling;hunspell;we-cant-spell;roslyn;analyzer</PackageTags>
-    <PackageProjectUrl>https://github.com/aarondandy/WeCantSpell.Roslyn</PackageProjectUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/aarondandy/we-cant-spell.git</RepositoryUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/aarondandy/WeCantSpell.Roslyn/master/icon.png</PackageIconUrl>
-    <Authors>aarondandy</Authors>
-    <PackageLicenseUrl>https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/license.txt</PackageLicenseUrl>
-    <PackageReleaseNotes>Changelog can be found at https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/changelog.md</PackageReleaseNotes>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81</PackageTargetFallback>
-  </PropertyGroup>
+    <PropertyGroup>
+        <AssemblyTitle>WeCantSpell.Roslyn</AssemblyTitle>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <AssemblyName>WeCantSpell.Roslyn</AssemblyName>
+        <PackageId>WeCantSpell.Roslyn</PackageId>
+        <Description>A Roslyn spell check analyzer.</Description>
+        <PackageTags>spell;check;spell-check;spelling;hunspell;we-cant-spell;roslyn;analyzer</PackageTags>
+        <PackageProjectUrl>https://github.com/aarondandy/WeCantSpell.Roslyn</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/aarondandy/we-cant-spell.git</RepositoryUrl>
+        <PackageIconUrl>https://raw.githubusercontent.com/aarondandy/WeCantSpell.Roslyn/master/icon.png</PackageIconUrl>
+        <Authors>aarondandy</Authors>
+        <PackageLicenseUrl>https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/license.txt</PackageLicenseUrl>
+        <PackageReleaseNotes>Changelog can be found at https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/changelog.md</PackageReleaseNotes>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <LangVersion>default</LangVersion>
+        <Nullable>enable</Nullable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <NoPackageAnalysis>true</NoPackageAnalysis>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="..\WeCantSpell.Roslyn.FileCompressor\*.compressed" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)">
-      <Link>DefaultDictionaries/%(FileName)%(Extension)</Link>
-    </EmbeddedResource>
-    <None Remove="WeCantSpell.Roslyn.v3.ncrunchproject" />
-    <Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
-    <PackageReference Include="WeCantSpell.Hunspell" Version="2.0.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="..\WeCantSpell.Roslyn.FileCompressor\*.compressed" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)">
+            <Link>DefaultDictionaries/%(FileName)%(Extension)</Link>
+        </EmbeddedResource>
+        <Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs"/>
+    </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="all"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" PrivateAssets="all"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Generator dependencies -->
+        <PackageReference Include="WeCantSpell.Hunspell" Version="4.0.0" GeneratePathProperty="true" PrivateAssets="all"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="$(PKGWeCantSpell_Hunspell)\lib\netstandard2.0\WeCantSpell.Hunspell.dll" Visible="false"/>
+    </ItemGroup>
+    <!--    <PropertyGroup>-->
+    <!--        <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>-->
+    <!--    </PropertyGroup>-->
+    <!--    <Target Name="GetDependencyTargetPaths">-->
+    <!--        <ItemGroup>-->
+    <!--            <TargetPathWithTargetPlatformMoniker Include="$(PKGWeCantSpell_Hunspell)\lib\netstandard2.0\WeCantSpell.Hunspell.dll" IncludeRuntimeDependency="false"/>-->
+    <!--        </ItemGroup>-->
+    <!--        <Message Importance="high" Text="!!!!$(PKGWeCantSpell_Hunspell)\lib\netstandard2.0\WeCantSpell.Hunspell.dll" />-->
+    <!--    </Target>-->
 </Project>

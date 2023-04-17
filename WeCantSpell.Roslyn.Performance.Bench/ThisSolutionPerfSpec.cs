@@ -1,12 +1,13 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.MSBuild;
-using NBench;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.MSBuild;
+using NBench;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {
@@ -67,10 +68,10 @@ namespace WeCantSpell.Roslyn.Performance.Bench
                 .GetResult();
         }
 
-        async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(Project project, SpellingAnalyzerCSharp analyzer)
+        private async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(Project project, DiagnosticAnalyzer analyzer)
         {
             var compilation = await project.GetCompilationAsync().ConfigureAwait(false);
-            var diagnostics = await compilation
+            var diagnostics = await (compilation ?? throw new InvalidOperationException())
                 .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer))
                 .GetAnalyzerDiagnosticsAsync()
                 .ConfigureAwait(false);

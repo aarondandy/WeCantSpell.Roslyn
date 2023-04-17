@@ -27,11 +27,9 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 
         protected async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
         {
-            using (var stream = OpenCodeFileStream(embeddedResourceFileName))
-            using (var reader = new StreamReader(stream, Encoding.UTF8, true))
-            {
-                return await reader.ReadToEndAsync();
-            }
+            await using var stream = OpenCodeFileStream(embeddedResourceFileName);
+            using var reader = new StreamReader(stream, Encoding.UTF8, true);
+            return await reader.ReadToEndAsync();
         }
 
         protected abstract string CreateResourceNameFromFileName(string fileName);

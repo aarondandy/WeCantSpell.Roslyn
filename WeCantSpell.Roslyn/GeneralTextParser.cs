@@ -19,8 +19,8 @@ namespace WeCantSpell.Roslyn
             }
 
             var partStartIndex = 0;
-            var prevChar = text[0];
-            var prevCharType = ClassifyCharType(prevChar);
+            char prevChar = text[0];
+            CharType prevCharType = ClassifyCharType(prevChar);
 
             char currChar;
             CharType currCharType;
@@ -36,7 +36,7 @@ namespace WeCantSpell.Roslyn
                 currCharType = prevCharType;
             }
 
-            var prevEffectiveType = GetEffectiveCharType(prevChar, prevCharType, CharType.Unknown, currCharType);
+            CharType prevEffectiveType = GetEffectiveCharType(prevChar, prevCharType, CharType.Unknown, currCharType);
 
             for (int searchIndex = 1, nextIndex = 2; searchIndex < text.Length; searchIndex = nextIndex++)
             {
@@ -53,9 +53,9 @@ namespace WeCantSpell.Roslyn
                     nextCharType = CharType.WhiteSpace;
                 }
 
-                var currEffectiveType = GetEffectiveCharType(currChar, currCharType, prevCharType, nextCharType);
-                var currentIsWord = currEffectiveType == CharType.Word;
-                var previousWasWord = prevEffectiveType == CharType.Word;
+                CharType currEffectiveType = GetEffectiveCharType(currChar, currCharType, prevCharType, nextCharType);
+                bool currentIsWord = currEffectiveType == CharType.Word;
+                bool previousWasWord = prevEffectiveType == CharType.Word;
 
                 if (currentIsWord != previousWasWord)
                 {
@@ -80,7 +80,7 @@ namespace WeCantSpell.Roslyn
             return results;
         }
 
-        static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>
+        private static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>
             currCharType != CharType.Word
             && prevCharType == CharType.Word
             && nextCharType == CharType.Word
@@ -88,17 +88,17 @@ namespace WeCantSpell.Roslyn
             ? CharType.Word
             : currCharType;
 
-        static CharType ClassifyCharType(char current)
+        private static CharType ClassifyCharType(char current)
         {
             if (char.IsLetterOrDigit(current))
             {
                 return CharType.Word;
             }
-            if (char.IsWhiteSpace(current))
+            else if (char.IsWhiteSpace(current))
             {
                 return CharType.WhiteSpace;
             }
-            if (char.IsPunctuation(current))
+            else if (char.IsPunctuation(current))
             {
                 return CharType.Punctuation;
             }
@@ -106,23 +106,17 @@ namespace WeCantSpell.Roslyn
             return CharType.Unknown;
         }
 
-        static bool IsWordJoinChar(char c) =>
+        private static bool IsWordJoinChar(char c) =>
             IsHyphen(c) || IsApostrophe(c);
 
-        static bool IsHyphen(char c) =>
-            c == '-'
-            || c == '\u2010'
-            || c == '\u2212'
-            || c == '\u2014'
-            || c == '\u2013';
+        private static bool IsHyphen(char c) =>
+            c is '-' or '\u2010' or '\u2212' or '\u2014' or '\u2013';
 
-        static bool IsApostrophe(char c) =>
-            c == '\''
-            || c == '’' // U+2019 - RIGHT SINGLE QUOTATION MARK
-            || c == 'ʼ' // U+02BC - MODIFIER LETTER APOSTROPHE
-            || c == '＇'; // full width
+        private static bool IsApostrophe(char c) =>
+            c is '\'' or '’' or 'ʼ' or '＇'
+        ; // full width
 
-        enum CharType : byte
+        private enum CharType : byte
         {
             Unknown = 0,
             Word = 1,

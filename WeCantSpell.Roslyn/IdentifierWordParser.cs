@@ -19,12 +19,12 @@ namespace WeCantSpell.Roslyn
             }
 
             var partStartIndex = 0;
-            var prevType = ClassifyLetterType(text[0]);
-            var currType = text.Length > 1 ? ClassifyLetterType(text[1]) : prevType;
+            LetterType prevType = ClassifyLetterType(text[0]);
+            LetterType currType = text.Length > 1 ? ClassifyLetterType(text[1]) : prevType;
 
             for (int searchIndex = 1, nextIndex = 2; searchIndex < text.Length; searchIndex = nextIndex++)
             {
-                var nextType = nextIndex < text.Length ? ClassifyLetterType(text[nextIndex]) : LetterType.NonWord;
+                LetterType nextType = nextIndex < text.Length ? ClassifyLetterType(text[nextIndex]) : LetterType.NonWord;
 
                 if (
                     currType == LetterType.LetterUpper && nextType == LetterType.LetterNormal
@@ -49,12 +49,12 @@ namespace WeCantSpell.Roslyn
             return results;
         }
 
-        static LetterType ClassifyLetterType(char c) =>
+        private static LetterType ClassifyLetterType(char c) =>
             char.IsLetter(c)
                 ? (char.IsUpper(c) ? LetterType.LetterUpper : LetterType.LetterNormal)
                 : LetterType.NonWord;
 
-        enum LetterType : byte
+        private enum LetterType : byte
         {
             NonWord = 0,
             LetterNormal = 1,

@@ -6,13 +6,13 @@ namespace WeCantSpell.Roslyn
 {
     public static class CommentTextExtractor
     {
-        const char CommentSlashChar = '/';
-        const char CommentStarChar = '*';
+        private const char CommentSlashChar = '/';
+        private const char CommentStarChar = '*';
 
         public static TextSpan LocateSingleLineCommentText(string commentText)
         {
             var startIndex = 0;
-            var endIndex = commentText.Length;
+            int endIndex = commentText.Length;
 
             // skip initial whitespace
             for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
@@ -31,7 +31,7 @@ namespace WeCantSpell.Roslyn
 
         public static List<TextSpan> LocateMultiLineCommentTextParts(string text)
         {
-            var allLines = LocateLines(text);
+            List<TextSpan> allLines = LocateLines(text);
 
             for (var i = 0; i < allLines.Count; i++)
             {
@@ -43,10 +43,10 @@ namespace WeCantSpell.Roslyn
             return allLines;
         }
 
-        static TextSpan TrimMultiLinePartToTextPart(string commentText, TextSpan lineSpan)
+        private static TextSpan TrimMultiLinePartToTextPart(string commentText, TextSpan lineSpan)
         {
-            var startIndex = lineSpan.Start;
-            var endIndex = lineSpan.End;
+            int startIndex = lineSpan.Start;
+            int endIndex = lineSpan.End;
 
             // skip initial whitespace
             for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
@@ -75,7 +75,7 @@ namespace WeCantSpell.Roslyn
             return TextSpan.FromBounds(startIndex, endIndex);
         }
 
-        static List<TextSpan> LocateLines(string text)
+        private static List<TextSpan> LocateLines(string text)
         {
             var startIndex = 0;
             var result = new List<TextSpan>();
@@ -101,7 +101,7 @@ namespace WeCantSpell.Roslyn
             return result;
         }
 
-        static bool IsCSharpWhitespace(char c)
+        private static bool IsCSharpWhitespace(char c)
         {
             switch (c)
             {
@@ -119,7 +119,7 @@ namespace WeCantSpell.Roslyn
             }
         }
 
-        static bool IsLineBreak(char c)
+        private static bool IsLineBreak(char c)
         {
             switch (c)
             {
