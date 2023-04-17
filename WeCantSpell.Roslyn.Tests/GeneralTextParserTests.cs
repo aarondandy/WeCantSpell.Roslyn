@@ -48,6 +48,22 @@ namespace WeCantSpell.Roslyn.Tests
         }
 
         [Fact]
+        public void case_word_are_split_correctly()
+        {
+            var sentenceText = "The quickBrown fox jumps-over the lazy dog.";
+
+            var results = GeneralTextParser.SplitWordParts(sentenceText);
+
+            var firstResult = results.Should().ContainSingle(x => x.Text == "quick").Subject;
+            firstResult.Start.Should().Be(4);
+            firstResult.IsWord.Should().BeTrue();
+
+            var secondResult = results.Should().ContainSingle(x => x.Text == "Brown").Subject;
+            secondResult.Start.Should().Be(9);
+            secondResult.IsWord.Should().BeTrue();
+        }
+
+        [Fact]
         public void english_contractions_are_split_correctly()
         {
             var given = "you'dn't've a’n't I'da It’s";
