@@ -34,7 +34,7 @@ namespace WeCantSpell.Roslyn.Tests
         [Fact]
         public void hyphenated_word_is_a_whole_word()
         {
-            var sentenceText = "The quick-brown fox jumps-over the lazy dog.";
+            const string sentenceText = "The quick-brown fox jumps-over the lazy dog.";
 
             var results = GeneralTextParser.SplitWordParts(sentenceText);
 
@@ -44,22 +44,6 @@ namespace WeCantSpell.Roslyn.Tests
 
             var secondResult = results.Should().ContainSingle(x => x.Text == "jumps-over").Subject;
             secondResult.Start.Should().Be(20);
-            secondResult.IsWord.Should().BeTrue();
-        }
-
-        [Fact]
-        public void case_word_are_split_correctly()
-        {
-            var sentenceText = "The quickBrown fox jumps-over the lazy dog.";
-
-            var results = GeneralTextParser.SplitWordParts(sentenceText);
-
-            var firstResult = results.Should().ContainSingle(x => x.Text == "quick").Subject;
-            firstResult.Start.Should().Be(4);
-            firstResult.IsWord.Should().BeTrue();
-
-            var secondResult = results.Should().ContainSingle(x => x.Text == "Brown").Subject;
-            secondResult.Start.Should().Be(9);
             secondResult.IsWord.Should().BeTrue();
         }
 

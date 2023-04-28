@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Xunit;
 using FluentAssertions;
 
@@ -6,9 +7,9 @@ namespace WeCantSpell.Roslyn.Tests
 {
     public class IdentifierWordParserTests
     {
-        public static object[][] splits_name_to_text_parts_data => new[]
+        public static object[][] SplitsNameToTextPartsData => new[]
         {
-            new object[] { "", new string[0] },
+            new object[] { "", Array.Empty<string>() },
             new object[] { "x", new[] { "x" } },
             new object[] { "word", new[] { "word" } },
             new object[] { "WORD", new[] { "WORD" } },
@@ -41,7 +42,7 @@ namespace WeCantSpell.Roslyn.Tests
             new object[] { "__Hello_world", new[] { "__", "Hello", "_", "world" } }
         };
 
-        [Theory, MemberData(nameof(splits_name_to_text_parts_data))]
+        [Theory, MemberData(nameof(SplitsNameToTextPartsData))]
         public void splits_name_to_text_parts(string givenName, string[] expected)
         {
             var actual = IdentifierWordParser.SplitWordParts(givenName);
@@ -49,9 +50,9 @@ namespace WeCantSpell.Roslyn.Tests
             actual.Select(p => p.Text).Should().BeEquivalentTo(expected);
         }
 
-        public static object[][] text_parts_are_correct_type_data => new[]
+        public static object[][] TextPartsAreCorrectTypeData => new[]
         {
-            new object[] { "", new bool[0] },
+            new object[] { "", Array.Empty<bool>() },
             new object[] { "a", new[] { true } },
             new object[] { "_", new[] { false } },
             new object[] { "a_", new[] { true, false } },
@@ -70,7 +71,7 @@ namespace WeCantSpell.Roslyn.Tests
             new object[] { "__Hello_world", new[] { false, true, false, true } }
         };
 
-        [Theory, MemberData(nameof(text_parts_are_correct_type_data))]
+        [Theory, MemberData(nameof(TextPartsAreCorrectTypeData))]
         public void text_parts_are_correct_type(string givenName, bool[] expectedWordPart)
         {
             var actual = IdentifierWordParser.SplitWordParts(givenName);

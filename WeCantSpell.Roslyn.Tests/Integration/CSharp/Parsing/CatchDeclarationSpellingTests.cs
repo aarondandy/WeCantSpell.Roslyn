@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
@@ -16,11 +17,19 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().HaveCount(2);
-            diagnostics[0].Should().HaveMessageContaining("bad")
-                .And.HaveLocation(309, 312, "Catch.SimpleExamples.csx");
-            diagnostics[1].Should().HaveMessageContaining("Value")
-                .And.HaveLocation(312, 317, "Catch.SimpleExamples.csx");
+            using (new AssertionScope())
+            {
+
+                diagnostics.Should().HaveCount(2);
+                diagnostics.Should().SatisfyRespectively(
+                    first => first.Should()
+                        .HaveMessageContaining("bad")
+                        .And.HaveLineLocation(13, 45, 3, "Catch.SimpleExamples.csx"),
+                    second => second.Should()
+                        .HaveMessageContaining("Value")
+                        .And.HaveLineLocation(13, 48, 5, "Catch.SimpleExamples.csx")
+                );
+            }
         }
     }
 }

@@ -14,16 +14,16 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 {
     public abstract class CSharpTestBase
     {
-        private static readonly string PathBase = $"{typeof(CSharpTestBase).Namespace}";
-        private static readonly string ProjectNameSingleFileSample = nameof(ProjectNameSingleFileSample);
+        private static readonly string s_pathBase = $"{typeof(CSharpTestBase).Namespace}";
+        private static readonly string s_projectNameSingleFileSample = nameof(s_projectNameSingleFileSample);
 
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference s_corlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference s_systemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference s_cSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference s_codeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).GetTypeInfo().Assembly.Location);
 
         protected Stream OpenCodeFileStream(string embeddedResourceFileName) =>
-            typeof(CSharpTestBase).GetTypeInfo().Assembly.GetManifestResourceStream(PathBase + "." + embeddedResourceFileName);
+            typeof(CSharpTestBase).GetTypeInfo().Assembly.GetManifestResourceStream(s_pathBase + "." + embeddedResourceFileName);
 
         protected async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
         {
@@ -45,15 +45,15 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 
         protected Project CreateProjectWithFiles(IEnumerable<TextAndVersion> files)
         {
-            var projectId = ProjectId.CreateNewId(debugName: ProjectNameSingleFileSample);
+            var projectId = ProjectId.CreateNewId(debugName: s_projectNameSingleFileSample);
 
             var solution = new AdhocWorkspace()
                 .CurrentSolution
-                .AddProject(projectId, ProjectNameSingleFileSample, ProjectNameSingleFileSample, LanguageNames.CSharp)
-                .AddMetadataReference(projectId, CorlibReference)
-                .AddMetadataReference(projectId, SystemCoreReference)
-                .AddMetadataReference(projectId, CSharpSymbolsReference)
-                .AddMetadataReference(projectId, CodeAnalysisReference);
+                .AddProject(projectId, s_projectNameSingleFileSample, s_projectNameSingleFileSample, LanguageNames.CSharp)
+                .AddMetadataReference(projectId, s_corlibReference)
+                .AddMetadataReference(projectId, s_systemCoreReference)
+                .AddMetadataReference(projectId, s_cSharpSymbolsReference)
+                .AddMetadataReference(projectId, s_codeAnalysisReference);
 
             foreach (var file in files)
             {

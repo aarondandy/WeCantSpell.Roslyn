@@ -12,17 +12,17 @@ namespace WeCantSpell.Roslyn
     {
         private static WordList Load(string languageCode)
         {
-            const string resourceNamespaceBase = $"WeCantSpell.Roslyn.DefaultDictionaries.";
+            const string resourceNamespaceBase = "";
             string languageResourceName = resourceNamespaceBase + languageCode;
-            string affName = languageResourceName + ".aff.compressed";
-            string dicName = languageResourceName + ".dic.compressed";
+            string affName = languageResourceName + ".aff.gz";
+            string dicName = languageResourceName + ".dic.gz";
 
             Assembly assembly = typeof(EmbeddedSpellChecker).GetTypeInfo().Assembly;
 
             using Stream affCompressedStream = assembly.GetManifestResourceStream(affName) ?? throw new InvalidOperationException();
-            using var affStream = new DeflateStream(affCompressedStream, CompressionMode.Decompress);
+            using var affStream = new GZipStream(affCompressedStream, CompressionMode.Decompress);
             using Stream dicCompressedStream = assembly.GetManifestResourceStream(dicName) ?? throw new InvalidOperationException();
-            using var dicStream = new DeflateStream(dicCompressedStream, CompressionMode.Decompress);
+            using var dicStream = new GZipStream(dicCompressedStream, CompressionMode.Decompress);
             return WordList.CreateFromStreams(dicStream, affStream);
         }
 
@@ -52,14 +52,7 @@ namespace WeCantSpell.Roslyn
 
         public IEnumerable<string> Suggest(string word)
         {
-            foreach (var wordList in WordLists)
-            {
-                var suggestions = wordList.Suggest(word);
-                foreach (var suggestion in suggestions)
-                {
-                    yield return suggestion;
-                }
-            }
+            return WordLists.SelectMany(wordList => wordList.Suggest(word));
         }
     }
 }

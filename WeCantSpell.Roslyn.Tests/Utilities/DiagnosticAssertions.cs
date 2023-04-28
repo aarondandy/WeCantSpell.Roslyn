@@ -9,36 +9,56 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
 {
     public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
     {
-        public DiagnosticAssertions(Diagnostic value) : base(value)
-        {
-        }
+        public DiagnosticAssertions(Diagnostic value) : base(value) { }
 
         protected override string Identifier => "diagnostic";
 
-        public AndConstraint<DiagnosticAssertions> HaveId(string expected, string because = "", params object[] becauseArgs)
+        public AndConstraint<DiagnosticAssertions> HaveId(
+            string expected,
+            string because = "",
+            params object[] becauseArgs
+        )
         {
             var actual = Subject?.Id;
 
             Execute.Assertion
                 .ForCondition(string.Equals(actual, expected, StringComparison.Ordinal))
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context:id} to be {0}{reason}, but found {1}.", expected, actual);
+                .FailWith(
+                    "Expected {context:id} to be {0}{reason}, but found {1}.",
+                    expected,
+                    actual
+                );
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }
 
-        public AndConstraint<DiagnosticAssertions> BeFromFileName(string expected, string because = "", params object[] becauseArgs)
+        public AndConstraint<DiagnosticAssertions> BeFromFileName(
+            string expected,
+            string because = "",
+            params object[] becauseArgs
+        )
         {
             var actual = Subject?.Location?.SourceTree?.FilePath;
             Execute.Assertion
                 .ForCondition(string.Equals(actual, expected, StringComparison.Ordinal))
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context:file} to be {0}{reason}, but found {1}.", expected, actual);
+                .FailWith(
+                    "Expected {context:file} to be {0}{reason}, but found {1}.",
+                    expected,
+                    actual
+                );
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }
 
-        public AndConstraint<DiagnosticAssertions> HaveSourceSpan(int expectedStart, int expectedEnd, string because = "", params object[] becauseArgs)
+        [Obsolete("Does not respect platform-specific line feed")]
+        public AndConstraint<DiagnosticAssertions> HaveSourceSpan(
+            int expectedStart,
+            int expectedEnd,
+            string because = "",
+            params object[] becauseArgs
+        )
         {
             var location = Subject?.Location;
 
@@ -47,26 +67,108 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:diagnostic} to have a location.");
 
-            var actual = location.SourceSpan;
+            var actual = location!.SourceSpan;
 
             Execute.Assertion
                 .ForCondition(actual.Start == expectedStart)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context:span} to start at {0}{reason}, but found {1}.", expectedStart, actual.Start);
+                .FailWith(
+                    "Expected {context:span} to start at {0}{reason}, but found {1}.",
+                    expectedStart,
+                    actual.Start
+                );
 
             Execute.Assertion
                 .ForCondition(actual.End == expectedEnd)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context:span} to end at {0}{reason}, but found {1}.", expectedEnd, actual.End);
-            
+                .FailWith(
+                    "Expected {context:span} to end at {0}{reason}, but found {1}.",
+                    expectedEnd,
+                    actual.End
+                );
+
             return new AndConstraint<DiagnosticAssertions>(this);
         }
 
-        public AndConstraint<DiagnosticAssertions> HaveLocation(int expectedStart, int expectedEnd, string expectedFileName, string because = "", params object[] becauseArgs) =>
-            HaveSourceSpan(expectedStart, expectedEnd, because, becauseArgs)
-                .And.BeFromFileName(expectedFileName, because, becauseArgs);
+        private AndConstraint<DiagnosticAssertions> HaveLineSpan(
+            int expectedLine,
+            int expectedCharacter,
+            int expectedLength,
+            string because = "",
+            params object[] becauseArgs
+        )
+        {
+            var location = Subject?.Location;
 
-        public AndConstraint<DiagnosticAssertions> HaveMessageContaining(string expectedSubstring, string because = "", params object[] becauseArgs)
+            Execute.Assertion
+                .ForCondition(location != null)
+                .BecauseOf(because, becauseArgs)
+                .FailWith("Expected {context:diagnostic} to have a location.");
+
+            var actual = location!.GetLineSpan();
+
+            Execute.Assertion
+                .ForCondition(
+                    actual.StartLinePosition.Line == expectedLine - 1
+                        && actual.StartLinePosition.Character == expectedCharacter - 1
+                )
+                .BecauseOf(because, becauseArgs)
+                .FailWith(
+                    "Expected {context:span} to start at {0}:{1}{reason}, but found {2}:{3}.",
+                    expectedLine,
+                    expectedCharacter,
+                    actual.StartLinePosition.Line + 1,
+                    actual.StartLinePosition.Character + 1
+                );
+
+            var actualLength = location.SourceSpan.Length;
+            Execute.Assertion
+                .ForCondition(actualLength == expectedLength)
+                .BecauseOf(because, becauseArgs)
+                .FailWith(
+                    "Expected {context:span} to have lentgth {0}{reason}, but found {1}.",
+                    expectedLength,
+                    actualLength
+                );
+
+            return new AndConstraint<DiagnosticAssertions>(this);
+        }
+
+        [Obsolete("Does not respect platform-specific line feed")]
+        public AndConstraint<DiagnosticAssertions> HaveLocation(
+            int expectedStart,
+            int expectedEnd,
+            string expectedFileName,
+            string because = "",
+            params object[] becauseArgs
+        ) =>
+            HaveSourceSpan(expectedStart, expectedEnd, because, becauseArgs).And.BeFromFileName(
+                expectedFileName,
+                because,
+                becauseArgs
+            );
+
+        public AndConstraint<DiagnosticAssertions> HaveLineLocation(
+            int expectedLine,
+            int expectedCharacter,
+            int expectedLength,
+            string expectedFileName,
+            string because = "",
+            params object[] becauseArgs
+        ) =>
+            HaveLineSpan(
+                expectedLine,
+                expectedCharacter,
+                expectedLength,
+                because,
+                becauseArgs
+            ).And.BeFromFileName(expectedFileName, because, becauseArgs);
+
+        public AndConstraint<DiagnosticAssertions> HaveMessageContaining(
+            string expectedSubstring,
+            string because = "",
+            params object[] becauseArgs
+        )
         {
             var message = Subject?.GetMessage(CultureInfo.InvariantCulture);
 
@@ -78,7 +180,10 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
             Execute.Assertion
                 .ForCondition(message.Contains(expectedSubstring))
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context:invariant message} to contain {0}{reason}, but did not.", expectedSubstring);
+                .FailWith(
+                    "Expected {context:invariant message} to contain {0}{reason}, but did not.",
+                    expectedSubstring
+                );
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }

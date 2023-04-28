@@ -7,19 +7,19 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class UsingSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] can_find_spelling_mistakes_in_usings_data => new[]
+        public static object[][] CanFindSpellingMistakesInUsingsData => new[]
         {
-            new object[] { "Nope", 52 },
-            new object[] { "Not", 96 },
-            new object[] { "Done", 99 },
-            new object[] { "bytes", 397 }
+            new object[] { "Nope", 5, 7 },
+            new object[] { "Not", 6, 7 },
+            new object[] { "Done", 6, 10 },
+            new object[] { "bytes", 19, 24 }
         };
 
-        [Theory, MemberData(nameof(can_find_spelling_mistakes_in_usings_data))]
-        public async Task can_find_spelling_mistakes_in_usings(string expectedWord, int expectedStart)
+        [Theory, MemberData(nameof(CanFindSpellingMistakesInUsingsData))]
+        public async Task can_find_spelling_mistakes_in_usings(string expectedWord, int expectedLine,
+            int expectedCharacter
+        )
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("Using.SimpleExamples.csx");
 
@@ -28,7 +28,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
             diagnostics.Should().ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "Using.SimpleExamples.csx")
+                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length, "Using.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
     }

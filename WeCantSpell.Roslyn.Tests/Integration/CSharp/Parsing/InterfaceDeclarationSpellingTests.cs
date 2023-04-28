@@ -11,18 +11,33 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task interface_name_can_contain_mistakes()
         {
-            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Simple", "Interface", "Example"));
+            var analyzer = new SpellingAnalyzerCSharp(
+                new WrongWordChecker("Simple", "Interface", "Example")
+            );
             var project = await ReadCodeFileAsProjectAsync("TypeName.ISimpleInterfaceExample.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().HaveCount(3);
-            diagnostics[0].Should().HaveMessageContaining("Simple")
-                .And.HaveLocation(79, 85, "TypeName.ISimpleInterfaceExample.csx");
-            diagnostics[1].Should().HaveMessageContaining("Interface")
-                .And.HaveLocation(85, 94, "TypeName.ISimpleInterfaceExample.csx");
-            diagnostics[2].Should().HaveMessageContaining("Example")
-                .And.HaveLocation(94, 101, "TypeName.ISimpleInterfaceExample.csx");
+            diagnostics
+                .Should()
+                .HaveCount(3)
+                .And.SatisfyRespectively(
+                    first =>
+                        first
+                            .Should()
+                            .HaveMessageContaining("Simple")
+                            .And.HaveLineLocation(3, 23, 6, "TypeName.ISimpleInterfaceExample.csx"),
+                    second =>
+                        second
+                            .Should()
+                            .HaveMessageContaining("Interface")
+                            .And.HaveLineLocation(3, 29, 9, "TypeName.ISimpleInterfaceExample.csx"),
+                    third =>
+                        third
+                            .Should()
+                            .HaveMessageContaining("Example")
+                            .And.HaveLineLocation(3, 38, 7, "TypeName.ISimpleInterfaceExample.csx")
+                );
         }
 
         [Fact]

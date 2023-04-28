@@ -38,11 +38,8 @@ namespace WeCantSpell.Roslyn
 
             CharType prevEffectiveType = GetEffectiveCharType(prevChar, prevCharType, CharType.Unknown, currCharType);
 
-            var prevType = ClassifyLetterType(text[0]);
-            var currType = text.Length > 1 ? ClassifyLetterType(text[1]) : prevType;
             for (int searchIndex = 1, nextIndex = 2; searchIndex < text.Length; searchIndex = nextIndex++)
             {
-                var nextType = nextIndex < text.Length ? ClassifyLetterType(text[nextIndex]) : LetterType.NonWord;
                 char nextChar;
                 CharType nextCharType;
                 if (nextIndex < text.Length)
@@ -66,23 +63,13 @@ namespace WeCantSpell.Roslyn
 
                     partStartIndex = searchIndex;
                 }
-
-                if (currType == LetterType.LetterUpper && nextType == LetterType.LetterNormal ||
-                    (prevType != currType && (prevType != LetterType.LetterUpper || currType != LetterType.LetterNormal)))
-                {
-                    results.Add(new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, prevType != LetterType.NonWord));
-
-                    partStartIndex = searchIndex;
-                }
-
+                
                 prevChar = currChar;
                 prevCharType = currCharType;
                 prevEffectiveType = currEffectiveType;
 
                 currChar = nextChar;
                 currCharType = nextCharType;
-                prevType = currType;
-                currType = nextType;
             }
 
             if (partStartIndex < text.Length)
@@ -117,17 +104,6 @@ namespace WeCantSpell.Roslyn
             }
 
             return CharType.Unknown;
-        }
-        static LetterType ClassifyLetterType(char c) =>
-           char.IsLetter(c)
-               ? (char.IsUpper(c) ? LetterType.LetterUpper : LetterType.LetterNormal)
-               : LetterType.NonWord;
-
-        enum LetterType : byte
-        {
-            NonWord = 0,
-            LetterNormal = 1,
-            LetterUpper = 3
         }
 
         private static bool IsWordJoinChar(char c) =>

@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Linq;
-
-using NBench;
+﻿using NBench;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {

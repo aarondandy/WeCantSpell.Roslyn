@@ -27,10 +27,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(74, 79, "TypeName.FirstMiddleLast.csx")
+                .And.HaveLineLocation(3, 18, 5, "TypeName.FirstMiddleLast.csx")
                 .And.HaveMessageContaining("First");
         }
 
@@ -42,10 +44,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(85, 89, "TypeName.FirstMiddleLast.csx")
+                .And.HaveLineLocation(3, 29, 4, "TypeName.FirstMiddleLast.csx")
                 .And.HaveMessageContaining("Last");
         }
 
@@ -57,28 +61,45 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(79, 85, "TypeName.FirstMiddleLast.csx")
+                .And.HaveLineLocation(3, 23, 6, "TypeName.FirstMiddleLast.csx")
                 .And.HaveMessageContaining("Middle");
         }
 
         [Fact]
         public async Task name_contains_individual_mistakes_for_all_words()
         {
-            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("First", "Middle", "Last"));
+            var analyzer = new SpellingAnalyzerCSharp(
+                new WrongWordChecker("First", "Middle", "Last")
+            );
             var project = await ReadCodeFileAsProjectAsync("TypeName.FirstMiddleLast.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().HaveCount(3);
-            diagnostics[0].Should().HaveMessageContaining("First")
-                .And.HaveLocation(74, 79, "TypeName.FirstMiddleLast.csx");
-            diagnostics[1].Should().HaveMessageContaining("Middle")
-                .And.HaveLocation(79, 85, "TypeName.FirstMiddleLast.csx");
-            diagnostics[2].Should().HaveMessageContaining("Last")
-                .And.HaveLocation(85, 89, "TypeName.FirstMiddleLast.csx");
+            diagnostics
+                .Should()
+                .HaveCount(3)
+                .And.SatisfyRespectively(
+                    first =>
+                        first
+                            .Should()
+                            .HaveMessageContaining("First")
+                            .And.HaveLineLocation(3, 18, 5, "TypeName.FirstMiddleLast.csx"),
+                    second =>
+                        second
+                            .Should()
+                            .HaveMessageContaining("Middle")
+                            .And.HaveLineLocation(3, 23, 6, "TypeName.FirstMiddleLast.csx"),
+                    third =>
+                        third
+                            .Should()
+                            .HaveMessageContaining("Last")
+                            .And.HaveLineLocation(3, 29, 4, "TypeName.FirstMiddleLast.csx")
+                );
         }
     }
 }

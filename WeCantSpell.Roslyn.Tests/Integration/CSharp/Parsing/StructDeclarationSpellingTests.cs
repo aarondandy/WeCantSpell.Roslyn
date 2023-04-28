@@ -11,18 +11,33 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task struct_name_can_contain_mistakes()
         {
-            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Simple", "Struct", "Example"));
+            var analyzer = new SpellingAnalyzerCSharp(
+                new WrongWordChecker("Simple", "Struct", "Example")
+            );
             var project = await ReadCodeFileAsProjectAsync("TypeName.SimpleStructExample.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().HaveCount(3);
-            diagnostics[0].Should().HaveMessageContaining("Simple")
-                .And.HaveLocation(75, 81, "TypeName.SimpleStructExample.csx");
-            diagnostics[1].Should().HaveMessageContaining("Struct")
-                .And.HaveLocation(81, 87, "TypeName.SimpleStructExample.csx");
-            diagnostics[2].Should().HaveMessageContaining("Example")
-                .And.HaveLocation(87, 94, "TypeName.SimpleStructExample.csx");
+            diagnostics
+                .Should()
+                .HaveCount(3)
+                .And.SatisfyRespectively(
+                    first =>
+                        first
+                            .Should()
+                            .HaveMessageContaining("Simple")
+                            .And.HaveLineLocation(3, 19, 6, "TypeName.SimpleStructExample.csx"),
+                    second =>
+                        second
+                            .Should()
+                            .HaveMessageContaining("Struct")
+                            .And.HaveLineLocation(3, 25, 6, "TypeName.SimpleStructExample.csx"),
+                    third =>
+                        third
+                            .Should()
+                            .HaveMessageContaining("Example")
+                            .And.HaveLineLocation(3, 31, 7, "TypeName.SimpleStructExample.csx")
+                );
         }
     }
 }

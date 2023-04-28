@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using WeCantSpell.Roslyn.Tests.Utilities;
 using Xunit;
 
@@ -7,29 +9,43 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class AnonymousObjectsSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] can_find_mistakes_in_anonymous_members_data => new[]
-        {
-            new object[] { "Count", 204 },
-            new object[] { "Distance", 232 },
-            new object[] { "Nested", 265 },
-            new object[] { "Value", 318 }
-        };
+        public static object[][] CanFindMistakesInAnonymousMembersData =>
+            new[]
+            {
+                new object[] { "Count", 9, 17 },
+                new object[] { "Distance", 10, 17 },
+                new object[] { "Nested", 11, 17 },
+                new object[] { "Value", 13, 21 }
+            };
 
-        [Theory, MemberData(nameof(can_find_mistakes_in_anonymous_members_data))]
-        public async Task can_find_mistakes_in_anonymous_members(string expectedWord, int expectedStart)
+        [Theory, MemberData(nameof(CanFindMistakesInAnonymousMembersData))]
+        public async Task can_find_mistakes_in_anonymous_members(
+            string expectedWord,
+            int expectedLine,
+            int expectedCharacter
+        )
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("AnonymousObjects.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
-                .Subject.Should()
-                .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "AnonymousObjects.SimpleExamples.csx")
-                .And.HaveMessageContaining(expectedWord);
+            project.Documents.First().TryGetSyntaxTree(out var syntaxTree);
+            using (new AssertionScope())
+            {
+                diagnostics
+                    .Should()
+                    .ContainSingle()
+                    .Subject.Should()
+                    .HaveId("SP3110")
+                    .And.HaveLineLocation(
+                        expectedLine,
+                        expectedCharacter,
+                        expectedWord.Length,
+                        "AnonymousObjects.SimpleExamples.csx"
+                    )
+                    .And.HaveMessageContaining(expectedWord);
+            }
         }
     }
 }

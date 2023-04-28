@@ -8,57 +8,70 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class ParameterSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] can_find_mistakes_in_method_parameter_names_data => new[]
-        {
-            new object[] { "number", 145 },
-            new object[] { "many", 160 },
-            new object[] { "Words", 164 },
-            new object[] { "count", 230 },
-            new object[] { "name", 244 },
-            new object[] { "uuid", 395 },
-            new object[] { "result", 412 }
-        };
+        public static object[][] CanFindMistakesInMethodParameterNamesData =>
+            new[]
+            {
+                new object[] { "number", 5, 48 },
+                new object[] { "many", 5, 63 },
+                new object[] { "Words", 5, 67 },
+                new object[] { "count", 9, 35 },
+                new object[] { "name", 9, 49 },
+                new object[] { "uuid", 16, 43 },
+                new object[] { "result", 16, 60 }
+            };
 
-        [Theory, MemberData(nameof(can_find_mistakes_in_method_parameter_names_data))]
-        public async Task can_find_mistakes_in_method_parameter_names(string expectedWord, int expectedStart)
+        [Theory, MemberData(nameof(CanFindMistakesInMethodParameterNamesData))]
+        public async Task can_find_mistakes_in_method_parameter_names(string expectedWord,
+            int expectedLine, int expectedCharacter
+        )
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("MethodNames.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "MethodNames.SimpleExamples.csx")
+                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length,"MethodNames.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
-        public static object[][] can_find_mistakes_in_lambda_parameters_data => new[]
-        {
-            new object[] { "word", 227 },
-            new object[] { "count", 305 },
-            new object[] { "Things", 312 },
-            new object[] { "value", 320 },
-            new object[] { "number", 417 }
-        };
+        public static object[][] CanFindMistakesInLambdaParametersData =>
+            new[]
+            {
+                new object[] { "word", 10, 38 },
+                new object[] { "count", 11, 50 },
+                new object[] { "Things", 11, 57 },
+                new object[] { "value", 11, 65 },
+                new object[] { "number", 12, 50 }
+            };
 
-        [Theory, MemberData(nameof(can_find_mistakes_in_lambda_parameters_data))]
-        public async Task can_find_mistakes_in_lambda_parameters(string expectedWord, int expectedStart)
+        [Theory, MemberData(nameof(CanFindMistakesInLambdaParametersData))]
+        public async Task can_find_mistakes_in_lambda_parameters(
+            string expectedWord,
+            int expectedLine,
+            int expectedCharacter
+        )
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("Lambda.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "Lambda.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "Lambda.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -70,11 +83,21 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().HaveCount(2);
-            diagnostics[0].Should().HaveMessageContaining("index")
-                .And.HaveLocation(484, 489, "Properties.SimpleExamples.csx");
-            diagnostics[1].Should().HaveMessageContaining("word")
-                .And.HaveLocation(498, 502, "Properties.SimpleExamples.csx");
+            diagnostics
+                .Should()
+                .HaveCount(2)
+                .And.SatisfyRespectively(
+                    first =>
+                        first
+                            .Should()
+                            .HaveMessageContaining("index")
+                            .And.HaveLineLocation(25, 29, 5, "Properties.SimpleExamples.csx"),
+                    second =>
+                        second
+                            .Should()
+                            .HaveMessageContaining("word")
+                            .And.HaveLineLocation(25, 43, 4, "Properties.SimpleExamples.csx")
+                );
         }
     }
 }
