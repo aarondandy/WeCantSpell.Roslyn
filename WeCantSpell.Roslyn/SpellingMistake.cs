@@ -2,7 +2,7 @@
 
 namespace WeCantSpell.Roslyn
 {
-    public class SpellingMistake
+    public sealed class SpellingMistake
     {
         public Location Location { get; }
 

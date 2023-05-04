@@ -63,7 +63,7 @@ namespace WeCantSpell.Roslyn
 
                     partStartIndex = searchIndex;
                 }
-                
+
                 prevChar = currChar;
                 prevCharType = currCharType;
                 prevEffectiveType = currEffectiveType;

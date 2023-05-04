@@ -5,13 +5,13 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
 {
     public class WrongWordChecker : ISpellChecker
     {
-        HashSet<string> _wrongWords;
+        private readonly HashSet<string> _wrongWords;
 
         public WrongWordChecker(string wrongWord) =>
-            this._wrongWords = new HashSet<string> { wrongWord };
+            _wrongWords = new HashSet<string> { wrongWord };
 
-        public WrongWordChecker(IEnumerable<string> wrongWords) =>
-            this._wrongWords = new HashSet<string>(wrongWords);
+        private WrongWordChecker(IEnumerable<string> wrongWords) =>
+            _wrongWords = new HashSet<string>(wrongWords);
 
         public WrongWordChecker(params string[] wrongWords)
             : this((IEnumerable<string>)wrongWords) { }

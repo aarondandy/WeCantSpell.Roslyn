@@ -8,6 +8,9 @@ using WeCantSpell.Hunspell;
 
 namespace WeCantSpell.Roslyn
 {
+    /// <summary>
+    /// Spell checker with dictionaries embedded in resources
+    /// </summary>
     public class EmbeddedSpellChecker : ISpellChecker
     {
         private static WordList Load(string languageCode)
@@ -26,13 +29,7 @@ namespace WeCantSpell.Roslyn
             return WordList.CreateFromStreams(dicStream, affStream);
         }
 
-        public EmbeddedSpellChecker(string languageCode)
-        {
-            // LanguageCode = languageCode ?? throw new ArgumentNullException(nameof(languageCode));
-            WordLists.Add(Load(languageCode));
-        }
-
-        public EmbeddedSpellChecker(string[] languageCodes)
+        internal EmbeddedSpellChecker(IEnumerable<string> languageCodes)
         {
             // LanguageCode = languageCode ?? throw new ArgumentNullException(nameof(languageCode));
             foreach (var languageCode in languageCodes)
@@ -41,13 +38,11 @@ namespace WeCantSpell.Roslyn
             }
         }
 
-        // public string LanguageCode { get; }
-
-        private List<WordList> WordLists { get; } = new();
+        protected List<WordList> WordLists { get; } = new();
 
         public bool Check(string word)
         {
-            return WordLists.Any(wordList => wordList.Check(word));
+            return WordLists.Any(wordList => wordList.Check(word) == true);
         }
 
         public IEnumerable<string> Suggest(string word)

@@ -34,7 +34,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 
         protected abstract string CreateResourceNameFromFileName(string fileName);
 
-        protected async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string fileName) =>
+        private async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string fileName) =>
             TextAndVersion.Create(
                 SourceText.From(await ReadCodeFileAsStringAsync(CreateResourceNameFromFileName(fileName))),
                 VersionStamp.Default,
@@ -43,7 +43,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         protected async Task<Project> ReadCodeFileAsProjectAsync(string embeddedResourceFileName) =>
             CreateProjectWithFiles(new[] { await ReadCodeFileAsSTextAndVersionAsync(embeddedResourceFileName) });
 
-        protected Project CreateProjectWithFiles(IEnumerable<TextAndVersion> files)
+        private static Project CreateProjectWithFiles(IEnumerable<TextAndVersion> files)
         {
             var projectId = ProjectId.CreateNewId(debugName: s_projectNameSingleFileSample);
 
@@ -57,8 +57,10 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 
             foreach (var file in files)
             {
+#pragma warning disable CS0618
                 var documentId = DocumentId.CreateNewId(projectId, debugName: file.FilePath);
                 solution = solution.AddDocument(documentId, file.FilePath, file.Text);
+#pragma warning restore CS0618
             }
 
             return solution.GetProject(projectId);
@@ -67,7 +69,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         protected Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, params DiagnosticAnalyzer[] analyzers) =>
             GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
 
-        protected async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, ImmutableArray<DiagnosticAnalyzer> analyzers)
+        private static async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, ImmutableArray<DiagnosticAnalyzer> analyzers)
         {
             var compilation = await project.GetCompilationAsync();
             return await compilation

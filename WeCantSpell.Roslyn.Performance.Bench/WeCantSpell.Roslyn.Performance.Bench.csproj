@@ -6,9 +6,10 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="NBench" Version="2.0.1"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.5.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.5.0"/>
+        <PackageReference Include="NBench" Version="2.0.1" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.5.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.5.0" />
+        <PackageReference Include="TestableIO.System.IO.Abstractions" Version="19.2.18" />
     </ItemGroup>
     <PropertyGroup>
         <RootNamespace>WeCantSpell.Roslyn.Performance.Bench</RootNamespace>
@@ -18,9 +19,9 @@
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <NuGetPackageImportStamp>
         </NuGetPackageImportStamp>
-        <TargetFrameworkProfile/>
+        <TargetFrameworkProfile />
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\WeCantSpell.Roslyn\WeCantSpell.Roslyn.csproj"/>
+        <ProjectReference Include="..\WeCantSpell.Roslyn\WeCantSpell.Roslyn.csproj" />
     </ItemGroup>
 </Project>

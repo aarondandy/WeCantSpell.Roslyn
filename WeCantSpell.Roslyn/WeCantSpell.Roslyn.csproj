@@ -22,7 +22,7 @@
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <NoPackageAnalysis>true</NoPackageAnalysis>
         <IncludeBuildOutput>false</IncludeBuildOutput>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -44,14 +44,17 @@
 
     <ItemGroup>
         <!-- Generator dependencies -->
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.5.0" />
+        <PackageReference Include="Roslyn.System.IO.Abstractions.Analyzers" Version="12.2.19">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Text.Json" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
         <PackageReference Include="WeCantSpell.Hunspell" Version="4.0.0" GeneratePathProperty="true" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="$(PKGWeCantSpell_Hunspell)\lib\netstandard2.0\WeCantSpell.Hunspell.dll" Visible="false" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
-        <PackageReference Include="WeCantSpell.Hunspell" Version="3.1.1" />
+        <EmbeddedResource Include="$(PKGSystem_Text_Json)\lib\netstandard2.0\System.Text.Json.dll" Visible="false" />
     </ItemGroup>
     <ItemGroup>
         <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
