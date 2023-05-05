@@ -6,11 +6,13 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
+using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
-using NBench;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {
+    [MemoryDiagnoser]
     public class ThisSolutionPerfSpec
     {
         static string SearchForFile(string fileName)
@@ -33,33 +35,26 @@ namespace WeCantSpell.Roslyn.Performance.Bench
 
         public Solution Solution;
 
-        protected Counter ProjectsChecked;
-
         public void Setup()
         {
+            MSBuildLocator.RegisterDefaults();
             var workspace = MSBuildWorkspace.Create();
-            var solutionFilePath = SearchForFile("WeCantSpell.sln");
+            const string fileName = "WeCantSpell.Roslyn.sln";
+            var solutionFilePath = SearchForFile(fileName);
+            if (solutionFilePath == null)
+                throw new InvalidOperationException($"Can't find {fileName} in current directory or its parents");
             Solution = workspace.OpenSolutionAsync(solutionFilePath).GetAwaiter().GetResult();
         }
 
-        [PerfSetup]
-        public void SetupBench(BenchmarkContext context)
+        [GlobalSetup]
+        public void SetupBench()
         {
             Setup();
-
-            ProjectsChecked = context.GetCounter(nameof(ProjectsChecked));
         }
 
-        [PerfBenchmark(
-            NumberOfIterations = 3,
-            RunMode = RunMode.Throughput,
-            TestMode = TestMode.Measurement,
+        [Benchmark(
             Description = "Measure how quickly a solution can be processed."
-            )]
-        [MemoryMeasurement(MemoryMetric.TotalBytesAllocated)]
-        [GcMeasurement(GcMetric.TotalCollections, GcGeneration.AllGc)]
-        [TimingMeasurement]
-        [CounterMeasurement(nameof(ProjectsChecked))]
+        )]
         public void Benchmark()
         {
             var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
@@ -75,8 +70,6 @@ namespace WeCantSpell.Roslyn.Performance.Bench
                 .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer))
                 .GetAnalyzerDiagnosticsAsync()
                 .ConfigureAwait(false);
-
-            ProjectsChecked.Increment();
 
             return diagnostics;
         }

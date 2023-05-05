@@ -14,8 +14,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeCantSpell.Roslyn.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeCantSpell.Roslyn.Performance.Bench", "WeCantSpell.Roslyn.Performance.Bench\WeCantSpell.Roslyn.Performance.Bench.csproj", "{CC78C41F-0D18-4B16-B10C-075B9179DC75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeCantSpell.Roslyn.Performance.Harness", "WeCantSpell.Roslyn.Performance.Harness\WeCantSpell.Roslyn.Performance.Harness.csproj", "{F1208FAF-0695-48AD-A3F3-8BE28E6B695A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +32,6 @@ Global
 		{CC78C41F-0D18-4B16-B10C-075B9179DC75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC78C41F-0D18-4B16-B10C-075B9179DC75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC78C41F-0D18-4B16-B10C-075B9179DC75}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1208FAF-0695-48AD-A3F3-8BE28E6B695A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1208FAF-0695-48AD-A3F3-8BE28E6B695A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1208FAF-0695-48AD-A3F3-8BE28E6B695A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1208FAF-0695-48AD-A3F3-8BE28E6B695A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

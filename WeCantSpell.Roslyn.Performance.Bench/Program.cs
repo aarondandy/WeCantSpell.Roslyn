@@ -1,4 +1,9 @@
-﻿using NBench;
+﻿using BenchmarkDotNet.Analysers;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Running;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {
@@ -6,26 +11,12 @@ namespace WeCantSpell.Roslyn.Performance.Bench
     {
         static void Main(string[] args)
         {
-            //var mainAssemblyLocation = typeof(Program).Assembly.Location;
-            //var mainAssemblyDirectory = Path.GetDirectoryName(mainAssemblyLocation);
-            //var nbenchRunnerPath = Path.Combine(mainAssemblyDirectory, "NBench.Runner.exe");
-            //var perfDirectory = Path.Combine(mainAssemblyDirectory, "perf");
-
-            //var argumentsForNBench = new string[]
-            //{
-            //    $"\"{mainAssemblyLocation}\"",
-            //    $"output-directory=\"{perfDirectory}\""
-            //};
-
-            //var totalArguments = argumentsForNBench.Concat(args);
-
-            //var processStartInfo = new ProcessStartInfo(
-            //    nbenchRunnerPath,
-            //    string.Join(" ", totalArguments));
-
-            //var process = Process.Start(processStartInfo);
-            //process.WaitForExit();
-            NBenchRunner.Run<Program>();
+            var config = ManualConfig.CreateMinimumViable()
+                .AddDiagnoser(new MemoryDiagnoser(new MemoryDiagnoserConfig(true)))
+                .AddLogger(ConsoleLogger.Default)
+                .AddColumn(TargetMethodColumn.Method, StatisticColumn.Median, StatisticColumn.StdDev,
+                    StatisticColumn.Q1, StatisticColumn.Q3);
+            BenchmarkRunner.Run<ThisSolutionPerfSpec>(config);
         }
     }
 }
