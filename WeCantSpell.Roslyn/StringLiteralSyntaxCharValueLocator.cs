@@ -4,10 +4,7 @@ namespace WeCantSpell.Roslyn
 {
     public sealed class StringLiteralSyntaxCharValueLocator
     {
-        public StringLiteralSyntaxCharValueLocator(
-            string valueText,
-            string syntaxText,
-            bool isVerbatim)
+        public StringLiteralSyntaxCharValueLocator(string valueText, string syntaxText, bool isVerbatim)
         {
             ValueText = valueText;
             SyntaxText = syntaxText;
@@ -30,8 +27,11 @@ namespace WeCantSpell.Roslyn
             var valueCursor = 0;
             int syntaxCursor = IsVerbatim switch
             {
-                false when SyntaxText.Length != 0 && SyntaxText[0] == '"' &&
-                           (ValueText.Length == 0 || ValueText[0] != '"') => 1,
+                false
+                    when SyntaxText.Length != 0
+                        && SyntaxText[0] == '"'
+                        && (ValueText.Length == 0 || ValueText[0] != '"')
+                    => 1,
                 true when SyntaxText.Length > 1 && SyntaxText.StartsWith("@\"") && !ValueText.StartsWith("@\"") => 2,
                 _ => 0
             };
@@ -95,7 +95,6 @@ namespace WeCantSpell.Roslyn
             }
         }
 
-        private static bool IsHex(char c) =>
-            c is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F';
+        private static bool IsHex(char c) => c is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F';
     }
 }

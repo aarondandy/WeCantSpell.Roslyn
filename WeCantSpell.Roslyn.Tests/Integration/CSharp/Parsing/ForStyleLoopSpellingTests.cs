@@ -33,12 +33,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
                 .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLineLocation(
-                    expectedLine,
-                    expectedCharacter,
-                    expectedWord.Length,
-                    "Loops.SimpleExamples.csx"
-                )
+                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length, "Loops.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
     }

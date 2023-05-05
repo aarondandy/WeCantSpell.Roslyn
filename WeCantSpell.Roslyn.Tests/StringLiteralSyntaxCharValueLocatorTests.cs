@@ -5,7 +5,6 @@ namespace WeCantSpell.Roslyn.Tests
 {
     public class StringLiteralSyntaxCharValueLocatorTests
     {
-
         [Theory]
         [InlineData("abc", "\"abc\"", false, 0, 1)]
         [InlineData("abc", "\"abc\"", false, 1, 2)]
@@ -31,7 +30,13 @@ namespace WeCantSpell.Roslyn.Tests
         [InlineData("\"abc\"", "@\"\"\"abc\"\"\"", true, 3, 6)]
         [InlineData("\"abc\"", "@\"\"\"abc\"\"\"", true, 4, 7)]
         [InlineData("\"abc\"d", "@\"\"\"abc\"\"d\"", true, 5, 9)]
-        public void can_map_locations(string valueText, string syntaxText, bool isVerbatim, int givenValueIndex, int expectedSyntaxIndex)
+        public void can_map_locations(
+            string valueText,
+            string syntaxText,
+            bool isVerbatim,
+            int givenValueIndex,
+            int expectedSyntaxIndex
+        )
         {
             var locator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, isVerbatim);
 

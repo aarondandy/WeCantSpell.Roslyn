@@ -8,19 +8,22 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class PropertyDeclarationSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] CanFindMistakesInVariousPropertiesData => new[]
-        {
-            new object[] { "Read", 7, 20 },
-            new object[] { "Only", 7, 24 },
-            new object[] { "Generated", 9, 23 },
-            new object[] { "Backing", 9, 32 },
-            new object[] { "Hand", 11, 23 },
-            new object[] { "Made", 11, 27 },
-            new object[] { "Uuid", 23, 22 }
-        };
+        public static object[][] CanFindMistakesInVariousPropertiesData =>
+            new[]
+            {
+                new object[] { "Read", 7, 20 },
+                new object[] { "Only", 7, 24 },
+                new object[] { "Generated", 9, 23 },
+                new object[] { "Backing", 9, 32 },
+                new object[] { "Hand", 11, 23 },
+                new object[] { "Made", 11, 27 },
+                new object[] { "Uuid", 23, 22 }
+            };
 
         [Theory, MemberData(nameof(CanFindMistakesInVariousPropertiesData))]
-        public async Task can_find_mistakes_in_various_properties(string expectedWord, int expectedLine,
+        public async Task can_find_mistakes_in_various_properties(
+            string expectedWord,
+            int expectedLine,
             int expectedCharacter
         )
         {
@@ -29,10 +32,17 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length, "Properties.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "Properties.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -44,10 +54,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLineLocation(7, 20,5, "TypeName.SimpleStructExample.csx")
+                .And.HaveLineLocation(7, 20, 5, "TypeName.SimpleStructExample.csx")
                 .And.HaveMessageContaining("Count");
         }
 
@@ -59,7 +71,9 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
                 .And.HaveLineLocation(5, 13, 5, "TypeName.ISimpleInterfaceExample.csx")

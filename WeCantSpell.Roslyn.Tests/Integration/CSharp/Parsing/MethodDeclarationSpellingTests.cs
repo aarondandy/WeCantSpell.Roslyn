@@ -7,16 +7,17 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class MethodDeclarationSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] CanFindMistakesInMethodsData => new[]
-        {
-            new object[] { "STATIC", 5, 28 },
-            new object[] { "METHOD", 5, 35 },
-            new object[] { "set", 9, 20 },
-            new object[] { "Timeout", 9, 23 },
-            new object[] { "Internal", 14, 25 },
-            new object[] { "By", 16, 21 },
-            new object[] { "Ref", 16, 23 }
-        };
+        public static object[][] CanFindMistakesInMethodsData =>
+            new[]
+            {
+                new object[] { "STATIC", 5, 28 },
+                new object[] { "METHOD", 5, 35 },
+                new object[] { "set", 9, 20 },
+                new object[] { "Timeout", 9, 23 },
+                new object[] { "Internal", 14, 25 },
+                new object[] { "By", 16, 21 },
+                new object[] { "Ref", 16, 23 }
+            };
 
         [Theory, MemberData(nameof(CanFindMistakesInMethodsData))]
         public async Task can_find_mistakes_in_methods(string expectedWord, int expectedLine, int expectedCharacter)
@@ -26,10 +27,17 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length, "MethodNames.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "MethodNames.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -52,7 +60,9 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
                 .And.HaveLineLocation(9, 21, 6, "TypeName.SimpleStructExample.csx")
@@ -67,7 +77,9 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
                 .And.HaveLineLocation(7, 14, 6, "TypeName.ISimpleInterfaceExample.csx")
@@ -77,7 +89,9 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task operators_are_ignored()
         {
-            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("operator", "+", "operator+", "string", "Guid", "System.Guid", "op_Addition"));
+            var analyzer = new SpellingAnalyzerCSharp(
+                new WrongWordChecker("operator", "+", "operator+", "string", "Guid", "System.Guid", "op_Addition")
+            );
             var project = await ReadCodeFileAsProjectAsync("MethodNames.OperatorExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);

@@ -15,9 +15,7 @@ namespace WeCantSpell.Roslyn
 
         public Action<SpellingMistake> MistakeHandler { get; }
 
-        public SpellCheckCSharpWalker(
-            ISpellChecker spellChecker,
-            Action<SpellingMistake> mistakeHandler)
+        public SpellCheckCSharpWalker(ISpellChecker spellChecker, Action<SpellingMistake> mistakeHandler)
             : base(SyntaxWalkerDepth.StructuredTrivia)
         {
             SpellChecker = spellChecker ?? throw new ArgumentNullException(nameof(spellChecker));
@@ -190,7 +188,7 @@ namespace WeCantSpell.Roslyn
             VariableDeclarationSyntax declaration = node.Declaration;
             if (declaration != null)
             {
-                foreach(VariableDeclaratorSyntax variable in declaration.Variables)
+                foreach (VariableDeclaratorSyntax variable in declaration.Variables)
                 {
                     FindSpellingMistakesForIdentifier(variable.Identifier);
                 }
@@ -239,7 +237,11 @@ namespace WeCantSpell.Roslyn
             SyntaxToken token = node.Token;
             string valueText = token.ValueText;
             string syntaxText = token.Text;
-            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+            var valueLocator = new StringLiteralSyntaxCharValueLocator(
+                valueText,
+                syntaxText,
+                token.IsVerbatimStringLiteral()
+            );
 
             List<ParsedTextSpan> parts = GeneralTextParser.SplitWordParts(valueText);
             foreach (ParsedTextSpan part in parts)
@@ -249,7 +251,10 @@ namespace WeCantSpell.Roslyn
                     int spanOffset = valueLocator.ConvertValueToSyntaxIndex(part.Start);
                     if (token.SyntaxTree != null)
                     {
-                        var location = Location.Create(token.SyntaxTree, new TextSpan(token.SpanStart + spanOffset, part.Length));
+                        var location = Location.Create(
+                            token.SyntaxTree,
+                            new TextSpan(token.SpanStart + spanOffset, part.Length)
+                        );
                         HandleMistake(location, part.Text, SpellingMistakeKind.Literal);
                     }
                 }
@@ -263,7 +268,11 @@ namespace WeCantSpell.Roslyn
             SyntaxToken token = node.TextToken;
             string valueText = token.ValueText;
             string syntaxText = token.Text;
-            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+            var valueLocator = new StringLiteralSyntaxCharValueLocator(
+                valueText,
+                syntaxText,
+                token.IsVerbatimStringLiteral()
+            );
 
             List<ParsedTextSpan> parts = GeneralTextParser.SplitWordParts(valueText);
             foreach (ParsedTextSpan part in parts)
@@ -273,7 +282,10 @@ namespace WeCantSpell.Roslyn
                     int spanOffset = valueLocator.ConvertValueToSyntaxIndex(part.Start);
                     if (token.SyntaxTree != null)
                     {
-                        var location = Location.Create(token.SyntaxTree, new TextSpan(token.SpanStart + spanOffset, part.Length));
+                        var location = Location.Create(
+                            token.SyntaxTree,
+                            new TextSpan(token.SpanStart + spanOffset, part.Length)
+                        );
                         HandleMistake(location, part.Text, SpellingMistakeKind.Literal);
                     }
                 }
@@ -298,7 +310,8 @@ namespace WeCantSpell.Roslyn
             base.VisitDocumentationCommentTrivia(node);
         }
 
-        private bool ShouldWordBeMarkedAsMisspelled(ParsedTextSpan part) => part.IsWord && !SpellChecker.Check(part.Text);
+        private bool ShouldWordBeMarkedAsMisspelled(ParsedTextSpan part) =>
+            part.IsWord && !SpellChecker.Check(part.Text);
 
         private void FindSpellingMistakesForIdentifier(SyntaxToken identifier)
         {
@@ -334,14 +347,19 @@ namespace WeCantSpell.Roslyn
                 return;
             }
 
-            List<ParsedTextSpan> parts = GeneralTextParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
+            List<ParsedTextSpan> parts = GeneralTextParser.SplitWordParts(
+                lineText.Substring(textSpan.Start, textSpan.Length)
+            );
             foreach (ParsedTextSpan part in parts)
             {
                 if (ShouldWordBeMarkedAsMisspelled(part))
                 {
                     if (node.SyntaxTree != null)
                     {
-                        var location = Location.Create(node.SyntaxTree, new TextSpan(node.SpanStart + textSpan.Start + part.Start, part.Length));
+                        var location = Location.Create(
+                            node.SyntaxTree,
+                            new TextSpan(node.SpanStart + textSpan.Start + part.Start, part.Length)
+                        );
                         HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
                     }
                 }
@@ -368,7 +386,10 @@ namespace WeCantSpell.Roslyn
                     {
                         if (node.SyntaxTree != null)
                         {
-                            var location = Location.Create(node.SyntaxTree, new TextSpan(node.SpanStart + lineTextSpan.Start + part.Start, part.Length));
+                            var location = Location.Create(
+                                node.SyntaxTree,
+                                new TextSpan(node.SpanStart + lineTextSpan.Start + part.Start, part.Length)
+                            );
                             HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
                         }
                     }
@@ -408,14 +429,21 @@ namespace WeCantSpell.Roslyn
                 {
                     if (ShouldWordBeMarkedAsMisspelled(part))
                     {
-                        var location = Location.Create(node.SyntaxTree, new TextSpan(node.SpanStart + lineTextSpan.Start + part.Start, part.Length));
+                        var location = Location.Create(
+                            node.SyntaxTree,
+                            new TextSpan(node.SpanStart + lineTextSpan.Start + part.Start, part.Length)
+                        );
                         HandleMistake(location, part.Text, SpellingMistakeKind.Documentation);
                     }
                 }
             }
         }
 
-        private void FindSpellingMistakesForIdentifierWordParts(List<ParsedTextSpan> parts, SyntaxToken identifier, string? firstSkipWord = null)
+        private void FindSpellingMistakesForIdentifierWordParts(
+            List<ParsedTextSpan> parts,
+            SyntaxToken identifier,
+            string? firstSkipWord = null
+        )
         {
             if (parts.Count == 0)
             {
@@ -431,7 +459,7 @@ namespace WeCantSpell.Roslyn
                 }
             }
 
-            for(var i = 1; i < parts.Count; i++)
+            for (var i = 1; i < parts.Count; i++)
             {
                 part = parts[i];
                 if (ShouldWordBeMarkedAsMisspelled(part))
@@ -444,7 +472,10 @@ namespace WeCantSpell.Roslyn
             {
                 if (identifier.SyntaxTree != null)
                 {
-                    var location = Location.Create(identifier.SyntaxTree, new TextSpan(identifier.SpanStart + givenPart.Start, givenPart.Length));
+                    var location = Location.Create(
+                        identifier.SyntaxTree,
+                        new TextSpan(identifier.SpanStart + givenPart.Start, givenPart.Length)
+                    );
                     HandleMistake(location, givenPart.Text, SpellingMistakeKind.Identifier);
                 }
             }

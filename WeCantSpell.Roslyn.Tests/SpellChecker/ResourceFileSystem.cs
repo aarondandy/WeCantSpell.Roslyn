@@ -55,9 +55,7 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
         {
             int index = path.LastIndexOf('.');
 
-            return index != -1
-                ? path[..index] + extension
-                : path;
+            return index != -1 ? path[..index] + extension : path;
         }
 
         public IEnumerable<string> GetFiles(string directory, string pattern, SearchOption searchOption)

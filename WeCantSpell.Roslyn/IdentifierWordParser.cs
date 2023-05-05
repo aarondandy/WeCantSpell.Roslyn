@@ -24,15 +24,24 @@ namespace WeCantSpell.Roslyn
 
             for (int searchIndex = 1, nextIndex = 2; searchIndex < text.Length; searchIndex = nextIndex++)
             {
-                LetterType nextType = nextIndex < text.Length ? ClassifyLetterType(text[nextIndex]) : LetterType.NonWord;
+                LetterType nextType =
+                    nextIndex < text.Length ? ClassifyLetterType(text[nextIndex]) : LetterType.NonWord;
 
                 if (
                     currType == LetterType.LetterUpper && nextType == LetterType.LetterNormal
-                    ||
-                    (prevType != currType && (prevType != LetterType.LetterUpper || currType != LetterType.LetterNormal))
+                    || (
+                        prevType != currType
+                        && (prevType != LetterType.LetterUpper || currType != LetterType.LetterNormal)
+                    )
                 )
                 {
-                    results.Add(new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, prevType != LetterType.NonWord));
+                    results.Add(
+                        new ParsedTextSpan(
+                            text.Substring(partStartIndex, searchIndex - partStartIndex),
+                            partStartIndex,
+                            prevType != LetterType.NonWord
+                        )
+                    );
 
                     partStartIndex = searchIndex;
                 }
@@ -43,7 +52,13 @@ namespace WeCantSpell.Roslyn
 
             if (partStartIndex < text.Length)
             {
-                results.Add(new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevType != LetterType.NonWord));
+                results.Add(
+                    new ParsedTextSpan(
+                        text.Substring(partStartIndex, text.Length - partStartIndex),
+                        partStartIndex,
+                        prevType != LetterType.NonWord
+                    )
+                );
             }
 
             return results;

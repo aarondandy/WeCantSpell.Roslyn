@@ -52,11 +52,7 @@ namespace WeCantSpell.Roslyn.Infrastructure
             return Path.ChangeExtension(path, extension);
         }
 
-        public IEnumerable<string> GetFiles(
-            string directory,
-            string pattern,
-            SearchOption searchOption
-        )
+        public IEnumerable<string> GetFiles(string directory, string pattern, SearchOption searchOption)
         {
             return Directory.GetFiles(directory, pattern, searchOption);
         }

@@ -11,9 +11,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task interface_name_can_contain_mistakes()
         {
-            var analyzer = new SpellingAnalyzerCSharp(
-                new WrongWordChecker("Simple", "Interface", "Example")
-            );
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Simple", "Interface", "Example"));
             var project = await ReadCodeFileAsProjectAsync("TypeName.ISimpleInterfaceExample.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();

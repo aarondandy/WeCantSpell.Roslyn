@@ -21,8 +21,10 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
             };
 
         [Theory, MemberData(nameof(CanFindMistakesInMethodParameterNamesData))]
-        public async Task can_find_mistakes_in_method_parameter_names(string expectedWord,
-            int expectedLine, int expectedCharacter
+        public async Task can_find_mistakes_in_method_parameter_names(
+            string expectedWord,
+            int expectedLine,
+            int expectedCharacter
         )
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
@@ -35,7 +37,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
                 .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length,"MethodNames.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "MethodNames.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -66,12 +73,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
                 .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLineLocation(
-                    expectedLine,
-                    expectedCharacter,
-                    expectedWord.Length,
-                    "Lambda.SimpleExamples.csx"
-                )
+                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length, "Lambda.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 

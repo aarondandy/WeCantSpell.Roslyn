@@ -6,18 +6,19 @@ namespace WeCantSpell.Roslyn.Tests
 {
     public class GeneralTextParserTests
     {
-        public static object[][] standard_sentences_extracts_words_args() => new[]
-        {
-            new object[] { "The", 0 },
-            new object[] { "quick", 4 },
-            new object[] { "brown", 10 },
-            new object[] { "fox", 16 },
-            new object[] { "jumps", 20 },
-            new object[] { "over", 26 },
-            new object[] { "the", 31 },
-            new object[] { "lazy", 35 },
-            new object[] { "dog", 40 }
-        };
+        public static object[][] standard_sentences_extracts_words_args() =>
+            new[]
+            {
+                new object[] { "The", 0 },
+                new object[] { "quick", 4 },
+                new object[] { "brown", 10 },
+                new object[] { "fox", 16 },
+                new object[] { "jumps", 20 },
+                new object[] { "over", 26 },
+                new object[] { "the", 31 },
+                new object[] { "lazy", 35 },
+                new object[] { "dog", 40 }
+            };
 
         [Theory, MemberData(nameof(standard_sentences_extracts_words_args))]
         public void standard_sentences_extracts_words(string expectedText, int offset)
@@ -76,8 +77,7 @@ namespace WeCantSpell.Roslyn.Tests
 
             var results = GeneralTextParser.SplitWordParts(text);
 
-            results.Should().ContainSingle()
-                .Subject.Text.Should().Be(text);
+            results.Should().ContainSingle().Subject.Text.Should().Be(text);
         }
     }
 }

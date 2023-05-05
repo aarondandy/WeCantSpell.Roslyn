@@ -10,10 +10,7 @@ namespace WeCantSpell.Roslyn
 
         public SpellingMistakeKind Kind { get; }
 
-        public SpellingMistake(
-            Location location,
-            string text,
-            SpellingMistakeKind kind)
+        public SpellingMistake(Location location, string text, SpellingMistakeKind kind)
         {
             Location = location;
             Text = text;

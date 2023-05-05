@@ -28,9 +28,7 @@ namespace WeCantSpell.Roslyn
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var syntaxTree = await context.Document
-                .GetSyntaxTreeAsync(context.CancellationToken)
-                .ConfigureAwait(false);
+            var syntaxTree = await context.Document.GetSyntaxTreeAsync(context.CancellationToken).ConfigureAwait(false);
 
             var diagnostic = context.Diagnostics.First();
 
@@ -38,9 +36,7 @@ namespace WeCantSpell.Roslyn
             if (syntaxTree == null)
                 throw new InvalidOperationException("Can't get document syntax tree");
 
-            var sourceText = await syntaxTree
-                .GetTextAsync(context.CancellationToken)
-                .ConfigureAwait(false);
+            var sourceText = await syntaxTree.GetTextAsync(context.CancellationToken).ConfigureAwait(false);
 
             // Extract the text from the diagnostic's SourceSpan
             var diagnosticSpan = diagnostic.Location.SourceSpan;
@@ -49,8 +45,7 @@ namespace WeCantSpell.Roslyn
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: $"Add '{diagnosticText}' to project dictionary",
-                    createChangedDocument: async _ =>
-                        await AddToDictionaryFixAsync(context.Document, diagnosticText),
+                    createChangedDocument: async _ => await AddToDictionaryFixAsync(context.Document, diagnosticText),
                     equivalenceKey: nameof(SpellingCodeFixProviderCSharp)
                 ),
                 diagnostic
@@ -62,10 +57,7 @@ namespace WeCantSpell.Roslyn
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        private async Task<Document> AddToDictionaryFixAsync(
-            Document document,
-            string dictionaryWord
-        )
+        private async Task<Document> AddToDictionaryFixAsync(Document document, string dictionaryWord)
         {
             var options = new SpellCheckerOptions(_fileSystem);
             var dictionaryForPath = options.FindDictionaryForPath(document.FilePath);
@@ -79,7 +71,6 @@ namespace WeCantSpell.Roslyn
             return document;
         }
 
-        public override ImmutableArray<string> FixableDiagnosticIds =>
-            SpellingAnalyzerCSharp.SupportedDiagnosticIds;
+        public override ImmutableArray<string> FixableDiagnosticIds => SpellingAnalyzerCSharp.SupportedDiagnosticIds;
     }
 }

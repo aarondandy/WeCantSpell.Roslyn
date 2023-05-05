@@ -7,18 +7,21 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class GenericTypeParameterSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] CanFindMistakesInGenericParameterNamesData => new[]
-        {
-            new object[] { "In", 3, 43 },
-            new object[] { "Out", 3, 52 },
-            new object[] { "Struct", 9, 38 },
-            new object[] { "Thing", 14, 32 },
-            new object[] { "Gadget", 16, 33 },
-            new object[] { "Ion", 18, 36 }
-        };
+        public static object[][] CanFindMistakesInGenericParameterNamesData =>
+            new[]
+            {
+                new object[] { "In", 3, 43 },
+                new object[] { "Out", 3, 52 },
+                new object[] { "Struct", 9, 38 },
+                new object[] { "Thing", 14, 32 },
+                new object[] { "Gadget", 16, 33 },
+                new object[] { "Ion", 18, 36 }
+            };
 
         [Theory, MemberData(nameof(CanFindMistakesInGenericParameterNamesData))]
-        public async Task can_find_mistakes_in_generic_parameter_names(string expectedWord, int expectedLine,
+        public async Task can_find_mistakes_in_generic_parameter_names(
+            string expectedWord,
+            int expectedLine,
             int expectedCharacter
         )
         {
@@ -27,10 +30,17 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length, "GenericType.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "GenericType.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 

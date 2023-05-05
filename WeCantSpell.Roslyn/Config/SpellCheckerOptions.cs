@@ -13,8 +13,7 @@ namespace WeCantSpell.Roslyn.Config
 
         public static string[] ConfigFileNames { get; } = { ".wecantspell", ".wecantspell.json" };
 
-        public static string[] DictionaryFileNames { get; } =
-            { ".spelling.dic", ".directory.dic", ".wecantspell.dic" };
+        public static string[] DictionaryFileNames { get; } = { ".spelling.dic", ".directory.dic", ".wecantspell.dic" };
         public IList<string> LanguageCodes { get; init; } = DefaultLanguageCodes;
 
         public IList<string> AdditionalDictionaryPaths { get; init; } = new List<string>();
@@ -43,9 +42,7 @@ namespace WeCantSpell.Roslyn.Config
 
         private void ReadFromDirectory(string path)
         {
-            var directory = FileSystem.DirectoryExists(path)
-                ? path
-                : FileSystem.GetDirectoryName(path);
+            var directory = FileSystem.DirectoryExists(path) ? path : FileSystem.GetDirectoryName(path);
 
             while (directory != null)
             {
@@ -79,9 +76,7 @@ namespace WeCantSpell.Roslyn.Config
         {
             if (localOptions?.Languages == null)
                 return;
-            foreach (
-                var code in localOptions.Languages.Where(code => !LanguageCodes.Contains(code))
-            )
+            foreach (var code in localOptions.Languages.Where(code => !LanguageCodes.Contains(code)))
             {
                 LanguageCodes.Add(code);
             }
@@ -111,9 +106,7 @@ namespace WeCantSpell.Roslyn.Config
         {
             if (path == null)
                 return null;
-            var directory = FileSystem.DirectoryExists(path)
-                ? path
-                : FileSystem.GetDirectoryName(path);
+            var directory = FileSystem.DirectoryExists(path) ? path : FileSystem.GetDirectoryName(path);
 
             while (directory != null)
             {

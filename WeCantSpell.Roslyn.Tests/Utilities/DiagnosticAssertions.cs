@@ -9,7 +9,8 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
 {
     public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
     {
-        public DiagnosticAssertions(Diagnostic value) : base(value) { }
+        public DiagnosticAssertions(Diagnostic value)
+            : base(value) { }
 
         protected override string Identifier => "diagnostic";
 
@@ -24,11 +25,7 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
             Execute.Assertion
                 .ForCondition(string.Equals(actual, expected, StringComparison.Ordinal))
                 .BecauseOf(because, becauseArgs)
-                .FailWith(
-                    "Expected {context:id} to be {0}{reason}, but found {1}.",
-                    expected,
-                    actual
-                );
+                .FailWith("Expected {context:id} to be {0}{reason}, but found {1}.", expected, actual);
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }
@@ -43,11 +40,7 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
             Execute.Assertion
                 .ForCondition(string.Equals(actual, expected, StringComparison.Ordinal))
                 .BecauseOf(because, becauseArgs)
-                .FailWith(
-                    "Expected {context:file} to be {0}{reason}, but found {1}.",
-                    expected,
-                    actual
-                );
+                .FailWith("Expected {context:file} to be {0}{reason}, but found {1}.", expected, actual);
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }
@@ -81,11 +74,7 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
             Execute.Assertion
                 .ForCondition(actual.End == expectedEnd)
                 .BecauseOf(because, becauseArgs)
-                .FailWith(
-                    "Expected {context:span} to end at {0}{reason}, but found {1}.",
-                    expectedEnd,
-                    actual.End
-                );
+                .FailWith("Expected {context:span} to end at {0}{reason}, but found {1}.", expectedEnd, actual.End);
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }
@@ -156,13 +145,11 @@ namespace WeCantSpell.Roslyn.Tests.Utilities
             string because = "",
             params object[] becauseArgs
         ) =>
-            HaveLineSpan(
-                expectedLine,
-                expectedCharacter,
-                expectedLength,
+            HaveLineSpan(expectedLine, expectedCharacter, expectedLength, because, becauseArgs).And.BeFromFileName(
+                expectedFileName,
                 because,
                 becauseArgs
-            ).And.BeFromFileName(expectedFileName, because, becauseArgs);
+            );
 
         public AndConstraint<DiagnosticAssertions> HaveMessageContaining(
             string expectedSubstring,

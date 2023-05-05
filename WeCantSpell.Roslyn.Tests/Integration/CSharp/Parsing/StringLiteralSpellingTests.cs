@@ -35,11 +35,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
             };
 
         [Theory, MemberData(nameof(CanFindMistakesInLiteralsData))]
-        public async Task can_find_mistakes_in_literals(
-            string expectedWord,
-            int expectedLine,
-            int expectedCharacter
-        )
+        public async Task can_find_mistakes_in_literals(string expectedWord, int expectedLine, int expectedCharacter)
         {
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("StringLiteral.SimpleExamples.csx");

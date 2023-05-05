@@ -59,7 +59,13 @@ namespace WeCantSpell.Roslyn
 
                 if (currentIsWord != previousWasWord)
                 {
-                    results.Add(new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, previousWasWord));
+                    results.Add(
+                        new ParsedTextSpan(
+                            text.Substring(partStartIndex, searchIndex - partStartIndex),
+                            partStartIndex,
+                            previousWasWord
+                        )
+                    );
 
                     partStartIndex = searchIndex;
                 }
@@ -74,19 +80,30 @@ namespace WeCantSpell.Roslyn
 
             if (partStartIndex < text.Length)
             {
-                results.Add(new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevEffectiveType == CharType.Word));
+                results.Add(
+                    new ParsedTextSpan(
+                        text.Substring(partStartIndex, text.Length - partStartIndex),
+                        partStartIndex,
+                        prevEffectiveType == CharType.Word
+                    )
+                );
             }
 
             return results;
         }
 
-        private static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>
+        private static CharType GetEffectiveCharType(
+            char currChar,
+            CharType currCharType,
+            CharType prevCharType,
+            CharType nextCharType
+        ) =>
             currCharType != CharType.Word
             && prevCharType == CharType.Word
             && nextCharType == CharType.Word
             && IsWordJoinChar(currChar)
-            ? CharType.Word
-            : currCharType;
+                ? CharType.Word
+                : currCharType;
 
         private static CharType ClassifyCharType(char current)
         {
@@ -106,15 +123,11 @@ namespace WeCantSpell.Roslyn
             return CharType.Unknown;
         }
 
-        private static bool IsWordJoinChar(char c) =>
-            IsHyphen(c) || IsApostrophe(c);
+        private static bool IsWordJoinChar(char c) => IsHyphen(c) || IsApostrophe(c);
 
-        private static bool IsHyphen(char c) =>
-            c is '-' or '\u2010' or '\u2212' or '\u2014' or '\u2013';
+        private static bool IsHyphen(char c) => c is '-' or '\u2010' or '\u2212' or '\u2014' or '\u2013';
 
-        private static bool IsApostrophe(char c) =>
-            c is '\'' or '’' or 'ʼ' or '＇'
-        ; // full width
+        private static bool IsApostrophe(char c) => c is '\'' or '’' or 'ʼ' or '＇'; // full width
 
         private enum CharType : byte
         {

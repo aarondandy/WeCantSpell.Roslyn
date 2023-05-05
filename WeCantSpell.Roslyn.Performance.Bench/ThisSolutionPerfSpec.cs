@@ -27,8 +27,7 @@ namespace WeCantSpell.Roslyn.Performance.Bench
                 }
 
                 directory = directory.Parent;
-            }
-            while (directory != null);
+            } while (directory != null);
 
             return null;
         }
@@ -52,18 +51,21 @@ namespace WeCantSpell.Roslyn.Performance.Bench
             Setup();
         }
 
-        [Benchmark(
-            Description = "Measure how quickly a solution can be processed."
-        )]
+        [Benchmark(Description = "Measure how quickly a solution can be processed.")]
         public void Benchmark()
         {
             var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
-            var allDiagnosticsByProject = Task.WhenAll(Solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer)))
+            var allDiagnosticsByProject = Task.WhenAll(
+                    Solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer))
+                )
                 .GetAwaiter()
                 .GetResult();
         }
 
-        private async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(Project project, DiagnosticAnalyzer analyzer)
+        private async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(
+            Project project,
+            DiagnosticAnalyzer analyzer
+        )
         {
             var compilation = await project.GetCompilationAsync().ConfigureAwait(false);
             var diagnostics = await (compilation ?? throw new InvalidOperationException())
@@ -84,8 +86,7 @@ namespace WeCantSpell.Roslyn.Performance.Bench
 
             public int Length { get; }
 
-            public bool Check(string word) =>
-                word != null && (word.Length % Length) != 0;
+            public bool Check(string word) => word != null && (word.Length % Length) != 0;
 
             public IEnumerable<string> Suggest(string word) => Enumerable.Empty<string>();
         }

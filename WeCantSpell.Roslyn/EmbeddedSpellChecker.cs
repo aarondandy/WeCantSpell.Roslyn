@@ -22,9 +22,11 @@ namespace WeCantSpell.Roslyn
 
             Assembly assembly = typeof(EmbeddedSpellChecker).GetTypeInfo().Assembly;
 
-            using Stream affCompressedStream = assembly.GetManifestResourceStream(affName) ?? throw new InvalidOperationException();
+            using Stream affCompressedStream =
+                assembly.GetManifestResourceStream(affName) ?? throw new InvalidOperationException();
             using var affStream = new GZipStream(affCompressedStream, CompressionMode.Decompress);
-            using Stream dicCompressedStream = assembly.GetManifestResourceStream(dicName) ?? throw new InvalidOperationException();
+            using Stream dicCompressedStream =
+                assembly.GetManifestResourceStream(dicName) ?? throw new InvalidOperationException();
             using var dicStream = new GZipStream(dicCompressedStream, CompressionMode.Decompress);
             return WordList.CreateFromStreams(dicStream, affStream);
         }

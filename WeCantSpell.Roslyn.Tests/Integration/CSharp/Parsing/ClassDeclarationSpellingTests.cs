@@ -73,9 +73,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task name_contains_individual_mistakes_for_all_words()
         {
-            var analyzer = new SpellingAnalyzerCSharp(
-                new WrongWordChecker("First", "Middle", "Last")
-            );
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("First", "Middle", "Last"));
             var project = await ReadCodeFileAsProjectAsync("TypeName.FirstMiddleLast.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();

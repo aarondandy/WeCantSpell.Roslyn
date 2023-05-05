@@ -28,7 +28,8 @@ namespace WeCantSpell.Roslyn.Tests
         [Fact]
         public void CanExtractMultilineParts()
         {
-            var text = "    /*\r\n     * Words words words.\r\n     * This is aardvark.\r\n\r\n   * \r\n     * <code> \r     * Console.WriteLine(\"code\");\r\n     * </code>\r\n     */";
+            var text =
+                "    /*\r\n     * Words words words.\r\n     * This is aardvark.\r\n\r\n   * \r\n     * <code> \r     * Console.WriteLine(\"code\");\r\n     * </code>\r\n     */";
 
             var parts = CommentTextExtractor.LocateMultiLineCommentTextParts(text).ToList();
             var debug = parts.Select(span => text.Substring(span.Start, span.Length)).ToList();

@@ -23,10 +23,14 @@ namespace WeCantSpell.Roslyn.Performance.Harness
         static async Task RunTestAsync(Solution solution)
         {
             var analyzer = new SpellingAnalyzerCSharp(ThisSolutionPerfSpec.LengthWordChecker.Two);
-            await Task.WhenAll(solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer))).ConfigureAwait(false);
+            await Task.WhenAll(solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer)))
+                .ConfigureAwait(false);
         }
 
-        static async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(Project project, SpellingAnalyzerCSharp analyzer)
+        static async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(
+            Project project,
+            SpellingAnalyzerCSharp analyzer
+        )
         {
             var compilation = await project.GetCompilationAsync().ConfigureAwait(false);
             var diagnostics = await compilation

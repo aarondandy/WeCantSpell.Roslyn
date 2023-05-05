@@ -15,16 +15,20 @@ namespace WeCantSpell.Roslyn
             int endIndex = commentText.Length;
 
             // skip initial whitespace
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++)
+                ;
 
             // skip the initial slashes
-            for (; startIndex < endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
+            for (; startIndex < endIndex && commentText[startIndex] == CommentSlashChar; startIndex++)
+                ;
 
             // skip following whitespace
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++)
+                ;
 
             // skip trailing whitespace
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--)
+                ;
 
             return TextSpan.FromBounds(startIndex, endIndex);
         }
@@ -49,28 +53,36 @@ namespace WeCantSpell.Roslyn
             int endIndex = lineSpan.End;
 
             // skip initial whitespace
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++)
+                ;
 
             // skip the slashes
-            for (; startIndex < endIndex && commentText[startIndex] == CommentSlashChar; startIndex++) ;
+            for (; startIndex < endIndex && commentText[startIndex] == CommentSlashChar; startIndex++)
+                ;
 
             // skip the stars
-            for (; startIndex < endIndex && commentText[startIndex] == CommentStarChar; startIndex++) ;
+            for (; startIndex < endIndex && commentText[startIndex] == CommentStarChar; startIndex++)
+                ;
 
             // skip following whitespace after //**
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[startIndex]); startIndex++)
+                ;
 
             // skip trailing whitespace
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--)
+                ;
 
             // skip trailing slashes
-            for (; startIndex < endIndex && commentText[endIndex - 1] == CommentSlashChar; endIndex--) ;
+            for (; startIndex < endIndex && commentText[endIndex - 1] == CommentSlashChar; endIndex--)
+                ;
 
             // skip trailing stars
-            for (; startIndex < endIndex && commentText[endIndex - 1] == CommentStarChar; endIndex--) ;
+            for (; startIndex < endIndex && commentText[endIndex - 1] == CommentStarChar; endIndex--)
+                ;
 
             // skip trailing whitespace before **//
-            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--) ;
+            for (; startIndex < endIndex && IsCSharpWhitespace(commentText[endIndex - 1]); endIndex--)
+                ;
 
             return TextSpan.FromBounds(startIndex, endIndex);
         }

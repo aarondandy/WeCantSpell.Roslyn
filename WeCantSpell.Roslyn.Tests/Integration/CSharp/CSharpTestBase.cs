@@ -17,13 +17,23 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         private static readonly string s_pathBase = $"{typeof(CSharpTestBase).Namespace}";
         private static readonly string s_projectNameSingleFileSample = nameof(s_projectNameSingleFileSample);
 
-        private static readonly MetadataReference s_corlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference s_systemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference s_cSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference s_codeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference s_corlibReference = MetadataReference.CreateFromFile(
+            typeof(object).GetTypeInfo().Assembly.Location
+        );
+        private static readonly MetadataReference s_systemCoreReference = MetadataReference.CreateFromFile(
+            typeof(Enumerable).GetTypeInfo().Assembly.Location
+        );
+        private static readonly MetadataReference s_cSharpSymbolsReference = MetadataReference.CreateFromFile(
+            typeof(CSharpCompilation).GetTypeInfo().Assembly.Location
+        );
+        private static readonly MetadataReference s_codeAnalysisReference = MetadataReference.CreateFromFile(
+            typeof(Compilation).GetTypeInfo().Assembly.Location
+        );
 
         protected Stream OpenCodeFileStream(string embeddedResourceFileName) =>
-            typeof(CSharpTestBase).GetTypeInfo().Assembly.GetManifestResourceStream(s_pathBase + "." + embeddedResourceFileName);
+            typeof(CSharpTestBase)
+                .GetTypeInfo()
+                .Assembly.GetManifestResourceStream(s_pathBase + "." + embeddedResourceFileName);
 
         protected async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
         {
@@ -38,7 +48,8 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             TextAndVersion.Create(
                 SourceText.From(await ReadCodeFileAsStringAsync(CreateResourceNameFromFileName(fileName))),
                 VersionStamp.Default,
-                fileName);
+                fileName
+            );
 
         protected async Task<Project> ReadCodeFileAsProjectAsync(string embeddedResourceFileName) =>
             CreateProjectWithFiles(new[] { await ReadCodeFileAsSTextAndVersionAsync(embeddedResourceFileName) });
@@ -47,9 +58,13 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
         {
             var projectId = ProjectId.CreateNewId(debugName: s_projectNameSingleFileSample);
 
-            var solution = new AdhocWorkspace()
-                .CurrentSolution
-                .AddProject(projectId, s_projectNameSingleFileSample, s_projectNameSingleFileSample, LanguageNames.CSharp)
+            var solution = new AdhocWorkspace().CurrentSolution
+                .AddProject(
+                    projectId,
+                    s_projectNameSingleFileSample,
+                    s_projectNameSingleFileSample,
+                    LanguageNames.CSharp
+                )
                 .AddMetadataReference(projectId, s_corlibReference)
                 .AddMetadataReference(projectId, s_systemCoreReference)
                 .AddMetadataReference(projectId, s_cSharpSymbolsReference)
@@ -66,15 +81,18 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             return solution.GetProject(projectId);
         }
 
-        protected Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, params DiagnosticAnalyzer[] analyzers) =>
-            GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
+        protected Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(
+            Project project,
+            params DiagnosticAnalyzer[] analyzers
+        ) => GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
 
-        private static async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, ImmutableArray<DiagnosticAnalyzer> analyzers)
+        private static async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(
+            Project project,
+            ImmutableArray<DiagnosticAnalyzer> analyzers
+        )
         {
             var compilation = await project.GetCompilationAsync();
-            return await compilation
-                .WithAnalyzers(analyzers)
-                .GetAnalyzerDiagnosticsAsync();
+            return await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
         }
     }
 }

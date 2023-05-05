@@ -10,11 +10,7 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
         [Fact]
         public void ShouldReadConfigurationFromDirectory()
         {
-            var path = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "SpellChecker",
-                "TestDirectory"
-            );
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "SpellChecker", "TestDirectory");
             var options = new SpellCheckerOptions(path);
             options.LanguageCodes.Should().HaveCount(2).And.ContainInOrder("en-US", "ru-RU");
             options.AdditionalDictionaryPaths

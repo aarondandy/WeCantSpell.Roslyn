@@ -12,6 +12,7 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
             checker.Check("Thas").Should().Be(false);
             checker.Check("This").Should().Be(true);
         }
+
         [Fact]
         public void ShouldReadFromTwoDictionaries()
         {
@@ -21,6 +22,7 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
             checker.Check("This").Should().Be(true);
             checker.Check("Тот").Should().Be(true);
         }
+
         [Fact]
         public void ShouldProvideSuggestions()
         {

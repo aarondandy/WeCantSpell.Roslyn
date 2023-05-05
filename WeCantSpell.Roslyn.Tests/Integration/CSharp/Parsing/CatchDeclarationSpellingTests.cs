@@ -19,16 +19,21 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             using (new AssertionScope())
             {
-
                 diagnostics.Should().HaveCount(2);
-                diagnostics.Should().SatisfyRespectively(
-                    first => first.Should()
-                        .HaveMessageContaining("bad")
-                        .And.HaveLineLocation(13, 45, 3, "Catch.SimpleExamples.csx"),
-                    second => second.Should()
-                        .HaveMessageContaining("Value")
-                        .And.HaveLineLocation(13, 48, 5, "Catch.SimpleExamples.csx")
-                );
+                diagnostics
+                    .Should()
+                    .SatisfyRespectively(
+                        first =>
+                            first
+                                .Should()
+                                .HaveMessageContaining("bad")
+                                .And.HaveLineLocation(13, 45, 3, "Catch.SimpleExamples.csx"),
+                        second =>
+                            second
+                                .Should()
+                                .HaveMessageContaining("Value")
+                                .And.HaveLineLocation(13, 48, 5, "Catch.SimpleExamples.csx")
+                    );
             }
         }
     }

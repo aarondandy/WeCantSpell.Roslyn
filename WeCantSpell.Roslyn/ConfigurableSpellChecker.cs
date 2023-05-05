@@ -15,17 +15,14 @@ namespace WeCantSpell.Roslyn
         {
             var affixFilePath = FindAffixFilePath(path);
             using var dictionaryStream =
-                _fileSystem.ReadStream(path)
-                ?? throw new InvalidOperationException($"File not found {path}");
+                _fileSystem.ReadStream(path) ?? throw new InvalidOperationException($"File not found {path}");
             using var affixStream = ReadStreamOrDefault(affixFilePath);
             return WordList.CreateFromStreams(dictionaryStream, affixStream);
         }
 
         private Stream ReadStreamOrDefault(string affixFilePath)
         {
-            return _fileSystem.FileExists(affixFilePath)
-                ? _fileSystem.ReadStream(affixFilePath)
-                : new NullStream();
+            return _fileSystem.FileExists(affixFilePath) ? _fileSystem.ReadStream(affixFilePath) : new NullStream();
         }
 
         public ConfigurableSpellChecker(SpellCheckerOptions options)
@@ -56,11 +53,7 @@ namespace WeCantSpell.Roslyn
                     SearchOption.TopDirectoryOnly
                 )
                 .FirstOrDefault(
-                    affFilePath =>
-                        ".AFF".Equals(
-                            Path.GetExtension(affFilePath),
-                            StringComparison.OrdinalIgnoreCase
-                        )
+                    affFilePath => ".AFF".Equals(Path.GetExtension(affFilePath), StringComparison.OrdinalIgnoreCase)
                 );
             return affixFilePath ?? Path.ChangeExtension(dictionaryFilePath, "aff");
         }

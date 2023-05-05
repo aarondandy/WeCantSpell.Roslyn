@@ -11,9 +11,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task struct_name_can_contain_mistakes()
         {
-            var analyzer = new SpellingAnalyzerCSharp(
-                new WrongWordChecker("Simple", "Struct", "Example")
-            );
+            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("Simple", "Struct", "Example"));
             var project = await ReadCodeFileAsProjectAsync("TypeName.SimpleStructExample.csx");
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();

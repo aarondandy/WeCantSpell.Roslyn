@@ -11,11 +11,17 @@ namespace WeCantSpell.Roslyn.Performance.Bench
     {
         static void Main(string[] args)
         {
-            var config = ManualConfig.CreateMinimumViable()
+            var config = ManualConfig
+                .CreateMinimumViable()
                 .AddDiagnoser(new MemoryDiagnoser(new MemoryDiagnoserConfig(true)))
                 .AddLogger(ConsoleLogger.Default)
-                .AddColumn(TargetMethodColumn.Method, StatisticColumn.Median, StatisticColumn.StdDev,
-                    StatisticColumn.Q1, StatisticColumn.Q3);
+                .AddColumn(
+                    TargetMethodColumn.Method,
+                    StatisticColumn.Median,
+                    StatisticColumn.StdDev,
+                    StatisticColumn.Q1,
+                    StatisticColumn.Q3
+                );
             BenchmarkRunner.Run<ThisSolutionPerfSpec>(config);
         }
     }

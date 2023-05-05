@@ -11,7 +11,8 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
         [Fact]
         public void ShouldReadDictionaryFromFileSystem()
         {
-            var spellchecker = new ConfigurableSpellChecker(new SpellCheckerOptions
+            var spellchecker = new ConfigurableSpellChecker(
+                new SpellCheckerOptions
                 {
                     LanguageCodes = new List<string>(),
                     AdditionalDictionaryPaths = new List<string>
@@ -23,18 +24,16 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
             spellchecker.Check("Bazinga").Should().BeTrue();
             spellchecker.Check("Froomplestoot").Should().BeFalse();
         }
-        
+
         [Fact]
         public void ShouldReadDictionaryFromResourceFileSystem()
         {
             var fileSystem = new ResourceFileSystem();
-            var spellchecker = new ConfigurableSpellChecker(new SpellCheckerOptions(fileSystem, "SpellChecker.Files")
+            var spellchecker = new ConfigurableSpellChecker(
+                new SpellCheckerOptions(fileSystem, "SpellChecker.Files")
                 {
                     LanguageCodes = new List<string>(),
-                    AdditionalDictionaryPaths = new List<string>
-                    {
-                        "Files.FantasyWords.dic"
-                    }
+                    AdditionalDictionaryPaths = new List<string> { "Files.FantasyWords.dic" }
                 }
             );
             spellchecker.Check("Bazinga").Should().BeTrue();
