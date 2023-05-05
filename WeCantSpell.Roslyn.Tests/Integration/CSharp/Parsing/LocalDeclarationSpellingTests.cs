@@ -34,8 +34,6 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
             int expectedCharacter
         )
         {
-            var expectedEnd = expectedLine + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.csx");
 

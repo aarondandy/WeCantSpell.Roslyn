@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -30,12 +31,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             typeof(Compilation).GetTypeInfo().Assembly.Location
         );
 
-        protected Stream OpenCodeFileStream(string embeddedResourceFileName) =>
+        private static Stream OpenCodeFileStream(string embeddedResourceFileName) =>
             typeof(CSharpTestBase)
                 .GetTypeInfo()
                 .Assembly.GetManifestResourceStream(s_pathBase + "." + embeddedResourceFileName);
 
-        protected async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
+        private static async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
         {
             await using var stream = OpenCodeFileStream(embeddedResourceFileName);
             using var reader = new StreamReader(stream, Encoding.UTF8, true);
@@ -81,7 +82,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             return solution.GetProject(projectId);
         }
 
-        protected Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(
+        protected static Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(
             Project project,
             params DiagnosticAnalyzer[] analyzers
         ) => GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
@@ -91,7 +92,9 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
             ImmutableArray<DiagnosticAnalyzer> analyzers
         )
         {
-            var compilation = await project.GetCompilationAsync();
+            var compilation =
+                await project.GetCompilationAsync()
+                ?? throw new InvalidOperationException("Cann't get project complication");
             return await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
         }
     }

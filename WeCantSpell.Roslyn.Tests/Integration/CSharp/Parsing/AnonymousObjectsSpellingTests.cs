@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using WeCantSpell.Roslyn.Tests.Utilities;
@@ -30,7 +29,6 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            project.Documents.First().TryGetSyntaxTree(out var syntaxTree);
             using (new AssertionScope())
             {
                 diagnostics

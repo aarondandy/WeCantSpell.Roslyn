@@ -15,7 +15,7 @@ namespace WeCantSpell.Roslyn.Performance.Bench
     [MemoryDiagnoser]
     public class ThisSolutionPerfSpec
     {
-        static string SearchForFile(string fileName)
+        private static string SearchForFile(string fileName)
         {
             var directory = new DirectoryInfo(".");
             do
@@ -32,9 +32,9 @@ namespace WeCantSpell.Roslyn.Performance.Bench
             return null;
         }
 
-        public Solution Solution;
+        private Solution _solution;
 
-        public void Setup()
+        private void Setup()
         {
             MSBuildLocator.RegisterDefaults();
             var workspace = MSBuildWorkspace.Create();
@@ -42,7 +42,7 @@ namespace WeCantSpell.Roslyn.Performance.Bench
             var solutionFilePath = SearchForFile(fileName);
             if (solutionFilePath == null)
                 throw new InvalidOperationException($"Can't find {fileName} in current directory or its parents");
-            Solution = workspace.OpenSolutionAsync(solutionFilePath).GetAwaiter().GetResult();
+            _solution = workspace.OpenSolutionAsync(solutionFilePath).GetAwaiter().GetResult();
         }
 
         [GlobalSetup]
@@ -55,21 +55,21 @@ namespace WeCantSpell.Roslyn.Performance.Bench
         public void Benchmark()
         {
             var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
-            var allDiagnosticsByProject = Task.WhenAll(
-                    Solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer))
+            Task.WhenAll(
+                    _solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer))
                 )
                 .GetAwaiter()
                 .GetResult();
         }
 
-        private async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(
+        private static async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(
             Project project,
             DiagnosticAnalyzer analyzer
         )
         {
             var compilation = await project.GetCompilationAsync().ConfigureAwait(false);
             var diagnostics = await (compilation ?? throw new InvalidOperationException())
-                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer))
+                .WithAnalyzers(ImmutableArray.Create(analyzer))
                 .GetAnalyzerDiagnosticsAsync()
                 .ConfigureAwait(false);
 
@@ -78,15 +78,13 @@ namespace WeCantSpell.Roslyn.Performance.Bench
 
         public class LengthWordChecker : ISpellChecker
         {
-            public static LengthWordChecker Two { get; } = new LengthWordChecker(2);
+            public static LengthWordChecker Four { get; } = new(4);
 
-            public static LengthWordChecker Four { get; } = new LengthWordChecker(4);
+            private LengthWordChecker(int length) => Length = length;
 
-            public LengthWordChecker(int length) => Length = length;
+            private int Length { get; }
 
-            public int Length { get; }
-
-            public bool Check(string word) => word != null && (word.Length % Length) != 0;
+            public bool Check(string word) => word != null && word.Length % Length != 0;
 
             public IEnumerable<string> Suggest(string word) => Enumerable.Empty<string>();
         }

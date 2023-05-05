@@ -23,7 +23,7 @@ namespace WeCantSpell.Roslyn.Tests
         [Theory, MemberData(nameof(standard_sentences_extracts_words_args))]
         public void standard_sentences_extracts_words(string expectedText, int offset)
         {
-            var sentenceText = "The quick brown fox jumps over the lazy dog.";
+            const string sentenceText = "The quick brown fox jumps over the lazy dog.";
 
             var results = GeneralTextParser.SplitWordParts(sentenceText);
 
@@ -51,7 +51,7 @@ namespace WeCantSpell.Roslyn.Tests
         [Fact]
         public void english_contractions_are_split_correctly()
         {
-            var given = "you'dn't've a’n't I'da It’s";
+            const string given = "you'dn't've a’n't I'da It’s";
             var expected = given.Split(' ');
 
             var actual = GeneralTextParser.SplitWordParts(given);
@@ -73,7 +73,7 @@ namespace WeCantSpell.Roslyn.Tests
         [Fact]
         public void single_char_text_has_single_part()
         {
-            var text = "a";
+            const string text = "a";
 
             var results = GeneralTextParser.SplitWordParts(text);
 

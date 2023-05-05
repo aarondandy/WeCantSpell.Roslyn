@@ -28,11 +28,9 @@ namespace WeCantSpell.Roslyn.Tests
         [Fact]
         public void CanExtractMultilineParts()
         {
-            var text =
-                "    /*\r\n     * Words words words.\r\n     * This is aardvark.\r\n\r\n   * \r\n     * <code> \r     * Console.WriteLine(\"code\");\r\n     * </code>\r\n     */";
+            const string text = "    /*\r\n     * Words words words.\r\n     * This is aardvark.\r\n\r\n   * \r\n     * <code> \r     * Console.WriteLine(\"code\");\r\n     * </code>\r\n     */";
 
             var parts = CommentTextExtractor.LocateMultiLineCommentTextParts(text).ToList();
-            var debug = parts.Select(span => text.Substring(span.Start, span.Length)).ToList();
 
             parts.Should().HaveCount(5);
             parts[0].Start.Should().Be(15);
@@ -50,7 +48,7 @@ namespace WeCantSpell.Roslyn.Tests
         [Fact]
         public void TightMultilineBlockCanReadAllLines()
         {
-            var text = "/* line one\n   line two\n   line three */";
+            const string text = "/* line one\n   line two\n   line three */";
 
             var parts = CommentTextExtractor.LocateMultiLineCommentTextParts(text).ToList();
 
@@ -66,7 +64,7 @@ namespace WeCantSpell.Roslyn.Tests
         [Fact]
         public void SinleLinedMultilineBlockCanReadAllLines()
         {
-            var text = " /* line one */ ";
+            const string text = " /* line one */ ";
 
             var parts = CommentTextExtractor.LocateMultiLineCommentTextParts(text);
 

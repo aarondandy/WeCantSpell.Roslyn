@@ -46,7 +46,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task words_in_c_elements_are_ignored()
         {
-            var word = "inline";
+            const string word = "inline";
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(word));
             var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 
@@ -58,7 +58,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task words_in_code_elements_are_ignored()
         {
-            var word = "ignored";
+            const string word = "ignored";
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(word));
             var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 

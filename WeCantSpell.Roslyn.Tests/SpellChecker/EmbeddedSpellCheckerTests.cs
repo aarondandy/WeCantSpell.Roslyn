@@ -26,7 +26,7 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
         [Fact]
         public void ShouldProvideSuggestions()
         {
-            var checker = new EmbeddedSpellChecker(new[] { "en-US", "ru-RU" });
+            ISpellChecker checker = new EmbeddedSpellChecker(new[] { "en-US", "ru-RU" });
             checker.Suggest("Thes").Should().Contain("The");
             checker.Suggest("Этат").Should().Contain("Этот");
         }

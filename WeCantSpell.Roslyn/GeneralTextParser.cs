@@ -107,20 +107,13 @@ namespace WeCantSpell.Roslyn
 
         private static CharType ClassifyCharType(char current)
         {
-            if (char.IsLetterOrDigit(current))
-            {
-                return CharType.Word;
-            }
-            else if (char.IsWhiteSpace(current))
-            {
-                return CharType.WhiteSpace;
-            }
-            else if (char.IsPunctuation(current))
-            {
-                return CharType.Punctuation;
-            }
-
-            return CharType.Unknown;
+            return char.IsLetterOrDigit(current)
+                ? CharType.Word
+                : char.IsWhiteSpace(current)
+                    ? CharType.WhiteSpace
+                    : char.IsPunctuation(current)
+                        ? CharType.Punctuation
+                        : CharType.Unknown;
         }
 
         private static bool IsWordJoinChar(char c) => IsHyphen(c) || IsApostrophe(c);

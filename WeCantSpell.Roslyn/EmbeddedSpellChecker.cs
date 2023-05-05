@@ -44,7 +44,7 @@ namespace WeCantSpell.Roslyn
 
         public bool Check(string word)
         {
-            return WordLists.Any(wordList => wordList.Check(word) == true);
+            return WordLists.Any(wordList => wordList.Check(word));
         }
 
         public IEnumerable<string> Suggest(string word)

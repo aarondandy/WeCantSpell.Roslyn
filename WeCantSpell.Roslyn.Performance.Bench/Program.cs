@@ -1,5 +1,4 @@
-﻿using BenchmarkDotNet.Analysers;
-using BenchmarkDotNet.Columns;
+﻿using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Loggers;
@@ -7,13 +6,13 @@ using BenchmarkDotNet.Running;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             var config = ManualConfig
                 .CreateMinimumViable()
-                .AddDiagnoser(new MemoryDiagnoser(new MemoryDiagnoserConfig(true)))
+                .AddDiagnoser(new MemoryDiagnoser(new MemoryDiagnoserConfig()))
                 .AddLogger(ConsoleLogger.Default)
                 .AddColumn(
                     TargetMethodColumn.Method,

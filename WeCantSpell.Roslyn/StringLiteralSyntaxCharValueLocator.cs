@@ -52,7 +52,7 @@ namespace WeCantSpell.Roslyn
                 }
                 else if (valueChar == syntaxChar)
                 {
-                    continue;
+                    // do nothing
                 }
                 else if (!IsVerbatim && syntaxChar == '\\')
                 {

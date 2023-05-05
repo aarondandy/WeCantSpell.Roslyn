@@ -19,13 +19,11 @@ namespace WeCantSpell.Roslyn
 
         public int Length => Text.Length;
 
-        public int End => Start + Text.Length;
-
         public bool Equals(ParsedTextSpan other) =>
             Start == other.Start && IsWord == other.IsWord && Text == other.Text;
 
         public override bool Equals(object obj) => obj is ParsedTextSpan span && Equals(span);
 
-        public override int GetHashCode() => unchecked(Text.GetHashCode() ^ Start);
+        public override int GetHashCode() => Text.GetHashCode() ^ Start;
     }
 }

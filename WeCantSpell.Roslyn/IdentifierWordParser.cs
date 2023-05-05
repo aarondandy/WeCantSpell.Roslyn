@@ -66,7 +66,7 @@ namespace WeCantSpell.Roslyn
 
         private static LetterType ClassifyLetterType(char c) =>
             char.IsLetter(c)
-                ? (char.IsUpper(c) ? LetterType.LetterUpper : LetterType.LetterNormal)
+                ? char.IsUpper(c) ? LetterType.LetterUpper : LetterType.LetterNormal
                 : LetterType.NonWord;
 
         private enum LetterType : byte
