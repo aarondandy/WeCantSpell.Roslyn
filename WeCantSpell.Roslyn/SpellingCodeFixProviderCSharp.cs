@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -30,17 +29,16 @@ namespace WeCantSpell.Roslyn
         {
             var syntaxTree = await context.Document.GetSyntaxTreeAsync(context.CancellationToken).ConfigureAwait(false);
 
-            var diagnostic = context.Diagnostics.First();
-
             // Get the SourceText from the syntax tree
             if (syntaxTree == null)
                 throw new InvalidOperationException("Can't get document syntax tree");
 
             var sourceText = await syntaxTree.GetTextAsync(context.CancellationToken).ConfigureAwait(false);
 
+            var diagnostic = context.Diagnostics.First();
             // Extract the text from the diagnostic's SourceSpan
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            string diagnosticText = sourceText.GetSubText(diagnosticSpan).ToString();
+            var diagnosticText = sourceText.GetSubText(diagnosticSpan).ToString();
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -59,15 +57,15 @@ namespace WeCantSpell.Roslyn
 
         private async Task<Document> AddToDictionaryFixAsync(Document document, string dictionaryWord)
         {
-            var options = new SpellCheckerOptions(_fileSystem);
-            var dictionaryForPath = options.FindDictionaryForPath(document.FilePath);
-            if (dictionaryForPath == null)
+            if (document.FilePath == null)
             {
-                return document;
+                throw new InvalidOperationException("Document has no FilePath, no project dictionary can be found");
             }
 
-            using StreamWriter writer = _fileSystem.AppendText(dictionaryForPath);
-            await writer.WriteLineAsync(dictionaryWord);
+            var options = new SpellCheckerOptions(_fileSystem, document.FilePath);
+            var updater = SpellCheckerPool.Shared.GetUpdater(options);
+            await updater.AddToLocalDictionaryAsync(dictionaryWord).ConfigureAwait(false);
+
             return document;
         }
 

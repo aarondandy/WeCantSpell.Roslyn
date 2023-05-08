@@ -1,8 +1,11 @@
-﻿using BenchmarkDotNet.Columns;
+﻿using System.Globalization;
+using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
+using Perfolizer.Horology;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {
@@ -18,8 +21,10 @@ namespace WeCantSpell.Roslyn.Performance.Bench
                     TargetMethodColumn.Method,
                     StatisticColumn.Median,
                     StatisticColumn.StdDev,
-                    StatisticColumn.Q1,
-                    StatisticColumn.Q3
+                    StatisticColumn.Error
+                )
+                .WithSummaryStyle(
+                    new SummaryStyle(CultureInfo.InvariantCulture, true, SizeUnit.MB, TimeUnit.Millisecond)
                 );
             BenchmarkRunner.Run<ThisSolutionPerfSpec>(config);
         }

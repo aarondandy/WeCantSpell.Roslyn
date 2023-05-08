@@ -1,10 +1,9 @@
-using System.IO;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Config;
-using Xunit;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
 namespace WeCantSpell.Roslyn.Tests.SpellChecker
 {
+    [TestCategory("SpellChecker")]
     public class SpellCheckerOptionsTests
     {
         [Fact]

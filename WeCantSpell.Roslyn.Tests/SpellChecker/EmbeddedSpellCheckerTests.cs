@@ -1,8 +1,8 @@
-using FluentAssertions;
-using Xunit;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
 namespace WeCantSpell.Roslyn.Tests.SpellChecker
 {
+    [TestCategory("SpellChecker")]
     public class EmbeddedSpellCheckerTests
     {
         [Fact]

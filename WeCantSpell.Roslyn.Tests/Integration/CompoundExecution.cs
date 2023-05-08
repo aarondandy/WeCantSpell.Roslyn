@@ -1,19 +1,17 @@
-﻿using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BenchmarkDotNet.Attributes;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
-namespace WeCantSpell.Roslyn.Performance.Bench
+namespace WeCantSpell.Roslyn.Tests.Integration
 {
-    [MemoryDiagnoser]
-    public class ThisSolutionPerfSpec
+    [TestCategory("Compound")]
+    public class CompoundExecution
     {
         private static string SearchForFile(string fileName)
         {
@@ -32,27 +30,22 @@ namespace WeCantSpell.Roslyn.Performance.Bench
             return null;
         }
 
-        private Solution _solution;
+        private readonly Solution _solution;
 
-        private void Setup()
+        public CompoundExecution()
         {
             if (!MSBuildLocator.IsRegistered) MSBuildLocator.RegisterDefaults();
             var workspace = MSBuildWorkspace.Create();
             const string fileName = "WeCantSpell.Roslyn.sln";
-            var solutionFilePath = SearchForFile(fileName);
+            // var solutionFilePath = SearchForFile(fileName);
+            var solutionFilePath = "/Users/egors/work/Loyalty/LoyaltyPromoAction/RapidSoft.Loyalty.Solution/RapidSoft.Loyalty.PromoAction.sln";
             if (solutionFilePath == null)
                 throw new InvalidOperationException($"Can't find {fileName} in current directory or its parents");
             _solution = workspace.OpenSolutionAsync(solutionFilePath).GetAwaiter().GetResult();
         }
 
-        [GlobalSetup]
-        public void SetupBench()
-        {
-            Setup();
-        }
-
-        [Benchmark(Description = "Measure how quickly a solution can be processed.")]
-        public void Benchmark()
+        [Fact]
+        public void ShouldCheckSolution()
         {
             // var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
             var analyzer = new SpellingAnalyzerCSharp();
@@ -61,6 +54,16 @@ namespace WeCantSpell.Roslyn.Performance.Bench
                 )
                 .GetAwaiter()
                 .GetResult();
+        }
+
+        [Fact]
+        public async void ShouldCheckSingleProject()
+        {
+            // var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
+            var analyzer = new SpellingAnalyzerCSharp();
+            var project = _solution.Projects.First(p => p.Name.EndsWith("Mechanics3G"));
+            var mistakesForProject = await FindSpellingMistakesForProject(project, analyzer);
+            mistakesForProject.Should().NotBeEmpty();
         }
 
         private static async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(
@@ -89,5 +92,6 @@ namespace WeCantSpell.Roslyn.Performance.Bench
 
             public IEnumerable<string> Suggest(string word) => Enumerable.Empty<string>();
         }
+        
     }
 }

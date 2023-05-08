@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,9 +8,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 {
+    [TestCategory("CSharp")]
     public abstract class CSharpTestBase
     {
         private static readonly string s_pathBase = $"{typeof(CSharpTestBase).Namespace}";

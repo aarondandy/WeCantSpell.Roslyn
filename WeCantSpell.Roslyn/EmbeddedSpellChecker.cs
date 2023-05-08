@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using WeCantSpell.Hunspell;
+using WeCantSpell.Roslyn.Infrastructure;
 
 namespace WeCantSpell.Roslyn
 {
@@ -13,6 +14,11 @@ namespace WeCantSpell.Roslyn
     /// </summary>
     public class EmbeddedSpellChecker : ISpellChecker
     {
+        static EmbeddedSpellChecker()
+        {
+            EmbeddedDllDependency.Init();
+        }
+
         private static WordList Load(string languageCode)
         {
             const string resourceNamespaceBase = "";
@@ -31,7 +37,7 @@ namespace WeCantSpell.Roslyn
             return WordList.CreateFromStreams(dicStream, affStream);
         }
 
-        internal EmbeddedSpellChecker(IEnumerable<string> languageCodes)
+        public EmbeddedSpellChecker(IEnumerable<string> languageCodes)
         {
             // LanguageCode = languageCode ?? throw new ArgumentNullException(nameof(languageCode));
             foreach (var languageCode in languageCodes)

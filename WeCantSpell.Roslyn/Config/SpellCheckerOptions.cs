@@ -9,12 +9,12 @@ namespace WeCantSpell.Roslyn.Config
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     public sealed class SpellCheckerOptions
     {
-        private static string[] DefaultLanguageCodes { get; set; } = { "en-US", "ru-RU" };
+        private static string[] DefaultLanguageCodes { get; set; } = new [] { "en-US" };
 
         public static string[] ConfigFileNames { get; } = { ".wecantspell", ".wecantspell.json" };
 
         public static string[] DictionaryFileNames { get; } = { ".spelling.dic", ".directory.dic", ".wecantspell.dic" };
-        public IList<string> LanguageCodes { get; init; } = DefaultLanguageCodes;
+        public HashSet<string> LanguageCodes { get; init; } = new (DefaultLanguageCodes);
 
         public IList<string> AdditionalDictionaryPaths { get; init; } = new List<string>();
 
@@ -40,25 +40,41 @@ namespace WeCantSpell.Roslyn.Config
             FileSystem = fileSystem;
         }
 
+        public override int GetHashCode()
+        {
+            return GetStringArrayHashCode(LanguageCodes) * 17 + GetStringArrayHashCode(AdditionalDictionaryPaths);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not SpellCheckerOptions options) return false;
+            return GetHashCode() == options.GetHashCode();
+        }
+
+        private int GetStringArrayHashCode(IEnumerable<string>? array)
+        {
+            return array?.Aggregate(17, (current, item) => current * 23 + (item?.GetHashCode() ?? 0)) ?? 0;
+        }
+
         private void ReadFromDirectory(string path)
         {
             var directory = FileSystem.DirectoryExists(path) ? path : FileSystem.GetDirectoryName(path);
 
             while (directory != null)
             {
-                var fileName = GuessConfigFileName(directory);
-                if (fileName != null)
-                {
-                    ConfigFile? configFile = Parse(fileName);
-                    MergeFrom(configFile);
-                    if (configFile?.IsRoot == true)
-                        break;
-                }
-
                 var dictionaryName = GuessDictionaryFileName(directory);
                 if (dictionaryName != null)
                 {
                     AdditionalDictionaryPaths.Add(dictionaryName);
+                }
+
+                var configFileName = GuessConfigFileName(directory);
+                if (configFileName != null)
+                {
+                    ConfigFile? configFile = Parse(configFileName);
+                    MergeFrom(configFile);
+                    if (configFile?.IsRoot == true)
+                        break;
                 }
 
                 directory = FileSystem.GetParentDirectory(directory);
@@ -67,8 +83,15 @@ namespace WeCantSpell.Roslyn.Config
 
         private ConfigFile? Parse(string filePath)
         {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true,
+                AllowTrailingCommas = true,
+                ReadCommentHandling = JsonCommentHandling.Skip
+            };
             string json = FileSystem.ReadAllText(filePath);
-            var config = JsonSerializer.Deserialize<ConfigFile>(json);
+            var config = JsonSerializer.Deserialize<ConfigFile>(json, options);
             return config;
         }
 

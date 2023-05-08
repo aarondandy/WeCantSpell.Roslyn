@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeCantSpell.Roslyn
 {
@@ -59,13 +60,7 @@ namespace WeCantSpell.Roslyn
 
                 if (currentIsWord != previousWasWord)
                 {
-                    results.Add(
-                        new ParsedTextSpan(
-                            text.Substring(partStartIndex, searchIndex - partStartIndex),
-                            partStartIndex,
-                            previousWasWord
-                        )
-                    );
+                    AddParsedFragmentToResults(text, results, partStartIndex, searchIndex, previousWasWord);
 
                     partStartIndex = searchIndex;
                 }
@@ -80,16 +75,50 @@ namespace WeCantSpell.Roslyn
 
             if (partStartIndex < text.Length)
             {
-                results.Add(
-                    new ParsedTextSpan(
-                        text.Substring(partStartIndex, text.Length - partStartIndex),
-                        partStartIndex,
-                        prevEffectiveType == CharType.Word
-                    )
+                AddParsedFragmentToResults(
+                    text,
+                    results,
+                    partStartIndex,
+                    text.Length,
+                    prevEffectiveType == CharType.Word
                 );
             }
 
             return results;
+        }
+
+        private static void AddParsedFragmentToResults(
+            string text,
+            ICollection<ParsedTextSpan> results,
+            int startIndex,
+            int endIndex,
+            bool isWord
+        )
+        {
+            var fragment = text.Substring(startIndex, endIndex - startIndex);
+            if (!isWord)
+            {
+                results.Add(new ParsedTextSpan(fragment, startIndex, false));
+                return;
+            }
+
+            // Detect camelCase or PascalCase or ident123
+            var upperCount = fragment.Count(char.IsUpper);
+            var numberCount = fragment.Count(char.IsDigit);
+            var mayBeIdentifier =
+                upperCount > 1
+                || numberCount > 0 && !char.IsDigit(fragment.First())
+                || !char.IsUpper(fragment.First()) && upperCount == 1;
+            if (mayBeIdentifier)
+            {
+                var wordParts = IdentifierWordParser.SplitWordParts(fragment);
+                foreach (var part in wordParts)
+                {
+                    results.Add(part);
+                }
+                return;
+            }
+            results.Add(new ParsedTextSpan(fragment, startIndex, true));
         }
 
         private static CharType GetEffectiveCharType(

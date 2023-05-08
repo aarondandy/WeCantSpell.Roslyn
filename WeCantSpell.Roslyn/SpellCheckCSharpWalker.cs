@@ -313,22 +313,17 @@ namespace WeCantSpell.Roslyn
             FindSpellingMistakesForIdentifierWordParts(wordParts, identifier, firstSkipWord);
         }
 
-        [SuppressMessage(
-            "ReSharper",
-            "SwitchStatementMissingSomeEnumCasesNoDefault",
-            Justification = "There are too many options to put into switch"
-        )]
         private void FindSpellingMistakesInTrivia(SyntaxTrivia trivia)
         {
             SyntaxKind kind = trivia.Kind();
-            switch (kind)
+            // ReSharper disable once ConvertIfStatementToSwitchStatement
+            if (kind == SyntaxKind.SingleLineCommentTrivia)
             {
-                case SyntaxKind.SingleLineCommentTrivia:
-                    FindSpellingMistakesInSingleLineComment(trivia);
-                    break;
-                case SyntaxKind.MultiLineCommentTrivia:
-                    FindSpellingMistakesInMultiLineComment(trivia);
-                    break;
+                FindSpellingMistakesInSingleLineComment(trivia);
+            }
+            else if (kind == SyntaxKind.MultiLineCommentTrivia)
+            {
+                FindSpellingMistakesInMultiLineComment(trivia);
             }
         }
 

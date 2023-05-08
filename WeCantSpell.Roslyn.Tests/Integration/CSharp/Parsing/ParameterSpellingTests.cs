@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
-using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {

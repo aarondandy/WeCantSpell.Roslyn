@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using Xunit;
-using FluentAssertions;
+﻿using System.Linq;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
-namespace WeCantSpell.Roslyn.Tests
+namespace WeCantSpell.Roslyn.Tests.Parsers
 {
+    [TestCategory("Parsers")]
     public class IdentifierWordParserTests
     {
         public static object[][] SplitsNameToTextPartsData =>

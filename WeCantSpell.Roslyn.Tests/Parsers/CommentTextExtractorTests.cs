@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using FluentAssertions;
-using Xunit;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
-namespace WeCantSpell.Roslyn.Tests
+namespace WeCantSpell.Roslyn.Tests.Parsers
 {
+    [TestCategory("Parsers")]
     public class CommentTextExtractorTests
     {
         [Theory]

@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using FluentAssertions;
-using Xunit;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
-namespace WeCantSpell.Roslyn.Tests
+namespace WeCantSpell.Roslyn.Tests.Parsers
 {
+    [TestCategory("Parsers")]
     public class GeneralTextParserTests
     {
         public static object[][] standard_sentences_extracts_words_args() =>
@@ -53,6 +53,30 @@ namespace WeCantSpell.Roslyn.Tests
         {
             const string given = "you'dn't've a’n't I'da It’s";
             var expected = given.Split(' ');
+
+            var actual = GeneralTextParser.SplitWordParts(given);
+            var actualWords = actual.Where(p => p.IsWord).Select(p => p.Text);
+
+            actualWords.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void idenitifiers_in_text_are_split_correctly()
+        {
+            const string given = "camelCase PascalCase identifier123";
+            var expected = new [] {"camel", "Case", "Pascal", "Case", "identifier"};
+
+            var actual = GeneralTextParser.SplitWordParts(given);
+            var actualWords = actual.Where(p => p.IsWord).Select(p => p.Text);
+
+            actualWords.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void long_text_is_split_correctly()
+        {
+            const string given = "fixed temporary by hint: https://github.com/RicoSuter/NSwag/issues/2419#issuecomment-818433921";
+            var expected = new [] {"fixed", "temporary", "by", "hint", "https", "github", "com", "Rico", "Suter", "N", "Swag", "issues", "2419", "issuecomment"};
 
             var actual = GeneralTextParser.SplitWordParts(given);
             var actualWords = actual.Where(p => p.IsWord).Select(p => p.Text);
