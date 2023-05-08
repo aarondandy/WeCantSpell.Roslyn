@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -101,7 +99,8 @@ namespace WeCantSpell.Roslyn
         {
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(
-                GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics
+                // GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics
+                GeneratedCodeAnalysisFlags.None
             );
             context.RegisterSyntaxTreeAction(HandleSyntaxTree);
         }
