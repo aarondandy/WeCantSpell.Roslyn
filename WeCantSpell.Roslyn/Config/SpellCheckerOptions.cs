@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using WeCantSpell.Roslyn.Infrastructure;
 
 namespace WeCantSpell.Roslyn.Config
@@ -9,12 +10,12 @@ namespace WeCantSpell.Roslyn.Config
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     public sealed class SpellCheckerOptions
     {
-        private static string[] DefaultLanguageCodes { get; set; } = new [] { "en-US" };
+        private static string[] DefaultLanguageCodes { get; set; } = new[] { "en-US" };
 
         public static string[] ConfigFileNames { get; } = { ".wecantspell", ".wecantspell.json" };
 
         public static string[] DictionaryFileNames { get; } = { ".spelling.dic", ".directory.dic", ".wecantspell.dic" };
-        public HashSet<string> LanguageCodes { get; init; } = new (DefaultLanguageCodes);
+        public HashSet<string> LanguageCodes { get; init; } = new(DefaultLanguageCodes);
 
         public IList<string> AdditionalDictionaryPaths { get; init; } = new List<string>();
 
@@ -47,7 +48,8 @@ namespace WeCantSpell.Roslyn.Config
 
         public override bool Equals(object obj)
         {
-            if (obj is not SpellCheckerOptions options) return false;
+            if (obj is not SpellCheckerOptions options)
+                return false;
             return GetHashCode() == options.GetHashCode();
         }
 
@@ -83,15 +85,19 @@ namespace WeCantSpell.Roslyn.Config
 
         private ConfigFile? Parse(string filePath)
         {
-            var options = new JsonSerializerOptions
+            JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true,
-                AllowTrailingCommas = true,
-                ReadCommentHandling = JsonCommentHandling.Skip
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy() // Use CamelCaseNamingStrategy for camelCase naming
+                },
+                // Set the following property to ignore case sensitivity during deserialization
+                // Note: This will match the property names case-insensitively but still use camelCase
+                TypeNameHandling = TypeNameHandling.Auto,
+                MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead
             };
             string json = FileSystem.ReadAllText(filePath);
-            var config = JsonSerializer.Deserialize<ConfigFile>(json, options);
+            ConfigFile? config = JsonConvert.DeserializeObject<ConfigFile>(json, settings);
             return config;
         }
 

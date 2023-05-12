@@ -34,11 +34,11 @@ namespace WeCantSpell.Roslyn.Tests.Integration
 
         public CompoundExecution()
         {
-            if (!MSBuildLocator.IsRegistered) MSBuildLocator.RegisterDefaults();
+            if (!MSBuildLocator.IsRegistered)
+                MSBuildLocator.RegisterDefaults();
             var workspace = MSBuildWorkspace.Create();
             const string fileName = "WeCantSpell.Roslyn.sln";
-            // var solutionFilePath = SearchForFile(fileName);
-            var solutionFilePath = "/Users/egors/work/Loyalty/LoyaltyPromoAction/RapidSoft.Loyalty.Solution/RapidSoft.Loyalty.PromoAction.sln";
+            var solutionFilePath = SearchForFile(fileName);
             if (solutionFilePath == null)
                 throw new InvalidOperationException($"Can't find {fileName} in current directory or its parents");
             _solution = workspace.OpenSolutionAsync(solutionFilePath).GetAwaiter().GetResult();
@@ -47,11 +47,8 @@ namespace WeCantSpell.Roslyn.Tests.Integration
         [Fact]
         public void ShouldCheckSolution()
         {
-            // var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
-            var analyzer = new SpellingAnalyzerCSharp();
-            Task.WhenAll(
-                    _solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer))
-                )
+            var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
+            Task.WhenAll(_solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer)))
                 .GetAwaiter()
                 .GetResult();
         }
@@ -59,9 +56,8 @@ namespace WeCantSpell.Roslyn.Tests.Integration
         [Fact]
         public async void ShouldCheckSingleProject()
         {
-            // var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
             var analyzer = new SpellingAnalyzerCSharp();
-            var project = _solution.Projects.First(p => p.Name.EndsWith("Mechanics3G"));
+            var project = _solution.Projects.First(p => p.Name.EndsWith("Roslyn"));
             var mistakesForProject = await FindSpellingMistakesForProject(project, analyzer);
             mistakesForProject.Should().NotBeEmpty();
         }
@@ -92,6 +88,5 @@ namespace WeCantSpell.Roslyn.Tests.Integration
 
             public IEnumerable<string> Suggest(string word) => Enumerable.Empty<string>();
         }
-        
     }
 }

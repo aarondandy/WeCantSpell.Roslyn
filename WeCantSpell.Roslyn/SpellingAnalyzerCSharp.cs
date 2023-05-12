@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -99,6 +99,7 @@ namespace WeCantSpell.Roslyn
         {
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(
+                // TODO: Make this a config switch
                 // GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics
                 GeneratedCodeAnalysisFlags.None
             );

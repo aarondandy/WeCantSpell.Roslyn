@@ -56,14 +56,14 @@
             string destinationItemSpec = destinationPath;
             string destinationLogicalName = sourceLogicalName + destinationSuffix;
 
-            Log.LogMessage(MessageImportance.Normal, 
+            Log.LogMessage(MessageImportance.High, 
                 "EmbeddedResource Src : " + sourceItemSpec);
             
             Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));      
             using (var sourceStream = File.OpenRead(sourcePath))
             using (var destinationStream = File.OpenWrite(destinationPath))
             using (var destinationGZip = new GZipStream(destinationStream, 
-              CompressionLevel.Optimal))
+              CompressionMode.Compress))
             {
                 sourceStream.CopyTo(destinationGZip);
             }
