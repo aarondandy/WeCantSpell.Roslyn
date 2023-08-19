@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using FluentAssertions.Execution;
 using WeCantSpell.Roslyn.Tests.Utilities;
 
