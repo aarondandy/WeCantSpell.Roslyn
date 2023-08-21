@@ -10,11 +10,10 @@
     <Description>A Roslyn spell check analyzer.</Description>
     <PackageTags>spell;check;spell-check;spelling;hunspell;we-cant-spell;roslyn;analyzer</PackageTags>
     <PackageProjectUrl>https://github.com/rpsft/WeCantSpell.Roslyn</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/rpsft/WeCantSpell.Roslyn.git</RepositoryUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/rpfst/WeCantSpell.Roslyn/master/icon.png</PackageIconUrl>
     <Authors>RapidSoft,aarondandy</Authors>
-    <PackageLicenseUrl>https://github.com/rpfst/WeCantSpell.Roslyn/blob/master/license.txt</PackageLicenseUrl>
     <PackageReleaseNotes>Changelog can be found at https://github.com/rpfst/WeCantSpell.Roslyn/blob/master/changelog.md</PackageReleaseNotes>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>default</LangVersion>
@@ -45,6 +44,10 @@
 
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

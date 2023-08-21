@@ -8,6 +8,8 @@ namespace WeCantSpell.Roslyn.Tests.SpellChecker
 {
     public class ResourceFileSystem : IFileSystem
     {
+        public string FileSystemType => "Resource";
+
         private static readonly string s_pathBase = $"{typeof(ResourceFileSystem).Namespace}";
 
         public string GetDirectoryName(string path)

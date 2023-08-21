@@ -5,6 +5,7 @@ namespace WeCantSpell.Roslyn.Config
 {
     public interface IFileSystem
     {
+        string FileSystemType { get; }
         string? GetDirectoryName(string path);
         string? GetParentDirectory(string directory);
         string ReadAllText(string filePath);

@@ -3,9 +3,13 @@ using WeCantSpell.Roslyn.Config;
 
 namespace WeCantSpell.Roslyn.Infrastructure
 {
+    /// <summary>
+    /// The pool is keeping track of dictionaries, their locations
+    /// </summary>
     public sealed class SpellCheckerPool
     {
         private static SpellCheckerPool? s_shared;
+
         private readonly ConcurrentDictionary<SpellCheckerOptions, ConfigurableSpellChecker> _pool = new();
 
         public static SpellCheckerPool Shared => s_shared ??= new SpellCheckerPool();

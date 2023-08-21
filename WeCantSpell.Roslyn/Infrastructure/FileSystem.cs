@@ -6,6 +6,8 @@ namespace WeCantSpell.Roslyn.Infrastructure
 {
     public sealed class FileSystem : IFileSystem
     {
+        public string FileSystemType => "System.IO";
+
         public string? GetDirectoryName(string path)
         {
             return Path.GetDirectoryName(path);
