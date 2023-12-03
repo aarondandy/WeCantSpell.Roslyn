@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeCantSpell.Roslyn
 {
@@ -19,8 +20,8 @@ namespace WeCantSpell.Roslyn
             }
 
             var partStartIndex = 0;
-            var prevChar = text[0];
-            var prevCharType = ClassifyCharType(prevChar);
+            char prevChar = text[0];
+            CharType prevCharType = ClassifyCharType(prevChar);
 
             char currChar;
             CharType currCharType;
@@ -36,7 +37,7 @@ namespace WeCantSpell.Roslyn
                 currCharType = prevCharType;
             }
 
-            var prevEffectiveType = GetEffectiveCharType(prevChar, prevCharType, CharType.Unknown, currCharType);
+            CharType prevEffectiveType = GetEffectiveCharType(prevChar, prevCharType, CharType.Unknown, currCharType);
 
             for (int searchIndex = 1, nextIndex = 2; searchIndex < text.Length; searchIndex = nextIndex++)
             {
@@ -53,13 +54,13 @@ namespace WeCantSpell.Roslyn
                     nextCharType = CharType.WhiteSpace;
                 }
 
-                var currEffectiveType = GetEffectiveCharType(currChar, currCharType, prevCharType, nextCharType);
-                var currentIsWord = currEffectiveType == CharType.Word;
-                var previousWasWord = prevEffectiveType == CharType.Word;
+                CharType currEffectiveType = GetEffectiveCharType(currChar, currCharType, prevCharType, nextCharType);
+                bool currentIsWord = currEffectiveType == CharType.Word;
+                bool previousWasWord = prevEffectiveType == CharType.Word;
 
                 if (currentIsWord != previousWasWord)
                 {
-                    results.Add(new ParsedTextSpan(text.Substring(partStartIndex, searchIndex - partStartIndex), partStartIndex, previousWasWord));
+                    AddParsedFragmentToResults(text, results, partStartIndex, searchIndex, previousWasWord);
 
                     partStartIndex = searchIndex;
                 }
@@ -74,55 +75,83 @@ namespace WeCantSpell.Roslyn
 
             if (partStartIndex < text.Length)
             {
-                results.Add(new ParsedTextSpan(text.Substring(partStartIndex, text.Length - partStartIndex), partStartIndex, prevEffectiveType == CharType.Word));
+                AddParsedFragmentToResults(
+                    text,
+                    results,
+                    partStartIndex,
+                    text.Length,
+                    prevEffectiveType == CharType.Word
+                );
             }
 
             return results;
         }
 
-        static CharType GetEffectiveCharType(char currChar, CharType currCharType, CharType prevCharType, CharType nextCharType) =>
+        private static void AddParsedFragmentToResults(
+            string text,
+            ICollection<ParsedTextSpan> results,
+            int startIndex,
+            int endIndex,
+            bool isWord
+        )
+        {
+            var fragment = text.Substring(startIndex, endIndex - startIndex);
+            if (!isWord)
+            {
+                results.Add(new ParsedTextSpan(fragment, startIndex, false));
+                return;
+            }
+
+            // Detect camelCase or PascalCase or ident123
+            var upperCount = fragment.Count(char.IsUpper);
+            var numberCount = fragment.Count(char.IsDigit);
+            var mayBeIdentifier =
+                upperCount > 1
+                || numberCount > 0 && !char.IsDigit(fragment.First())
+                || !char.IsUpper(fragment.First()) && upperCount == 1;
+            if (mayBeIdentifier)
+            {
+                var wordParts = IdentifierWordParser.SplitWordParts(fragment);
+                foreach (var part in wordParts)
+                {
+                    results.Add(part);
+                }
+                return;
+            }
+            results.Add(new ParsedTextSpan(fragment, startIndex, true));
+        }
+
+        private static CharType GetEffectiveCharType(
+            char currChar,
+            CharType currCharType,
+            CharType prevCharType,
+            CharType nextCharType
+        ) =>
             currCharType != CharType.Word
             && prevCharType == CharType.Word
             && nextCharType == CharType.Word
             && IsWordJoinChar(currChar)
-            ? CharType.Word
-            : currCharType;
+                ? CharType.Word
+                : currCharType;
 
-        static CharType ClassifyCharType(char current)
+        private static CharType ClassifyCharType(char current)
         {
-            if (char.IsLetterOrDigit(current))
-            {
-                return CharType.Word;
-            }
-            if (char.IsWhiteSpace(current))
-            {
-                return CharType.WhiteSpace;
-            }
-            if (char.IsPunctuation(current))
-            {
-                return CharType.Punctuation;
-            }
-
-            return CharType.Unknown;
+            return char.IsLetterOrDigit(current)
+                ? CharType.Word
+                : char.IsWhiteSpace(current)
+                    ? CharType.WhiteSpace
+                    : char.IsPunctuation(current)
+                        ? CharType.Punctuation
+                        : CharType.Unknown;
         }
 
-        static bool IsWordJoinChar(char c) =>
-            IsHyphen(c) || IsApostrophe(c);
+        private static bool IsWordJoinChar(char c) => IsHyphen(c) || IsApostrophe(c);
 
-        static bool IsHyphen(char c) =>
-            c == '-'
-            || c == '\u2010'
-            || c == '\u2212'
-            || c == '\u2014'
-            || c == '\u2013';
+        private static bool IsHyphen(char c) => c is '-' or '\u2010' or '\u2212' or '\u2014' or '\u2013';
 
-        static bool IsApostrophe(char c) =>
-            c == '\''
-            || c == '’' // U+2019 - RIGHT SINGLE QUOTATION MARK
-            || c == 'ʼ' // U+02BC - MODIFIER LETTER APOSTROPHE
-            || c == '＇'; // full width
+        private static bool IsApostrophe(char c) => c is '\'' or '’' or 'ʼ' or '＇'; // full width
 
-        enum CharType : byte
+        private enum CharType : byte
         {
             Unknown = 0,
             Word = 1,

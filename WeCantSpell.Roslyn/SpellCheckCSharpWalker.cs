@@ -9,20 +9,15 @@ namespace WeCantSpell.Roslyn
 {
     public class SpellCheckCSharpWalker : CSharpSyntaxWalker
     {
-        public ISpellChecker SpellChecker { get; }
+        private ISpellChecker SpellChecker { get; }
 
-        public HashSet<string> VisitedWords { get; }
+        private Action<SpellingMistake> MistakeHandler { get; }
 
-        public Action<SpellingMistake> MistakeHandler { get; }
-
-        public SpellCheckCSharpWalker(
-            ISpellChecker spellChecker,
-            Action<SpellingMistake> mistakeHandler)
+        public SpellCheckCSharpWalker(ISpellChecker spellChecker, Action<SpellingMistake> mistakeHandler)
             : base(SyntaxWalkerDepth.StructuredTrivia)
         {
             SpellChecker = spellChecker ?? throw new ArgumentNullException(nameof(spellChecker));
             MistakeHandler = mistakeHandler ?? throw new ArgumentNullException(nameof(mistakeHandler));
-            VisitedWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         public override void VisitClassDeclaration(ClassDeclarationSyntax node)
@@ -45,13 +40,10 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
         {
-            var declaration = node.Declaration;
-            if (declaration != null)
+            VariableDeclarationSyntax declaration = node.Declaration;
+            foreach (VariableDeclaratorSyntax variable in declaration.Variables)
             {
-                foreach (var variable in declaration.Variables)
-                {
-                    FindSpellingMistakesForIdentifierSkippingFirstWord(variable.Identifier, "m");
-                }
+                FindSpellingMistakesForIdentifierSkippingFirstWord(variable.Identifier, "m");
             }
 
             base.VisitFieldDeclaration(node);
@@ -59,13 +51,10 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitLocalDeclarationStatement(LocalDeclarationStatementSyntax node)
         {
-            var declaration = node.Declaration;
-            if (declaration != null)
+            VariableDeclarationSyntax declaration = node.Declaration;
+            foreach (VariableDeclaratorSyntax variable in declaration.Variables)
             {
-                foreach (var variable in declaration.Variables)
-                {
-                    FindSpellingMistakesForIdentifier(variable.Identifier);
-                }
+                FindSpellingMistakesForIdentifier(variable.Identifier);
             }
 
             base.VisitLocalDeclarationStatement(node);
@@ -91,7 +80,7 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitUsingDirective(UsingDirectiveSyntax node)
         {
-            var name = node.Alias?.Name;
+            IdentifierNameSyntax? name = node.Alias?.Name;
             if (name != null)
             {
                 FindSpellingMistakesForIdentifier(name.Identifier);
@@ -102,10 +91,10 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitUsingStatement(UsingStatementSyntax node)
         {
-            var declaration = node.Declaration;
+            VariableDeclarationSyntax? declaration = node.Declaration;
             if (declaration != null)
             {
-                foreach (var variable in declaration.Variables)
+                foreach (VariableDeclaratorSyntax variable in declaration.Variables)
                 {
                     FindSpellingMistakesForIdentifier(variable.Identifier);
                 }
@@ -115,7 +104,7 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitCatchDeclaration(CatchDeclarationSyntax node)
         {
-            var identifier = node.Identifier;
+            SyntaxToken identifier = node.Identifier;
             if (identifier.Span.Length != 0)
             {
                 FindSpellingMistakesForIdentifier(identifier);
@@ -138,7 +127,7 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitAnonymousObjectMemberDeclarator(AnonymousObjectMemberDeclaratorSyntax node)
         {
-            var name = node.NameEquals?.Name;
+            IdentifierNameSyntax? name = node.NameEquals?.Name;
             if (name != null)
             {
                 FindSpellingMistakesForIdentifier(name.Identifier);
@@ -155,10 +144,10 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitForStatement(ForStatementSyntax node)
         {
-            var declaration = node.Declaration;
+            VariableDeclarationSyntax? declaration = node.Declaration;
             if (declaration != null)
             {
-                foreach (var variable in declaration.Variables)
+                foreach (VariableDeclaratorSyntax variable in declaration.Variables)
                 {
                     FindSpellingMistakesForIdentifier(variable.Identifier);
                 }
@@ -187,13 +176,10 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
         {
-            var declaration = node.Declaration;
-            if (declaration != null)
+            VariableDeclarationSyntax declaration = node.Declaration;
+            foreach (VariableDeclaratorSyntax variable in declaration.Variables)
             {
-                foreach(var variable in declaration.Variables)
-                {
-                    FindSpellingMistakesForIdentifier(variable.Identifier);
-                }
+                FindSpellingMistakesForIdentifier(variable.Identifier);
             }
             base.VisitEventFieldDeclaration(node);
         }
@@ -236,20 +222,30 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitLiteralExpression(LiteralExpressionSyntax node)
         {
-            var token = node.Token;
-            var valueText = token.ValueText;
-            var syntaxText = token.Text;
-            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+            SyntaxToken token = node.Token;
+            string valueText = token.ValueText;
+            string syntaxText = token.Text;
+            var valueLocator = new StringLiteralSyntaxCharValueLocator(
+                valueText,
+                syntaxText,
+                token.IsVerbatimStringLiteral()
+            );
 
-            var parts = GeneralTextParser.SplitWordParts(valueText);
-            foreach (var part in parts)
+            List<ParsedTextSpan> parts = GeneralTextParser.SplitWordParts(valueText);
+            foreach (ParsedTextSpan part in parts)
             {
-                if (ShouldWordBeMarkedAsMisspelled(part))
+                if (!ShouldWordBeMarkedAsMisspelled(part) || token.SyntaxTree == null)
                 {
-                    var spanOffset = valueLocator.ConvertValueToSyntaxIndex(part.Start);
-                    var location = Location.Create(token.SyntaxTree, new TextSpan(token.SpanStart + spanOffset, part.Length));
-                    HandleMistake(location, part.Text, SpellingMistakeKind.Literal);
+                    continue;
                 }
+
+                int spanOffset = valueLocator.ConvertValueToSyntaxIndex(part.Start);
+
+                var location = Location.Create(
+                    token.SyntaxTree,
+                    new TextSpan(token.SpanStart + spanOffset, part.Length)
+                );
+                HandleMistake(location, part.Text, SpellingMistakeKind.Literal);
             }
 
             base.VisitLiteralExpression(node);
@@ -257,20 +253,29 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitInterpolatedStringText(InterpolatedStringTextSyntax node)
         {
-            var token = node.TextToken;
-            var valueText = token.ValueText;
-            var syntaxText = token.Text;
-            var valueLocator = new StringLiteralSyntaxCharValueLocator(valueText, syntaxText, token.IsVerbatimStringLiteral());
+            SyntaxToken token = node.TextToken;
+            string valueText = token.ValueText;
+            string syntaxText = token.Text;
+            var valueLocator = new StringLiteralSyntaxCharValueLocator(
+                valueText,
+                syntaxText,
+                token.IsVerbatimStringLiteral()
+            );
 
-            var parts = GeneralTextParser.SplitWordParts(valueText);
-            foreach (var part in parts)
+            List<ParsedTextSpan> parts = GeneralTextParser.SplitWordParts(valueText);
+            foreach (ParsedTextSpan part in parts)
             {
-                if (ShouldWordBeMarkedAsMisspelled(part))
+                if (!ShouldWordBeMarkedAsMisspelled(part) || token.SyntaxTree == null)
                 {
-                    var spanOffset = valueLocator.ConvertValueToSyntaxIndex(part.Start);
-                    var location = Location.Create(token.SyntaxTree, new TextSpan(token.SpanStart + spanOffset, part.Length));
-                    HandleMistake(location, part.Text, SpellingMistakeKind.Literal);
+                    continue;
                 }
+
+                int spanOffset = valueLocator.ConvertValueToSyntaxIndex(part.Start);
+                var location = Location.Create(
+                    token.SyntaxTree,
+                    new TextSpan(token.SpanStart + spanOffset, part.Length)
+                );
+                HandleMistake(location, part.Text, SpellingMistakeKind.Literal);
             }
 
             base.VisitInterpolatedStringText(node);
@@ -284,7 +289,7 @@ namespace WeCantSpell.Roslyn
 
         public override void VisitDocumentationCommentTrivia(DocumentationCommentTriviaSyntax node)
         {
-            foreach (var xmlNode in node.Content)
+            foreach (XmlNodeSyntax xmlNode in node.Content)
             {
                 FindSpellingMistakesInXmlNodeSyntax(xmlNode);
             }
@@ -292,23 +297,25 @@ namespace WeCantSpell.Roslyn
             base.VisitDocumentationCommentTrivia(node);
         }
 
-        bool ShouldWordBeMarkedAsMisspelled(ParsedTextSpan part) => part.IsWord && !SpellChecker.Check(part.Text);
+        private bool ShouldWordBeMarkedAsMisspelled(ParsedTextSpan part) =>
+            part.IsWord && !SpellChecker.Check(part.Text);
 
-        void FindSpellingMistakesForIdentifier(SyntaxToken identifier)
+        private void FindSpellingMistakesForIdentifier(SyntaxToken identifier)
         {
-            var wordParts = IdentifierWordParser.SplitWordParts(identifier.Text);
+            List<ParsedTextSpan> wordParts = IdentifierWordParser.SplitWordParts(identifier.Text);
             FindSpellingMistakesForIdentifierWordParts(wordParts, identifier);
         }
 
-        void FindSpellingMistakesForIdentifierSkippingFirstWord(SyntaxToken identifier, string firstSkipWord)
+        private void FindSpellingMistakesForIdentifierSkippingFirstWord(SyntaxToken identifier, string? firstSkipWord)
         {
-            var wordParts = IdentifierWordParser.SplitWordParts(identifier.Text);
+            List<ParsedTextSpan> wordParts = IdentifierWordParser.SplitWordParts(identifier.Text);
             FindSpellingMistakesForIdentifierWordParts(wordParts, identifier, firstSkipWord);
         }
 
-        void FindSpellingMistakesInTrivia(SyntaxTrivia trivia)
+        private void FindSpellingMistakesInTrivia(SyntaxTrivia trivia)
         {
-            var kind = trivia.Kind();
+            SyntaxKind kind = trivia.Kind();
+            // ReSharper disable once ConvertIfStatementToSwitchStatement
             if (kind == SyntaxKind.SingleLineCommentTrivia)
             {
                 FindSpellingMistakesInSingleLineComment(trivia);
@@ -319,123 +326,156 @@ namespace WeCantSpell.Roslyn
             }
         }
 
-        void FindSpellingMistakesInSingleLineComment(SyntaxTrivia node)
+        private void FindSpellingMistakesInSingleLineComment(SyntaxTrivia node)
         {
             var lineText = node.ToString();
-            var textSpan = CommentTextExtractor.LocateSingleLineCommentText(lineText);
+            TextSpan textSpan = CommentTextExtractor.LocateSingleLineCommentText(lineText);
             if (textSpan.Length == 0)
             {
                 return;
             }
 
-            var parts = GeneralTextParser.SplitWordParts(lineText.Substring(textSpan.Start, textSpan.Length));
-            foreach (var part in parts)
+            List<ParsedTextSpan> parts = GeneralTextParser.SplitWordParts(
+                lineText.Substring(textSpan.Start, textSpan.Length)
+            );
+            foreach (ParsedTextSpan part in parts)
             {
-                if (ShouldWordBeMarkedAsMisspelled(part))
+                if (!ShouldWordBeMarkedAsMisspelled(part) || node.SyntaxTree == null)
                 {
-                    var location = Location.Create(node.SyntaxTree, new TextSpan(node.SpanStart + textSpan.Start + part.Start, part.Length));
-                    HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
+                    continue;
                 }
+
+                var location = Location.Create(
+                    node.SyntaxTree,
+                    new TextSpan(node.SpanStart + textSpan.Start + part.Start, part.Length)
+                );
+                HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
             }
         }
 
-        void FindSpellingMistakesInMultiLineComment(SyntaxTrivia node)
+        private void FindSpellingMistakesInMultiLineComment(SyntaxTrivia node)
         {
             var allText = node.ToString();
-            var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
+            List<TextSpan> lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
 
-            foreach (var lineTextSpan in lineTextSpans)
+            foreach (TextSpan lineTextSpan in lineTextSpans)
             {
                 if (lineTextSpan.Length == 0)
                 {
                     continue;
                 }
 
-                var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
-                var wordParts = GeneralTextParser.SplitWordParts(lineText);
-                foreach (var part in wordParts)
+                string lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
+                List<ParsedTextSpan> wordParts = GeneralTextParser.SplitWordParts(lineText);
+                foreach (ParsedTextSpan part in wordParts)
                 {
-                    if (ShouldWordBeMarkedAsMisspelled(part))
+                    if (!ShouldWordBeMarkedAsMisspelled(part) || node.SyntaxTree == null)
                     {
-                        var location = Location.Create(node.SyntaxTree, new TextSpan(node.SpanStart + lineTextSpan.Start + part.Start, part.Length));
-                        HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
+                        continue;
                     }
+
+                    var location = Location.Create(
+                        node.SyntaxTree,
+                        new TextSpan(node.SpanStart + lineTextSpan.Start + part.Start, part.Length)
+                    );
+                    HandleMistake(location, part.Text, SpellingMistakeKind.Comment);
                 }
             }
         }
 
-        void FindSpellingMistakesInXmlNodeSyntax(XmlNodeSyntax node)
+        private void FindSpellingMistakesInXmlNodeSyntax(XmlNodeSyntax node)
         {
-            if (node is XmlElementSyntax xmlElementSyntax)
+            switch (node)
             {
-                var localName = xmlElementSyntax.StartTag.Name.ToString();
-                if (localName != "c" && localName != "code")
+                case XmlElementSyntax xmlElementSyntax:
                 {
-                    foreach (var childNode in xmlElementSyntax.Content)
+                    var localName = xmlElementSyntax.StartTag.Name.ToString();
+                    if (localName != "c" && localName != "code")
                     {
-                        FindSpellingMistakesInXmlNodeSyntax(childNode);
+                        foreach (XmlNodeSyntax childNode in xmlElementSyntax.Content)
+                        {
+                            FindSpellingMistakesInXmlNodeSyntax(childNode);
+                        }
                     }
+
+                    break;
                 }
-            }
-            else if (node is XmlTextSyntax xmlTextSyntax)
-            {
-                FindSpellingMistakesInXmlTextSyntax(xmlTextSyntax);
+                case XmlTextSyntax xmlTextSyntax:
+                    FindSpellingMistakesInXmlTextSyntax(xmlTextSyntax);
+                    break;
             }
         }
 
-        void FindSpellingMistakesInXmlTextSyntax(XmlTextSyntax node)
+        private void FindSpellingMistakesInXmlTextSyntax(SyntaxNode xmlSyntaxNode)
         {
-            var allText = node.ToString();
-            var lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
+            var allText = xmlSyntaxNode.ToString();
+            List<TextSpan> lineTextSpans = CommentTextExtractor.LocateMultiLineCommentTextParts(allText);
 
-            foreach (var lineTextSpan in lineTextSpans)
+            foreach (TextSpan lineTextSpan in lineTextSpans)
             {
-                var lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
-                var wordParts = GeneralTextParser.SplitWordParts(lineText);
-                foreach (var part in wordParts)
+                string lineText = allText.Substring(lineTextSpan.Start, lineTextSpan.Length);
+                List<ParsedTextSpan> wordParts = GeneralTextParser.SplitWordParts(lineText);
+                foreach (ParsedTextSpan part in wordParts)
                 {
-                    if (ShouldWordBeMarkedAsMisspelled(part))
+                    if (!ShouldWordBeMarkedAsMisspelled(part))
                     {
-                        var location = Location.Create(node.SyntaxTree, new TextSpan(node.SpanStart + lineTextSpan.Start + part.Start, part.Length));
-                        HandleMistake(location, part.Text, SpellingMistakeKind.Documentation);
+                        continue;
                     }
+
+                    var location = Location.Create(
+                        xmlSyntaxNode.SyntaxTree,
+                        new TextSpan(xmlSyntaxNode.SpanStart + lineTextSpan.Start + part.Start, part.Length)
+                    );
+                    HandleMistake(location, part.Text, SpellingMistakeKind.Documentation);
                 }
             }
         }
 
-        void FindSpellingMistakesForIdentifierWordParts(List<ParsedTextSpan> parts, SyntaxToken identifier, string firstSkipWord = null)
+        private void FindSpellingMistakesForIdentifierWordParts(
+            IReadOnlyList<ParsedTextSpan> parts,
+            SyntaxToken identifier,
+            string? firstSkipWord = null
+        )
         {
             if (parts.Count == 0)
             {
                 return;
             }
 
-            var part = parts[0];
+            ParsedTextSpan part = parts[0];
             if (firstSkipWord == null || part.Text != firstSkipWord)
             {
                 if (ShouldWordBeMarkedAsMisspelled(part))
                 {
-                    addMistake(ref part);
+                    AddMistake(ref part);
                 }
             }
 
-            for(var i = 1; i < parts.Count; i++)
+            for (var i = 1; i < parts.Count; i++)
             {
                 part = parts[i];
                 if (ShouldWordBeMarkedAsMisspelled(part))
                 {
-                    addMistake(ref part);
+                    AddMistake(ref part);
                 }
             }
 
-            void addMistake(ref ParsedTextSpan givenPart)
+            void AddMistake(ref ParsedTextSpan givenPart)
             {
-                var location = Location.Create(identifier.SyntaxTree, new TextSpan(identifier.SpanStart + givenPart.Start, givenPart.Length));
+                if (identifier.SyntaxTree == null)
+                {
+                    return;
+                }
+
+                var location = Location.Create(
+                    identifier.SyntaxTree,
+                    new TextSpan(identifier.SpanStart + givenPart.Start, givenPart.Length)
+                );
                 HandleMistake(location, givenPart.Text, SpellingMistakeKind.Identifier);
             }
         }
 
-        void HandleMistake(Location location, string text, SpellingMistakeKind kind) =>
+        private void HandleMistake(Location location, string text, SpellingMistakeKind kind) =>
             MistakeHandler(new SpellingMistake(location, text, kind));
     }
 }

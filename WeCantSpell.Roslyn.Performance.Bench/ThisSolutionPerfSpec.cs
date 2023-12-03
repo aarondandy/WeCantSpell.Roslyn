@@ -1,18 +1,21 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.MSBuild;
-using NBench;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis.MSBuild;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {
+    [MemoryDiagnoser]
     public class ThisSolutionPerfSpec
     {
-        static string SearchForFile(string fileName)
+        private static string SearchForFile(string fileName)
         {
             var directory = new DirectoryInfo(".");
             do
@@ -24,74 +27,65 @@ namespace WeCantSpell.Roslyn.Performance.Bench
                 }
 
                 directory = directory.Parent;
-            }
-            while (directory != null);
+            } while (directory != null);
 
             return null;
         }
 
-        public Solution Solution;
+        private Solution _solution;
 
-        protected Counter ProjectsChecked;
-
-        public void Setup()
+        private void Setup()
         {
+            if (!MSBuildLocator.IsRegistered) MSBuildLocator.RegisterDefaults();
             var workspace = MSBuildWorkspace.Create();
-            var solutionFilePath = SearchForFile("WeCantSpell.sln");
-            Solution = workspace.OpenSolutionAsync(solutionFilePath).GetAwaiter().GetResult();
+            const string fileName = "WeCantSpell.Roslyn.sln";
+            var solutionFilePath = SearchForFile(fileName);
+            if (solutionFilePath == null)
+                throw new InvalidOperationException($"Can't find {fileName} in current directory or its parents");
+            _solution = workspace.OpenSolutionAsync(solutionFilePath).GetAwaiter().GetResult();
         }
 
-        [PerfSetup]
-        public void SetupBench(BenchmarkContext context)
+        [GlobalSetup]
+        public void SetupBench()
         {
             Setup();
-
-            ProjectsChecked = context.GetCounter(nameof(ProjectsChecked));
         }
 
-        [PerfBenchmark(
-            NumberOfIterations = 3,
-            RunMode = RunMode.Throughput,
-            TestMode = TestMode.Measurement,
-            Description = "Measure how quickly a solution can be processed."
-            )]
-        [MemoryMeasurement(MemoryMetric.TotalBytesAllocated)]
-        [GcMeasurement(GcMetric.TotalCollections, GcGeneration.AllGc)]
-        [TimingMeasurement]
-        [CounterMeasurement(nameof(ProjectsChecked))]
+        [Benchmark(Description = "Measure how quickly a solution can be processed.")]
         public void Benchmark()
         {
-            var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
-            var allDiagnosticsByProject = Task.WhenAll(Solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer)))
+            // var analyzer = new SpellingAnalyzerCSharp(LengthWordChecker.Four);
+            var analyzer = new SpellingAnalyzerCSharp();
+            Task.WhenAll(
+                    _solution.Projects.Select(p => FindSpellingMistakesForProject(p, analyzer))
+                )
                 .GetAwaiter()
                 .GetResult();
         }
 
-        async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(Project project, SpellingAnalyzerCSharp analyzer)
+        private static async Task<ImmutableArray<Diagnostic>> FindSpellingMistakesForProject(
+            Project project,
+            DiagnosticAnalyzer analyzer
+        )
         {
             var compilation = await project.GetCompilationAsync().ConfigureAwait(false);
-            var diagnostics = await compilation
-                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer))
+            var diagnostics = await (compilation ?? throw new InvalidOperationException())
+                .WithAnalyzers(ImmutableArray.Create(analyzer))
                 .GetAnalyzerDiagnosticsAsync()
                 .ConfigureAwait(false);
-
-            ProjectsChecked.Increment();
 
             return diagnostics;
         }
 
         public class LengthWordChecker : ISpellChecker
         {
-            public static LengthWordChecker Two { get; } = new LengthWordChecker(2);
+            public static LengthWordChecker Four { get; } = new(4);
 
-            public static LengthWordChecker Four { get; } = new LengthWordChecker(4);
+            private LengthWordChecker(int length) => Length = length;
 
-            public LengthWordChecker(int length) => Length = length;
+            private int Length { get; }
 
-            public int Length { get; }
-
-            public bool Check(string word) =>
-                word != null && (word.Length % Length) != 0;
+            public bool Check(string word) => word != null && word.Length % Length != 0;
 
             public IEnumerable<string> Suggest(string word) => Enumerable.Empty<string>();
         }

@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <Version>2.0.8-beta</Version>
+    <PackageVersion>$(Version)</PackageVersion>
+    <NuspecProperties>version=$(Version)</NuspecProperties>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BuildDependsOn>
+      InstallHusky;
+      $(BuildDependsOn)
+    </BuildDependsOn>
+  </PropertyGroup>
+  
+  <Target Name="InstallHusky" Condition="!Exists('$(MSBuildThisFileDirectory).husky/_/husky.sh')">
+    <Message Importance="high" Text="Installing Husky into $(MSBuildThisFileDirectory).husky/_/husky.sh" />
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildThisFileDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" />
+    <Exec Command="dotnet husky install" WorkingDirectory="$(MSBuildThisFileDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" />
+  </Target>
+
+</Project>

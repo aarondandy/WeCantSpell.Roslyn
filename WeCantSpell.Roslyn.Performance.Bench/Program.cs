@@ -1,32 +1,32 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Globalization;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Reports;
+using BenchmarkDotNet.Running;
+using Perfolizer.Horology;
 
 namespace WeCantSpell.Roslyn.Performance.Bench
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
-            var mainAssemblyLocation = typeof(Program).Assembly.Location;
-            var mainAssemblyDirectory = Path.GetDirectoryName(mainAssemblyLocation);
-            var nbenchRunnerPath = Path.Combine(mainAssemblyDirectory, "NBench.Runner.exe");
-            var perfDirectory = Path.Combine(mainAssemblyDirectory, "perf");
-
-            var argumentsForNBench = new string[]
-            {
-                $"\"{mainAssemblyLocation}\"",
-                $"output-directory=\"{perfDirectory}\""
-            };
-
-            var totalArguments = argumentsForNBench.Concat(args);
-
-            var processStartInfo = new ProcessStartInfo(
-                nbenchRunnerPath,
-                string.Join(" ", totalArguments));
-
-            var process = Process.Start(processStartInfo);
-            process.WaitForExit();
+            var config = ManualConfig
+                .CreateMinimumViable()
+                .AddDiagnoser(new MemoryDiagnoser(new MemoryDiagnoserConfig()))
+                .AddLogger(ConsoleLogger.Default)
+                .AddColumn(
+                    TargetMethodColumn.Method,
+                    StatisticColumn.Median,
+                    StatisticColumn.StdDev,
+                    StatisticColumn.Error
+                )
+                .WithSummaryStyle(
+                    new SummaryStyle(CultureInfo.InvariantCulture, true, SizeUnit.MB, TimeUnit.Millisecond)
+                );
+            BenchmarkRunner.Run<ThisSolutionPerfSpec>(config);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace WeCantSpell.Roslyn
 {
-    public struct ParsedTextSpan : IEquatable<ParsedTextSpan>
+    public readonly struct ParsedTextSpan : IEquatable<ParsedTextSpan>
     {
         public ParsedTextSpan(string text, int start, bool isWord)
         {
@@ -19,15 +19,11 @@ namespace WeCantSpell.Roslyn
 
         public int Length => Text.Length;
 
-        public int End => Start + Text.Length;
-
         public bool Equals(ParsedTextSpan other) =>
-            Start == other.Start
-            && IsWord == other.IsWord
-            && Text == other.Text;
+            Start == other.Start && IsWord == other.IsWord && Text == other.Text;
 
-        public override bool Equals(object obj) => obj is ParsedTextSpan && Equals((ParsedTextSpan)obj);
+        public override bool Equals(object obj) => obj is ParsedTextSpan span && Equals(span);
 
-        public override int GetHashCode() => unchecked(Text.GetHashCode() ^ Start);
+        public override int GetHashCode() => Text.GetHashCode() ^ Start;
     }
 }

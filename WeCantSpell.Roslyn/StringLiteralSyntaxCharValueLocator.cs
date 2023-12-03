@@ -2,23 +2,20 @@
 
 namespace WeCantSpell.Roslyn
 {
-    public class StringLiteralSyntaxCharValueLocator
+    public sealed class StringLiteralSyntaxCharValueLocator
     {
-        public StringLiteralSyntaxCharValueLocator(
-            string valueText,
-            string syntaxText,
-            bool isVerbatim)
+        public StringLiteralSyntaxCharValueLocator(string valueText, string syntaxText, bool isVerbatim)
         {
             ValueText = valueText;
             SyntaxText = syntaxText;
             IsVerbatim = isVerbatim;
         }
 
-        public string ValueText { get; }
+        private string ValueText { get; }
 
-        public string SyntaxText { get; }
+        private string SyntaxText { get; }
 
-        public bool IsVerbatim { get; }
+        private bool IsVerbatim { get; }
 
         public int ConvertValueToSyntaxIndex(int valueIndex)
         {
@@ -28,34 +25,21 @@ namespace WeCantSpell.Roslyn
             }
 
             var valueCursor = 0;
-            int syntaxCursor;
-            if (
-                !IsVerbatim
-                && SyntaxText.Length != 0
-                && SyntaxText[0] == '"'
-                && (ValueText.Length == 0 || ValueText[0] != '"')
-            )
+            int syntaxCursor = IsVerbatim switch
             {
-                syntaxCursor = 1;
-            }
-            else if (
-                IsVerbatim
-                && SyntaxText.Length > 1
-                && SyntaxText.StartsWith("@\"")
-                && !ValueText.StartsWith("@\"")
-            )
-            {
-                syntaxCursor = 2;
-            }
-            else
-            {
-                syntaxCursor = 0;
-            }
+                false
+                    when SyntaxText.Length != 0
+                        && SyntaxText[0] == '"'
+                        && (ValueText.Length == 0 || ValueText[0] != '"')
+                    => 1,
+                true when SyntaxText.Length > 1 && SyntaxText.StartsWith("@\"") && !ValueText.StartsWith("@\"") => 2,
+                _ => 0
+            };
 
             for (; valueCursor < valueIndex; valueCursor++)
             {
-                var valueChar = ValueText[valueCursor];
-                var syntaxChar = SyntaxText[syntaxCursor];
+                char valueChar = ValueText[valueCursor];
+                char syntaxChar = SyntaxText[syntaxCursor];
 
                 syntaxCursor++;
                 if (IsVerbatim && syntaxChar == '"')
@@ -68,7 +52,7 @@ namespace WeCantSpell.Roslyn
                 }
                 else if (valueChar == syntaxChar)
                 {
-                    continue;
+                    // do nothing
                 }
                 else if (!IsVerbatim && syntaxChar == '\\')
                 {
@@ -79,26 +63,26 @@ namespace WeCantSpell.Roslyn
             return syntaxCursor;
         }
 
-        void ReadEscape(ref int syntaxCursor)
+        private void ReadEscape(ref int syntaxCursor)
         {
-            var syntaxChar = SyntaxText[syntaxCursor];
+            char syntaxChar = SyntaxText[syntaxCursor];
 
             syntaxCursor++;
-            if (syntaxChar == 'u')
+            switch (syntaxChar)
             {
-                syntaxCursor += Math.Min(SyntaxText.Length - syntaxCursor, 4);
-            }
-            else if (syntaxChar == 'U')
-            {
-                syntaxCursor += Math.Min(SyntaxText.Length - syntaxCursor, 8);
-            }
-            else if (syntaxChar == 'x')
-            {
-                ReadHexValues(ref syntaxCursor);
+                case 'u':
+                    syntaxCursor += Math.Min(SyntaxText.Length - syntaxCursor, 4);
+                    break;
+                case 'U':
+                    syntaxCursor += Math.Min(SyntaxText.Length - syntaxCursor, 8);
+                    break;
+                case 'x':
+                    ReadHexValues(ref syntaxCursor);
+                    break;
             }
         }
 
-        void ReadHexValues(ref int syntaxCursor)
+        private void ReadHexValues(ref int syntaxCursor)
         {
             for (var digitsRead = 0; digitsRead < 4; digitsRead++)
             {
@@ -111,9 +95,6 @@ namespace WeCantSpell.Roslyn
             }
         }
 
-        static bool IsHex(char c) =>
-            (c >= '0' && c <= '9')
-            || (c >= 'a' && c <= 'f')
-            || (c >= 'A' && c <= 'F');
+        private static bool IsHex(char c) => c is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F';
     }
 }

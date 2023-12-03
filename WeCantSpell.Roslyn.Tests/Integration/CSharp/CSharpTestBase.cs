@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,72 +8,94 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using WeCantSpell.Roslyn.Tests.Utilities;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp
 {
+    [TestCategory("CSharp")]
     public abstract class CSharpTestBase
     {
-        private static readonly string PathBase = $"{typeof(CSharpTestBase).Namespace}";
-        private static readonly string ProjectNameSingleFileSample = nameof(ProjectNameSingleFileSample);
+        private static readonly string s_pathBase = $"{typeof(CSharpTestBase).Namespace}";
+        private static readonly string s_projectNameSingleFileSample = nameof(s_projectNameSingleFileSample);
 
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).GetTypeInfo().Assembly.Location);
+        private static readonly MetadataReference s_corlibReference = MetadataReference.CreateFromFile(
+            typeof(object).GetTypeInfo().Assembly.Location
+        );
+        private static readonly MetadataReference s_systemCoreReference = MetadataReference.CreateFromFile(
+            typeof(Enumerable).GetTypeInfo().Assembly.Location
+        );
+        private static readonly MetadataReference s_cSharpSymbolsReference = MetadataReference.CreateFromFile(
+            typeof(CSharpCompilation).GetTypeInfo().Assembly.Location
+        );
+        private static readonly MetadataReference s_codeAnalysisReference = MetadataReference.CreateFromFile(
+            typeof(Compilation).GetTypeInfo().Assembly.Location
+        );
 
-        protected Stream OpenCodeFileStream(string embeddedResourceFileName) =>
-            typeof(CSharpTestBase).GetTypeInfo().Assembly.GetManifestResourceStream(PathBase + "." + embeddedResourceFileName);
+        private static Stream OpenCodeFileStream(string embeddedResourceFileName) =>
+            typeof(CSharpTestBase)
+                .GetTypeInfo()
+                .Assembly.GetManifestResourceStream(s_pathBase + "." + embeddedResourceFileName);
 
-        protected async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
+        private static async Task<string> ReadCodeFileAsStringAsync(string embeddedResourceFileName)
         {
-            using (var stream = OpenCodeFileStream(embeddedResourceFileName))
-            using (var reader = new StreamReader(stream, Encoding.UTF8, true))
-            {
-                return await reader.ReadToEndAsync();
-            }
+            await using var stream = OpenCodeFileStream(embeddedResourceFileName);
+            using var reader = new StreamReader(stream, Encoding.UTF8, true);
+            return await reader.ReadToEndAsync();
         }
 
         protected abstract string CreateResourceNameFromFileName(string fileName);
 
-        protected async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string fileName) =>
+        private async Task<TextAndVersion> ReadCodeFileAsSTextAndVersionAsync(string fileName) =>
             TextAndVersion.Create(
                 SourceText.From(await ReadCodeFileAsStringAsync(CreateResourceNameFromFileName(fileName))),
                 VersionStamp.Default,
-                fileName);
+                fileName
+            );
 
         protected async Task<Project> ReadCodeFileAsProjectAsync(string embeddedResourceFileName) =>
             CreateProjectWithFiles(new[] { await ReadCodeFileAsSTextAndVersionAsync(embeddedResourceFileName) });
 
-        protected Project CreateProjectWithFiles(IEnumerable<TextAndVersion> files)
+        private static Project CreateProjectWithFiles(IEnumerable<TextAndVersion> files)
         {
-            var projectId = ProjectId.CreateNewId(debugName: ProjectNameSingleFileSample);
+            var projectId = ProjectId.CreateNewId(debugName: s_projectNameSingleFileSample);
 
-            var solution = new AdhocWorkspace()
-                .CurrentSolution
-                .AddProject(projectId, ProjectNameSingleFileSample, ProjectNameSingleFileSample, LanguageNames.CSharp)
-                .AddMetadataReference(projectId, CorlibReference)
-                .AddMetadataReference(projectId, SystemCoreReference)
-                .AddMetadataReference(projectId, CSharpSymbolsReference)
-                .AddMetadataReference(projectId, CodeAnalysisReference);
+            var solution = new AdhocWorkspace().CurrentSolution
+                .AddProject(
+                    projectId,
+                    s_projectNameSingleFileSample,
+                    s_projectNameSingleFileSample,
+                    LanguageNames.CSharp
+                )
+                .AddMetadataReference(projectId, s_corlibReference)
+                .AddMetadataReference(projectId, s_systemCoreReference)
+                .AddMetadataReference(projectId, s_cSharpSymbolsReference)
+                .AddMetadataReference(projectId, s_codeAnalysisReference);
 
             foreach (var file in files)
             {
+#pragma warning disable CS0618
                 var documentId = DocumentId.CreateNewId(projectId, debugName: file.FilePath);
                 solution = solution.AddDocument(documentId, file.FilePath, file.Text);
+#pragma warning restore CS0618
             }
 
             return solution.GetProject(projectId);
         }
 
-        protected Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, params DiagnosticAnalyzer[] analyzers) =>
-            GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
+        protected static Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(
+            Project project,
+            params DiagnosticAnalyzer[] analyzers
+        ) => GetDiagnosticsAsync(project, ImmutableArray.CreateRange(analyzers));
 
-        protected async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(Project project, ImmutableArray<DiagnosticAnalyzer> analyzers)
+        private static async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(
+            Project project,
+            ImmutableArray<DiagnosticAnalyzer> analyzers
+        )
         {
-            var compilation = await project.GetCompilationAsync();
-            return await compilation
-                .WithAnalyzers(analyzers)
-                .GetAnalyzerDiagnosticsAsync();
+            var compilation =
+                await project.GetCompilationAsync()
+                ?? throw new InvalidOperationException("Cann't get project complication");
+            return await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
         }
     }
 }

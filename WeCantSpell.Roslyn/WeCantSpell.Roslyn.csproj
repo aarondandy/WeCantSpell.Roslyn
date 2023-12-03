@@ -2,39 +2,98 @@
 
   <PropertyGroup>
     <AssemblyTitle>WeCantSpell.Roslyn</AssemblyTitle>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>WeCantSpell.Roslyn</AssemblyName>
     <PackageId>WeCantSpell.Roslyn</PackageId>
     <Description>A Roslyn spell check analyzer.</Description>
     <PackageTags>spell;check;spell-check;spelling;hunspell;we-cant-spell;roslyn;analyzer</PackageTags>
-    <PackageProjectUrl>https://github.com/aarondandy/WeCantSpell.Roslyn</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/rpsft/WeCantSpell.Roslyn</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/aarondandy/we-cant-spell.git</RepositoryUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/aarondandy/WeCantSpell.Roslyn/master/icon.png</PackageIconUrl>
-    <Authors>aarondandy</Authors>
-    <PackageLicenseUrl>https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/license.txt</PackageLicenseUrl>
-    <PackageReleaseNotes>Changelog can be found at https://github.com/aarondandy/WeCantSpell.Roslyn/blob/master/changelog.md</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/rpsft/WeCantSpell.Roslyn.git</RepositoryUrl>
+    <Authors>RapidSoft,aarondandy</Authors>
+    <PackageReleaseNotes>Changelog can be found at https://github.com/rpfst/WeCantSpell.Roslyn/blob/master/changelog.md</PackageReleaseNotes>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81</PackageTargetFallback>
+    <LangVersion>default</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsRoslynComponent>true</IsRoslynComponent>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <PackageReference>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemDefinitionGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\WeCantSpell.Roslyn.FileCompressor\*.compressed" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)">
-      <Link>DefaultDictionaries/%(FileName)%(Extension)</Link>
-    </EmbeddedResource>
-    <None Remove="WeCantSpell.Roslyn.v3.ncrunchproject" />
-    <Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
-    <PackageReference Include="WeCantSpell.Hunspell" Version="2.0.0" />
+    <Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Generator dependencies -->
+    <PackageReference Include="WeCantSpell.Hunspell" Version="4.0.0" GeneratePathProperty="true" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" GeneratePathProperty="true" />
+  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="$(PKGWeCantSpell_Hunspell)\lib\netstandard2.0\WeCantSpell.Hunspell.dll" Visible="false" />
+        <EmbeddedResource Include="$(PKGNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll" Visible="false" />
+    </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Language Include="../Dictionaries/English (American).*" LogicalName="en-US%(Extension)" />
+    <Language Include="../Dictionaries/English (British).*" LogicalName="en-GB%(Extension)" />
+    <Language Include="../Dictionaries/English (Australian).*" LogicalName="en-AU%(Extension)" />
+    <Language Include="../Dictionaries/English (Canadian).*" LogicalName="en-CA%(Extension)" />
+    <Language Include="../Dictionaries/English (South African).*" LogicalName="en-ZA%(Extension)" />
+    <Language Include="../Dictionaries/Croatian.*" LogicalName="hr-HR%(Extension)" />
+    <Language Include="../Dictionaries/Dutch.*" LogicalName="nl-NL%(Extension)" />
+    <Language Include="../Dictionaries/Estonian.*" LogicalName="et-EE%(Extension)" />
+    <Language Include="../Dictionaries/Greek.*" LogicalName="el-GR%(Extension)" />
+    <Language Include="../Dictionaries/Hungarian.*" LogicalName="hu-HU%(Extension)" />
+    <Language Include="../Dictionaries/Latvian.*" LogicalName="lv-LV%(Extension)" />
+    <Language Include="../Dictionaries/Russian-English Bilingual.*" LogicalName="ru-EN%(Extension)" />
+    <Language Include="../Dictionaries/Russian.*" LogicalName="ru-RU%(Extension)" />
+  </ItemGroup>
+  <Import Project="../GZip.tasks" />
+  <Target BeforeTargets="PreBuildEvent" Name="PreBuild">
+    <Message Text="About to compile:" Importance="high" />
+    <Message Text="%(Language.Identity) - %(Language.LogicalName)" Importance="high" />
+    <GZip BasePath=".." Files="@(Language)" OutputPath="$(IntermediateOutputPath)">
+      <Output ItemName="GZipEmbeddedResource" TaskParameter="Result" />
+    </GZip>
+    <Message Text="Compiled: %(GZipEmbeddedResource.Identity) - %(GZipEmbeddedResource.LogicalName)" Importance="high" />
+    <ItemGroup>
+      <EmbeddedResource Include="@(GZipEmbeddedResource)" />
+    </ItemGroup>
+  </Target>
 </Project>

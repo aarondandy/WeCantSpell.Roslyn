@@ -1,0 +1,85 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <UsingTask TaskName="GZip" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <BasePath Required="true"/>
+            <OutputPath Required="true"/>
+            <Result ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true"/>
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System.IO"/>
+            <Using Namespace="System.IO.Compression"/>
+            <Code Type="Fragment" Language="cs"><![CDATA[
+    /// <summary>
+    /// Creates a relative path from one file or folder to another.
+    /// </summary>
+    /// <param name="fromPath">Contains the directory that defines the start of the relative path.</param>
+    /// <param name="toPath">Contains the path that defines the endpoint of the relative path.</param>
+    /// <returns>The relative path from the start directory to the end path or <c>toPath</c> if the paths are not related.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="UriFormatException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    String MakeRelativePath(String fromPath, String toPath)
+    {
+        if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
+        if (String.IsNullOrEmpty(toPath))   throw new ArgumentNullException("toPath");
+    
+        Uri fromUri = new Uri(Path.GetFullPath(fromPath));
+        Uri toUri = new Uri(Path.GetFullPath(toPath));
+    
+        if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+    
+        Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+        String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+    
+        if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
+        {
+            relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
+    
+        return relativePath;
+    }
+
+    if (Files.Length > 0)
+    {
+        Result = new TaskItem[Files.Length];
+        for (int i = 0; i < Files.Length; i++)
+        {
+            ITaskItem item = Files[i];
+            string sourcePath = item.GetMetadata("FullPath");
+            string sourceRelativePath = MakeRelativePath(BasePath, sourcePath);
+            string sourceItemSpec = item.ItemSpec;
+            string sourceLogicalName = item.GetMetadata("LogicalName");
+                  
+            string destinationSuffix = ".gz";
+            string destinationPath = Path.Combine(OutputPath, sourceRelativePath + destinationSuffix);
+            string destinationItemSpec = destinationPath;
+            string destinationLogicalName = sourceLogicalName + destinationSuffix;
+
+            Log.LogMessage(MessageImportance.High, 
+                "EmbeddedResource Src : " + sourceItemSpec);
+            
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));      
+            using (var sourceStream = File.OpenRead(sourcePath))
+            using (var destinationStream = File.OpenWrite(destinationPath))
+            using (var destinationGZip = new GZipStream(destinationStream, 
+              CompressionMode.Compress))
+            {
+                sourceStream.CopyTo(destinationGZip);
+            }
+                  
+            var destinationItem = new TaskItem(destinationItemSpec);
+            
+            Log.LogMessage(MessageImportance.Normal, 
+                "EmbeddedResource GZip: " + destinationItem.ItemSpec);
+            
+            if (sourceLogicalName != null)    
+                destinationItem.SetMetadata("LogicalName", destinationLogicalName);
+                  
+            Result[i] = destinationItem;
+        }
+    }
+      ]]></Code>
+        </Task>
+    </UsingTask>
+</Project>

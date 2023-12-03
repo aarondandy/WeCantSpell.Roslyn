@@ -1,45 +1,53 @@
 ﻿using System.Threading.Tasks;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
-using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class LocalDeclarationSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] can_find_spelling_mistakes_in_locals_data => new[]
-        {
-            new object[] { "word", 163 },
-            new object[] { "One", 167 },
-            new object[] { "phrase", 172 },
-            new object[] { "Two", 178 },
-            new object[] { "simple", 200 },
-            new object[] { "Name", 206 },
-            new object[] { "OGRE", 237 },
-            new object[] { "CAPS", 242 },
-            new object[] { "What", 292 },
-            new object[] { "even", 297 },
-            new object[] { "Is", 302 },
-            new object[] { "This", 304 },
-            new object[] { "anonymous", 328 },
-            new object[] { "readonly", 376 },
-            new object[] { "what", 417 }
-        };
+        public static object[][] CanFindSpellingMistakesInLocalsData =>
+            new[]
+            {
+                new object[] { "word", 7, 17 },
+                new object[] { "One", 7, 21 },
+                new object[] { "phrase", 7, 26 },
+                new object[] { "Two", 7, 32 },
+                new object[] { "simple", 8, 17 },
+                new object[] { "Name", 8, 23 },
+                new object[] { "OGRE", 9, 17 },
+                new object[] { "CAPS", 9, 22 },
+                new object[] { "What", 10, 24 },
+                new object[] { "even", 10, 29 },
+                new object[] { "Is", 10, 34 },
+                new object[] { "This", 10, 36 },
+                new object[] { "anonymous", 11, 17 },
+                new object[] { "readonly", 12, 27 },
+                new object[] { "what", 13, 21 }
+            };
 
-        [Theory, MemberData(nameof(can_find_spelling_mistakes_in_locals_data))]
-        public async Task can_find_spelling_mistakes_in_locals(string expectedWord, int expectedStart)
+        [Theory, MemberData(nameof(CanFindSpellingMistakesInLocalsData))]
+        public async Task can_find_spelling_mistakes_in_locals(
+            string expectedWord,
+            int expectedLine,
+            int expectedCharacter
+        )
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("LocalVariables.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "LocalVariables.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "LocalVariables.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 

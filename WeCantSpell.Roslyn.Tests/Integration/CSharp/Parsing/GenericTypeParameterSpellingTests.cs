@@ -1,36 +1,44 @@
 ﻿using System.Threading.Tasks;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
-using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class GenericTypeParameterSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] can_find_mistakes_in_generic_parameter_names_data => new[]
-        {
-            new object[] { "In", 99 },
-            new object[] { "Out", 108 },
-            new object[] { "Struct", 203 },
-            new object[] { "Thing", 321 },
-            new object[] { "Gadget", 368 },
-            new object[] { "Ion", 448 }
-        };
+        public static object[][] CanFindMistakesInGenericParameterNamesData =>
+            new[]
+            {
+                new object[] { "In", 3, 43 },
+                new object[] { "Out", 3, 52 },
+                new object[] { "Struct", 9, 38 },
+                new object[] { "Thing", 14, 32 },
+                new object[] { "Gadget", 16, 33 },
+                new object[] { "Ion", 18, 36 }
+            };
 
-        [Theory, MemberData(nameof(can_find_mistakes_in_generic_parameter_names_data))]
-        public async Task can_find_mistakes_in_generic_parameter_names(string expectedWord, int expectedStart)
+        [Theory, MemberData(nameof(CanFindMistakesInGenericParameterNamesData))]
+        public async Task can_find_mistakes_in_generic_parameter_names(
+            string expectedWord,
+            int expectedLine,
+            int expectedCharacter
+        )
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("GenericType.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "GenericType.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "GenericType.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 

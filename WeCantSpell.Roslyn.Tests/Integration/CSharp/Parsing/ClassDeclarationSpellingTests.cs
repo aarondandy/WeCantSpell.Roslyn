@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
-using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
@@ -27,10 +25,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(74, 79, "TypeName.FirstMiddleLast.csx")
+                .And.HaveLineLocation(3, 18, 5, "TypeName.FirstMiddleLast.csx")
                 .And.HaveMessageContaining("First");
         }
 
@@ -42,10 +42,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(85, 89, "TypeName.FirstMiddleLast.csx")
+                .And.HaveLineLocation(3, 29, 4, "TypeName.FirstMiddleLast.csx")
                 .And.HaveMessageContaining("Last");
         }
 
@@ -57,10 +59,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(79, 85, "TypeName.FirstMiddleLast.csx")
+                .And.HaveLineLocation(3, 23, 6, "TypeName.FirstMiddleLast.csx")
                 .And.HaveMessageContaining("Middle");
         }
 
@@ -72,13 +76,26 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().HaveCount(3);
-            diagnostics[0].Should().HaveMessageContaining("First")
-                .And.HaveLocation(74, 79, "TypeName.FirstMiddleLast.csx");
-            diagnostics[1].Should().HaveMessageContaining("Middle")
-                .And.HaveLocation(79, 85, "TypeName.FirstMiddleLast.csx");
-            diagnostics[2].Should().HaveMessageContaining("Last")
-                .And.HaveLocation(85, 89, "TypeName.FirstMiddleLast.csx");
+            diagnostics
+                .Should()
+                .HaveCount(3)
+                .And.SatisfyRespectively(
+                    first =>
+                        first
+                            .Should()
+                            .HaveMessageContaining("First")
+                            .And.HaveLineLocation(3, 18, 5, "TypeName.FirstMiddleLast.csx"),
+                    second =>
+                        second
+                            .Should()
+                            .HaveMessageContaining("Middle")
+                            .And.HaveLineLocation(3, 23, 6, "TypeName.FirstMiddleLast.csx"),
+                    third =>
+                        third
+                            .Should()
+                            .HaveMessageContaining("Last")
+                            .And.HaveLineLocation(3, 29, 4, "TypeName.FirstMiddleLast.csx")
+                );
         }
     }
 }

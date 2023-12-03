@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
-using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
@@ -16,13 +14,26 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = (await GetDiagnosticsAsync(project, analyzer)).ToList();
 
-            diagnostics.Should().HaveCount(3);
-            diagnostics[0].Should().HaveMessageContaining("Simple")
-                .And.HaveLocation(79, 85, "TypeName.ISimpleInterfaceExample.csx");
-            diagnostics[1].Should().HaveMessageContaining("Interface")
-                .And.HaveLocation(85, 94, "TypeName.ISimpleInterfaceExample.csx");
-            diagnostics[2].Should().HaveMessageContaining("Example")
-                .And.HaveLocation(94, 101, "TypeName.ISimpleInterfaceExample.csx");
+            diagnostics
+                .Should()
+                .HaveCount(3)
+                .And.SatisfyRespectively(
+                    first =>
+                        first
+                            .Should()
+                            .HaveMessageContaining("Simple")
+                            .And.HaveLineLocation(3, 23, 6, "TypeName.ISimpleInterfaceExample.csx"),
+                    second =>
+                        second
+                            .Should()
+                            .HaveMessageContaining("Interface")
+                            .And.HaveLineLocation(3, 29, 9, "TypeName.ISimpleInterfaceExample.csx"),
+                    third =>
+                        third
+                            .Should()
+                            .HaveMessageContaining("Example")
+                            .And.HaveLineLocation(3, 38, 7, "TypeName.ISimpleInterfaceExample.csx")
+                );
         }
 
         [Fact]

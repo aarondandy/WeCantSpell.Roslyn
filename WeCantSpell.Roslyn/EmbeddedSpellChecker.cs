@@ -1,45 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Reflection;
-using WeCantSpell.Hunspell;
+﻿using System.Collections.Generic;
+using System.Linq;
+using WeCantSpell.Roslyn.Infrastructure;
 
 namespace WeCantSpell.Roslyn
 {
+    /// <summary>
+    /// Spell checker with dictionaries embedded in resources
+    /// </summary>
     public class EmbeddedSpellChecker : ISpellChecker
     {
-        static WordList Load(string languageCode)
+        static EmbeddedSpellChecker()
         {
-            const string resourceNamespaceBase = "WeCantSpell.Roslyn.DefaultDictionaries.";
-            var languageResourceName = resourceNamespaceBase + languageCode;
-            var affName = languageResourceName + ".aff.compressed";
-            var dicName = languageResourceName + ".dic.compressed";
+            EmbeddedDllDependency.Init();
+        }
 
-            var assembly = typeof(EmbeddedSpellChecker).GetTypeInfo().Assembly;
-
-            using (var affCompressedStream = assembly.GetManifestResourceStream(affName))
-            using (var affStream = new DeflateStream(affCompressedStream, CompressionMode.Decompress))
-            using (var dicCompressedStream = assembly.GetManifestResourceStream(dicName))
-            using (var dicStream = new DeflateStream(dicCompressedStream, CompressionMode.Decompress))
+        public EmbeddedSpellChecker(IEnumerable<string> languageCodes)
+        {
+            // LanguageCode = languageCode ?? throw new ArgumentNullException(nameof(languageCode));
+            foreach (var languageCode in languageCodes)
             {
-                return WordList.CreateFromStreams(dicStream, affStream);
+                Providers.Add(EmbeddedWordListProvider.Load(languageCode));
             }
         }
 
-        public EmbeddedSpellChecker(string languageCode)
+        protected List<IWordListProvider> Providers { get; } = new();
+
+        public bool Check(string word)
         {
-            LanguageCode = languageCode ?? throw new ArgumentNullException(nameof(languageCode));
-            WordList = Load(languageCode);
+            return Providers.Any(provider => provider.WordList.Check(word));
         }
 
-        public string LanguageCode { get; }
-
-        WordList WordList { get; }
-
-        public bool Check(string word) =>
-            WordList.Check(word);
-
-        public IEnumerable<string> Suggest(string word) =>
-            WordList.Suggest(word);
+        public IEnumerable<string> Suggest(string word)
+        {
+            return Providers.SelectMany(provider => provider.WordList.Suggest(word));
+        }
     }
 }

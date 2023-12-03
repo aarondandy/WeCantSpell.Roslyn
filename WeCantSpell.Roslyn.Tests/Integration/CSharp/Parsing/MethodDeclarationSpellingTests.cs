@@ -1,37 +1,41 @@
 ﻿using System.Threading.Tasks;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
-using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class MethodDeclarationSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] can_find_mistakes_in_methods_data => new[]
-        {
-            new object[] { "STATIC", 125 },
-            new object[] { "METHOD", 132 },
-            new object[] { "set", 215 },
-            new object[] { "Timeout", 218 },
-            new object[] { "Internal", 322 },
-            new object[] { "By", 373 },
-            new object[] { "Ref", 375 }
-        };
+        public static object[][] CanFindMistakesInMethodsData =>
+            new[]
+            {
+                new object[] { "STATIC", 5, 28 },
+                new object[] { "METHOD", 5, 35 },
+                new object[] { "set", 9, 20 },
+                new object[] { "Timeout", 9, 23 },
+                new object[] { "Internal", 14, 25 },
+                new object[] { "By", 16, 21 },
+                new object[] { "Ref", 16, 23 }
+            };
 
-        [Theory, MemberData(nameof(can_find_mistakes_in_methods_data))]
-        public async Task can_find_mistakes_in_methods(string expectedWord, int expectedStart)
+        [Theory, MemberData(nameof(CanFindMistakesInMethodsData))]
+        public async Task can_find_mistakes_in_methods(string expectedWord, int expectedLine, int expectedCharacter)
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("MethodNames.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(expectedStart, expectedEnd, "MethodNames.SimpleExamples.csx")
+                .And.HaveLineLocation(
+                    expectedLine,
+                    expectedCharacter,
+                    expectedWord.Length,
+                    "MethodNames.SimpleExamples.csx"
+                )
                 .And.HaveMessageContaining(expectedWord);
         }
 
@@ -54,10 +58,12 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(197, 203, "TypeName.SimpleStructExample.csx")
+                .And.HaveLineLocation(9, 21, 6, "TypeName.SimpleStructExample.csx")
                 .And.HaveMessageContaining("Method");
         }
 
@@ -69,17 +75,21 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId("SP3110")
-                .And.HaveLocation(153, 159, "TypeName.ISimpleInterfaceExample.csx")
+                .And.HaveLineLocation(7, 14, 6, "TypeName.ISimpleInterfaceExample.csx")
                 .And.HaveMessageContaining("Method");
         }
 
         [Fact]
         public async Task operators_are_ignored()
         {
-            var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker("operator", "+", "operator+", "string", "Guid", "System.Guid", "op_Addition"));
+            var analyzer = new SpellingAnalyzerCSharp(
+                new WrongWordChecker("operator", "+", "operator+", "string", "Guid", "System.Guid", "op_Addition")
+            );
             var project = await ReadCodeFileAsProjectAsync("MethodNames.OperatorExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);

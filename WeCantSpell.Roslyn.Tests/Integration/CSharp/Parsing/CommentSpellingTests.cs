@@ -1,44 +1,50 @@
 ﻿using System.Threading.Tasks;
-using FluentAssertions;
 using WeCantSpell.Roslyn.Tests.Utilities;
-using Xunit;
 
 namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
 {
     public class CommentSpellingTests : CSharpParsingTestBase
     {
-        public static object[][] can_find_mistakes_in_comments_data => new[]
-        {
-            new object[] { "aardvark", 660, "SP3112" },
-            new object[] { "simple", 1186, "SP3112" },
-            new object[] { "under", 1235, "SP3112" },
-            new object[] { "within", 127, "SP3113" },
-            new object[] { "tag", 320, "SP3113" },
-            new object[] { "Here", 898, "SP3113" },
-            new object[] { "Just", 1130, "SP3113" }
-        };
+        public static object[][] CanFindMistakesInCommentsData =>
+            new[]
+            {
+                new object[] { "aardvark", 25, 16, "SP3112" },
+                new object[] { "simple", 47, 18, "SP3112" },
+                new object[] { "under", 48, 34, "SP3112" },
+                new object[] { "within", 4, 52, "SP3113" },
+                new object[] { "tag", 10, 18, "SP3113" },
+                new object[] { "Here", 37, 12, "SP3113" },
+                // TODO: WriteLine in comments should be considered as CamelCase identifier and parsed accordingly
+                // new object[] { "Line", 17, 26, "SP3113" },
+                new object[] { "Just", 45, 17, "SP3113" }
+            };
 
-        [Theory, MemberData(nameof(can_find_mistakes_in_comments_data))]
-        public async Task can_find_mistakes_in_comments(string expectedWord, int expectedStart, string expectedDiagnosticId)
+        [Theory, MemberData(nameof(CanFindMistakesInCommentsData))]
+        public async Task can_find_mistakes_in_comments(
+            string expectedWord,
+            int expectedLine,
+            int expectedCharacter,
+            string expectedDiagnosticId
+        )
         {
-            var expectedEnd = expectedStart + expectedWord.Length;
-
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(expectedWord));
             var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 
             var diagnostics = await GetDiagnosticsAsync(project, analyzer);
 
-            diagnostics.Should().ContainSingle()
+            diagnostics
+                .Should()
+                .ContainSingle()
                 .Subject.Should()
                 .HaveId(expectedDiagnosticId)
-                .And.HaveLocation(expectedStart, expectedEnd, "XmlDoc.SimpleExamples.csx")
+                .And.HaveLineLocation(expectedLine, expectedCharacter, expectedWord.Length, "XmlDoc.SimpleExamples.csx")
                 .And.HaveMessageContaining(expectedWord);
         }
 
         [Fact]
         public async Task words_in_c_elements_are_ignored()
         {
-            var word = "inline";
+            const string word = "inline";
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(word));
             var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 
@@ -50,7 +56,7 @@ namespace WeCantSpell.Roslyn.Tests.Integration.CSharp.Parsing
         [Fact]
         public async Task words_in_code_elements_are_ignored()
         {
-            var word = "ignored";
+            const string word = "ignored";
             var analyzer = new SpellingAnalyzerCSharp(new WrongWordChecker(word));
             var project = await ReadCodeFileAsProjectAsync("XmlDoc.SimpleExamples.csx");
 
